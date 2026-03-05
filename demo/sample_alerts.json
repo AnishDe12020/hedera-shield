@@ -1,0 +1,62 @@
+[
+  {
+    "id": "alert-a1b2c3d4",
+    "alert_type": "large_transfer",
+    "severity": "high",
+    "transaction": {
+      "transaction_id": "0.0.1234-1700000000-000000000",
+      "token_id": "0.0.5555",
+      "sender": "0.0.1111",
+      "receiver": "0.0.2222",
+      "amount": 50000.0,
+      "timestamp": "2024-11-14T22:13:20Z",
+      "memo": ""
+    },
+    "description": "Transfer of 50000.0 exceeds threshold of 10000.0",
+    "risk_score": 0.5,
+    "recommended_action": "freeze",
+    "created_at": "2024-11-14T22:13:25Z",
+    "resolved": false,
+    "ai_analysis": "High-value transfer detected between previously unlinked accounts. Pattern consistent with potential wash trading. Recommend immediate freeze pending manual review."
+  },
+  {
+    "id": "alert-e5f6g7h8",
+    "alert_type": "sanctioned_address",
+    "severity": "critical",
+    "transaction": {
+      "transaction_id": "0.0.5678-1700001000-000000000",
+      "token_id": "0.0.5555",
+      "sender": "0.0.6666",
+      "receiver": "0.0.3333",
+      "amount": 1200.0,
+      "timestamp": "2024-11-14T22:30:00Z",
+      "memo": ""
+    },
+    "description": "Transaction involves sanctioned address: 0.0.6666",
+    "risk_score": 1.0,
+    "recommended_action": "freeze",
+    "created_at": "2024-11-14T22:30:05Z",
+    "resolved": false,
+    "ai_analysis": "Sender 0.0.6666 matches OFAC sanctioned entity list. Immediate enforcement action required. All associated accounts should be flagged for review."
+  },
+  {
+    "id": "alert-i9j0k1l2",
+    "alert_type": "velocity_breach",
+    "severity": "medium",
+    "transaction": {
+      "transaction_id": "0.0.9012-1700002000-000000000",
+      "token_id": "0.0.5555",
+      "sender": "0.0.4444",
+      "receiver": "0.0.5555",
+      "amount": 75.0,
+      "timestamp": "2024-11-14T22:46:40Z",
+      "memo": ""
+    },
+    "description": "Account 0.0.4444 made 52 transfers in 3600s window",
+    "risk_score": 0.52,
+    "recommended_action": "freeze",
+    "created_at": "2024-11-14T22:46:45Z",
+    "resolved": false,
+    "ai_analysis": "Unusually high transaction velocity from account 0.0.4444. Pattern suggests automated bot activity or potential layering scheme. Recommend temporary freeze and KYC re-verification."
+  }
+]
