@@ -39,21 +39,21 @@ _FALLBACK_CONFIG: dict[str, Any] = {
         "recommended_action": "freeze",
     },
     "round_number": {
-        "enabled": False,
+        "enabled": True,
         "severity": "medium",
         "minimum_amount": 1000.0,
         "divisors": [50000.0, 10000.0, 5000.0, 1000.0],
         "recommended_action": "none",
     },
     "rapid_succession": {
-        "enabled": False,
+        "enabled": True,
         "severity": "high",
         "window_seconds": 10,
         "min_transfers": 3,
         "recommended_action": "freeze",
     },
     "structuring": {
-        "enabled": False,
+        "enabled": True,
         "severity": "high",
         "window_seconds": 7200,
         "min_count": 3,
@@ -61,14 +61,14 @@ _FALLBACK_CONFIG: dict[str, Any] = {
         "recommended_action": "freeze",
     },
     "dormant_account": {
-        "enabled": False,
+        "enabled": True,
         "severity": "medium",
         "dormancy_seconds": 2592000,  # 30 days
         "min_amount": 1000.0,
         "recommended_action": "kyc_revoke",
     },
     "cross_token_wash": {
-        "enabled": False,
+        "enabled": True,
         "severity": "high",
         "window_seconds": 3600,
         "min_tokens": 3,
