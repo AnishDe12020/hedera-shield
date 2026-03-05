@@ -50,10 +50,10 @@ def test_large_transfer_detection(engine: ComplianceEngine) -> None:
     transfer = _make_transfer(amount=5000.0)
     alerts = engine.analyze(transfer)
 
-    assert len(alerts) == 1
-    assert alerts[0].alert_type == AlertType.LARGE_TRANSFER
-    assert alerts[0].severity == Severity.HIGH
-    assert alerts[0].risk_score > 0
+    large_alerts = [a for a in alerts if a.alert_type == AlertType.LARGE_TRANSFER]
+    assert len(large_alerts) == 1
+    assert large_alerts[0].severity == Severity.HIGH
+    assert large_alerts[0].risk_score > 0
 
 
 def test_small_transfer_no_alert(engine: ComplianceEngine) -> None:
@@ -138,9 +138,9 @@ def test_resolve_alert(engine: ComplianceEngine) -> None:
     """Alerts can be resolved."""
     transfer = _make_transfer(amount=5000.0)
     alerts = engine.analyze(transfer)
-    alert_id = alerts[0].id
 
-    assert engine.resolve_alert(alert_id) is True
+    for alert in alerts:
+        assert engine.resolve_alert(alert.id) is True
     assert engine.get_alerts(unresolved_only=True) == []
 
 

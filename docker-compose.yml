@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  hedera-shield:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hedera-shield-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - HEDERA_SHIELD_API_HOST=0.0.0.0
+      - HEDERA_SHIELD_API_PORT=8000
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; r = httpx.get('http://localhost:8000/health'); r.raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped

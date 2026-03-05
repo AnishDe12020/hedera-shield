@@ -16,6 +16,8 @@ class AlertType(str, Enum):
     LARGE_TRANSFER = "large_transfer"
     VELOCITY_BREACH = "velocity_breach"
     SANCTIONED_ADDRESS = "sanctioned_address"
+    ROUND_NUMBER = "round_number"
+    RAPID_SUCCESSION = "rapid_succession"
     AI_FLAGGED = "ai_flagged"
 
 
@@ -70,6 +72,34 @@ class SystemStatus(BaseModel):
     unresolved_alerts: int = 0
     last_scan_at: datetime | None = None
     uptime_seconds: float = 0.0
+
+
+class HbarTransfer(BaseModel):
+    """Represents a single HBAR (crypto) transfer between accounts."""
+    transaction_id: str
+    sender: str
+    receiver: str
+    amount: int  # tinybars
+    timestamp: datetime
+    memo: str = ""
+
+
+class NftTransfer(BaseModel):
+    """Represents a single NFT transfer."""
+    transaction_id: str
+    token_id: str
+    serial_number: int
+    sender: str
+    receiver: str
+    timestamp: datetime
+    memo: str = ""
+
+
+class AccountTokenBalance(BaseModel):
+    """Token balance for an account."""
+    token_id: str
+    balance: int
+    decimals: int = 0
 
 
 class RiskAssessment(BaseModel):

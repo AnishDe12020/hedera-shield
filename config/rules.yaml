@@ -1,0 +1,123 @@
+# =============================================================================
+# HederaShield Compliance Rules Configuration
+# =============================================================================
+#
+# This file defines the compliance rules used by the HederaShield engine.
+# Rules can be enabled/disabled individually, and thresholds can be tuned
+# per token or globally.
+#
+# Severity levels: low, medium, high, critical
+# Alert types: large_transfer, velocity_breach, sanctioned_address,
+#              round_number, rapid_succession, ai_flagged
+# Enforcement actions: freeze, wipe, kyc_revoke, none
+
+# -----------------------------------------------------------------------------
+# Large Transfer Detection
+# -----------------------------------------------------------------------------
+# Flags transfers that exceed a configurable threshold. Thresholds can be
+# set globally or overridden per token ID.
+large_transfer:
+  enabled: true
+  severity: high
+
+  # Default threshold applied to all tokens unless overridden below
+  default_threshold: 10000.0
+
+  # Per-token threshold overrides
+  # Use this to set different limits for stablecoins, governance tokens, etc.
+  token_thresholds:
+    # Example: a stablecoin with a lower threshold
+    "0.0.100001": 50000.0
+    # Example: a high-value NFT-related token
+    "0.0.100002": 1000.0
+    # Example: a governance token
+    "0.0.100003": 25000.0
+
+  # Enforcement action to recommend when this rule fires
+  recommended_action: freeze
+
+# -----------------------------------------------------------------------------
+# Velocity Check
+# -----------------------------------------------------------------------------
+# Detects accounts making an unusually high number of transfers within a
+# rolling time window. Useful for catching automated draining or wash trading.
+velocity:
+  enabled: true
+  severity: medium
+
+  # Time window in seconds over which transfers are counted
+  window_seconds: 3600
+
+  # Maximum number of transfers allowed within the window before alerting
+  max_transfers: 50
+
+  # Per-token overrides (some tokens may naturally have higher frequency)
+  token_overrides:
+    "0.0.100001":
+      window_seconds: 1800
+      max_transfers: 100
+
+  recommended_action: freeze
+
+# -----------------------------------------------------------------------------
+# Sanctioned Address Detection
+# -----------------------------------------------------------------------------
+# Checks sender and receiver addresses against a sanctions list.
+# Addresses can be loaded from an external file and/or listed inline.
+sanctions:
+  enabled: true
+  severity: critical
+
+  # Path to a text file containing sanctioned addresses (one per line).
+  # Lines starting with # are treated as comments.
+  # Path is relative to the project root or can be absolute.
+  file: "config/sanctions.txt"
+
+  # Additional inline sanctioned addresses (merged with file entries)
+  # Use this for quick additions without editing the sanctions file.
+  inline_addresses:
+    - "0.0.6666"
+    - "0.0.7777"
+
+  recommended_action: freeze
+
+# -----------------------------------------------------------------------------
+# Round Number Detection
+# -----------------------------------------------------------------------------
+# Flags transfers with suspiciously round amounts. Large round-number
+# transfers can indicate structuring or layering activity.
+round_number:
+  enabled: true
+  severity: medium
+
+  # Only flag round numbers at or above this amount
+  minimum_amount: 1000.0
+
+  # Round number thresholds -- amounts divisible by these values are flagged.
+  # The engine checks from largest to smallest and uses the first match.
+  divisors:
+    - 50000.0
+    - 10000.0
+    - 5000.0
+    - 1000.0
+
+  recommended_action: none
+
+# -----------------------------------------------------------------------------
+# Rapid Succession Detection
+# -----------------------------------------------------------------------------
+# Detects multiple transfers from the same sender within a very short time
+# window (seconds). This catches bot-driven draining, rapid fund movement,
+# and potential replay attacks.
+rapid_succession:
+  enabled: true
+  severity: high
+
+  # Time window in seconds -- transfers from the same sender within this
+  # window are considered "rapid succession"
+  window_seconds: 10
+
+  # Minimum number of transfers in the window to trigger an alert
+  min_transfers: 3
+
+  recommended_action: freeze

@@ -21,7 +21,7 @@ from hedera_shield.models import (
 def reset_state():
     """Reset shared state between tests."""
     compliance_engine.alerts.clear()
-    compliance_engine.rules = list(compliance_engine.rules[:3])  # Keep default rules
+    compliance_engine.rules = list(compliance_engine.rules[:5])  # Keep default rules
     enforcer.action_log.clear()
     yield
 

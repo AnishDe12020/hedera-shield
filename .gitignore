@@ -35,3 +35,7 @@ Thumbs.db
 
 # Logs
 *.log
+logs/
+
+# Don't ignore example env
+!.env.example

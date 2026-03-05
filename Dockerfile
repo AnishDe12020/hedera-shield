@@ -6,6 +6,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY hedera_shield/ hedera_shield/
+COPY config/ config/
+
+RUN mkdir -p logs
 
 EXPOSE 8000
 

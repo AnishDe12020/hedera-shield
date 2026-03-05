@@ -5,6 +5,9 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from hedera_shield.compliance import ComplianceEngine
@@ -41,6 +44,22 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.mount("/static", StaticFiles(directory="hedera_shield/static"), name="static")
+
+
+@app.get("/")
+async def dashboard():
+    """Serve the main dashboard."""
+    return FileResponse("hedera_shield/static/dashboard.html")
 
 
 @app.get("/status", response_model=SystemStatus)
