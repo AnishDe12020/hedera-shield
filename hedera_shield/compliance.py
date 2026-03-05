@@ -26,6 +26,9 @@ _ALERT_TYPE_MAP: dict[str, AlertType] = {
     "sanctions": AlertType.SANCTIONED_ADDRESS,
     "round_number": AlertType.ROUND_NUMBER,
     "rapid_succession": AlertType.RAPID_SUCCESSION,
+    "structuring": AlertType.STRUCTURING,
+    "dormant_account": AlertType.DORMANT_ACCOUNT,
+    "cross_token_wash": AlertType.CROSS_TOKEN_WASH,
 }
 
 # Maps string action names to EnforcementAction enum values
@@ -33,6 +36,7 @@ _ACTION_MAP: dict[str, EnforcementAction] = {
     "freeze": EnforcementAction.FREEZE,
     "wipe": EnforcementAction.WIPE,
     "kyc_revoke": EnforcementAction.KYC_REVOKE,
+    "pause": EnforcementAction.PAUSE,
     "none": EnforcementAction.NONE,
 }
 
@@ -85,6 +89,12 @@ def _build_rules_from_config(rules_cfg: dict[str, Any]) -> list[ComplianceRule]:
                          "Flags suspiciously round-number transfers"),
         "rapid_succession": ("rule-rapid-succession", "Rapid Succession Detection",
                              "Flags multiple transfers from the same sender within seconds"),
+        "structuring": ("rule-structuring", "Structuring Detection",
+                        "Detects structured transfers just below thresholds to evade detection"),
+        "dormant_account": ("rule-dormant-account", "Dormant Account Activation",
+                            "Flags large transfers from accounts with no recent activity"),
+        "cross_token_wash": ("rule-cross-token-wash", "Cross-Token Wash Trading",
+                             "Detects circular flows between the same accounts across tokens"),
     }
 
     for section_key, (rule_id, name, description) in section_meta.items():
@@ -155,6 +165,12 @@ class ComplianceEngine:
         self.alerts: list[Alert] = []
         self._transfer_history: defaultdict[str, list[datetime]] = defaultdict(list)
         self._rapid_history: defaultdict[str, list[datetime]] = defaultdict(list)
+        # Structuring: track transfer amounts per sender in a rolling window
+        self._structuring_history: defaultdict[str, list[tuple[datetime, float]]] = defaultdict(list)
+        # Dormant account: track last-seen activity timestamp per account
+        self._account_last_seen: dict[str, datetime] = {}
+        # Cross-token wash: track (sender, receiver) pairs across token IDs
+        self._wash_history: defaultdict[tuple[str, str], list[tuple[datetime, str]]] = defaultdict(list)
 
         # Load sanctions set: merge YAML-configured addresses with Settings addresses
         sanctions_cfg = self._rules_cfg.get("sanctions", {})
@@ -194,6 +210,13 @@ class ComplianceEngine:
                 alert = self._check_round_number(transfer, rule)
             elif rule.alert_type == AlertType.RAPID_SUCCESSION:
                 alert = self._check_rapid_succession(transfer, rule)
+
+            if rule.alert_type == AlertType.STRUCTURING:
+                alert = self._check_structuring(transfer, rule)
+            elif rule.alert_type == AlertType.DORMANT_ACCOUNT:
+                alert = self._check_dormant_account(transfer, rule)
+            elif rule.alert_type == AlertType.CROSS_TOKEN_WASH:
+                alert = self._check_cross_token_wash(transfer, rule)
 
             if alert:
                 alerts.append(alert)
@@ -355,6 +378,123 @@ class ComplianceEngine:
                     f"within {window_secs}s"
                 ),
                 risk_score=min(count / (min_transfers * 3), 1.0),
+                recommended_action=self._get_recommended_action(rule),
+            )
+        return None
+
+    def _check_structuring(self, transfer: TokenTransfer, rule: ComplianceRule) -> Alert | None:
+        """Detect structuring: multiple transfers just below the large-transfer threshold.
+
+        Structuring (a.k.a. "smurfing") is a common AML evasion technique where
+        a sender breaks a large transfer into multiple smaller ones, each just
+        below the reporting threshold.
+        """
+        window_secs = int(self._get_rule_param(rule, "window_seconds", 7200))
+        min_count = int(self._get_rule_param(rule, "min_count", 3))
+        # Use 90% of large-transfer threshold as the "just below" boundary
+        pct = float(self._get_rule_param(rule, "threshold_pct", 0.9))
+        base_threshold = self.config.large_transfer_threshold
+        just_below = base_threshold * pct
+
+        now = datetime.now(timezone.utc)
+        window = timedelta(seconds=window_secs)
+        sender = transfer.sender
+
+        self._structuring_history[sender].append((transfer.timestamp, transfer.amount))
+        # Prune old entries
+        self._structuring_history[sender] = [
+            (ts, amt) for ts, amt in self._structuring_history[sender]
+            if now - ts < window
+        ]
+
+        # Count transfers that are between just_below and the threshold
+        suspicious = [
+            (ts, amt) for ts, amt in self._structuring_history[sender]
+            if just_below <= amt < base_threshold
+        ]
+
+        if len(suspicious) >= min_count:
+            total = sum(amt for _, amt in suspicious)
+            return self._create_alert(
+                alert_type=AlertType.STRUCTURING,
+                severity=rule.severity,
+                transaction=transfer,
+                description=(
+                    f"Suspected structuring: {len(suspicious)} transfers from {sender} "
+                    f"just below threshold ({just_below:.0f}-{base_threshold:.0f}), "
+                    f"totaling {total:.0f}"
+                ),
+                risk_score=min(len(suspicious) / (min_count * 3), 1.0),
+                recommended_action=self._get_recommended_action(rule),
+            )
+        return None
+
+    def _check_dormant_account(self, transfer: TokenTransfer, rule: ComplianceRule) -> Alert | None:
+        """Flag transfers from accounts that were dormant (no activity for a long period).
+
+        Suddenly active dormant accounts are a common indicator of compromised
+        or sleeper accounts used for money laundering.
+        """
+        dormancy_seconds = int(self._get_rule_param(rule, "dormancy_seconds", 86400 * 30))
+        min_amount = float(self._get_rule_param(rule, "min_amount", 1000.0))
+
+        sender = transfer.sender
+        now = datetime.now(timezone.utc)
+
+        if sender in self._account_last_seen:
+            last_seen = self._account_last_seen[sender]
+            gap = (now - last_seen).total_seconds()
+
+            if gap >= dormancy_seconds and transfer.amount >= min_amount:
+                self._account_last_seen[sender] = now
+                days = int(gap / 86400)
+                return self._create_alert(
+                    alert_type=AlertType.DORMANT_ACCOUNT,
+                    severity=rule.severity,
+                    transaction=transfer,
+                    description=(
+                        f"Dormant account reactivation: {sender} was inactive for "
+                        f"{days} days, now transferring {transfer.amount}"
+                    ),
+                    risk_score=min(gap / (dormancy_seconds * 3), 1.0),
+                    recommended_action=self._get_recommended_action(rule),
+                )
+
+        # Record activity
+        self._account_last_seen[sender] = now
+        return None
+
+    def _check_cross_token_wash(self, transfer: TokenTransfer, rule: ComplianceRule) -> Alert | None:
+        """Detect wash trading across multiple token IDs between the same pair of accounts.
+
+        If accounts A→B appear with multiple different token IDs in a short
+        window, it may indicate wash trading or layering across tokens.
+        """
+        window_secs = int(self._get_rule_param(rule, "window_seconds", 3600))
+        min_tokens = int(self._get_rule_param(rule, "min_tokens", 3))
+
+        now = datetime.now(timezone.utc)
+        window = timedelta(seconds=window_secs)
+        pair = (transfer.sender, transfer.receiver)
+
+        self._wash_history[pair].append((transfer.timestamp, transfer.token_id))
+        # Prune old entries
+        self._wash_history[pair] = [
+            (ts, tid) for ts, tid in self._wash_history[pair]
+            if now - ts < window
+        ]
+
+        unique_tokens = set(tid for _, tid in self._wash_history[pair])
+        if len(unique_tokens) >= min_tokens:
+            return self._create_alert(
+                alert_type=AlertType.CROSS_TOKEN_WASH,
+                severity=rule.severity,
+                transaction=transfer,
+                description=(
+                    f"Cross-token wash trading: {transfer.sender} → {transfer.receiver} "
+                    f"across {len(unique_tokens)} different tokens in {window_secs}s"
+                ),
+                risk_score=min(len(unique_tokens) / (min_tokens * 2), 1.0),
                 recommended_action=self._get_recommended_action(rule),
             )
         return None

@@ -52,6 +52,28 @@ _FALLBACK_CONFIG: dict[str, Any] = {
         "min_transfers": 3,
         "recommended_action": "freeze",
     },
+    "structuring": {
+        "enabled": False,
+        "severity": "high",
+        "window_seconds": 7200,
+        "min_count": 3,
+        "threshold_pct": 0.9,
+        "recommended_action": "freeze",
+    },
+    "dormant_account": {
+        "enabled": False,
+        "severity": "medium",
+        "dormancy_seconds": 2592000,  # 30 days
+        "min_amount": 1000.0,
+        "recommended_action": "kyc_revoke",
+    },
+    "cross_token_wash": {
+        "enabled": False,
+        "severity": "high",
+        "window_seconds": 3600,
+        "min_tokens": 3,
+        "recommended_action": "freeze",
+    },
 }
 
 

@@ -18,6 +18,9 @@ class AlertType(str, Enum):
     SANCTIONED_ADDRESS = "sanctioned_address"
     ROUND_NUMBER = "round_number"
     RAPID_SUCCESSION = "rapid_succession"
+    STRUCTURING = "structuring"
+    DORMANT_ACCOUNT = "dormant_account"
+    CROSS_TOKEN_WASH = "cross_token_wash"
     AI_FLAGGED = "ai_flagged"
 
 
@@ -25,6 +28,7 @@ class EnforcementAction(str, Enum):
     FREEZE = "freeze"
     WIPE = "wipe"
     KYC_REVOKE = "kyc_revoke"
+    PAUSE = "pause"
     NONE = "none"
 
 

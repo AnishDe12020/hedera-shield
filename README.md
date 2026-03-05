@@ -1,219 +1,292 @@
-# HederaShield
+# 🛡️ HederaShield
 
 **AI-powered on-chain compliance agent for Hedera Token Service**
 
-HederaShield monitors HTS token transfers in real-time, detects compliance violations using configurable rules and AI-powered analysis, and can automatically enforce actions like freezing accounts or revoking KYC status.
+HederaShield is a real-time compliance monitoring system built natively on Hedera. It watches HTS token transfers via the Mirror Node API, applies configurable rule-based and AI-powered analysis to detect suspicious activity, publishes immutable audit logs to HCS, and can automatically enforce actions (freeze, wipe, KYC revoke) through Hedera SDK.
 
-Built for the [Hedera Apex Hackathon](https://hedera.com).
+Built for the **Hedera Apex Hackathon 2026**.
 
 ---
 
 ## Architecture
 
-```mermaid
-graph TB
-    subgraph Hedera Network
-        MN[Mirror Node API]
-        HTS[Hedera Token Service]
-    end
-
-    subgraph HederaShield
-        SC[Scanner] -->|polls transfers| MN
-        SC -->|new transfers| CE[Compliance Engine]
-        CE -->|rule violations| AI[AI Analyzer]
-        AI -->|risk assessment| CE
-        CE -->|enforcement needed| EN[Enforcer]
-        EN -->|freeze/wipe/KYC| HTS
-        API[FastAPI REST API] --> SC
-        API --> CE
-        API --> EN
-    end
-
-    subgraph Dashboard
-        UI[Web Dashboard] -->|REST calls| API
-    end
-
-    style SC fill:#4A90D9,color:#fff
-    style CE fill:#D94A4A,color:#fff
-    style AI fill:#9B59B6,color:#fff
-    style EN fill:#E67E22,color:#fff
-    style API fill:#2ECC71,color:#fff
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        HederaShield                             │
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────────┐    ┌──────────────┐  │
+│  │  Mirror Node  │───▶│  Scanner Module   │───▶│  Compliance  │  │
+│  │  REST API     │    │                  │    │  Engine      │  │
+│  │              │    │  • Token xfers   │    │              │  │
+│  │  /api/v1/    │    │  • HBAR xfers    │    │  8 Rules:    │  │
+│  │  transactions│    │  • NFT xfers     │    │  • Large TX  │  │
+│  │  accounts    │    │  • Pagination    │    │  • Velocity  │  │
+│  │  tokens      │    │  • Retry+Backoff │    │  • Sanctions │  │
+│  │  topics      │    │                  │    │  • Round Num │  │
+│  └──────────────┘    └──────────────────┘    │  • Rapid     │  │
+│                                              │  • Structure │  │
+│  ┌──────────────┐    ┌──────────────────┐    │  • Dormant   │  │
+│  │  Claude AI   │◀───│  AI Analyzer     │◀───│  • Wash Trd  │  │
+│  │  (Anthropic) │    │                  │    │              │  │
+│  │              │───▶│  Risk scoring    │    └──────┬───────┘  │
+│  │  Contextual  │    │  NL explanations │           │          │
+│  │  analysis    │    │  Action recs     │           ▼          │
+│  └──────────────┘    └──────────────────┘    ┌──────────────┐  │
+│                                              │  Alerts      │  │
+│  ┌──────────────┐    ┌──────────────────┐    │  Database    │  │
+│  │  Hedera SDK  │◀───│  Enforcer        │◀───┤              │  │
+│  │              │    │                  │    └──────┬───────┘  │
+│  │  TokenFreeze │    │  • Freeze accts  │           │          │
+│  │  TokenWipe   │    │  • Wipe tokens   │           ▼          │
+│  │  TokenRevoke │    │  • Revoke KYC    │    ┌──────────────┐  │
+│  │  KYC         │    │  • Dry-run mode  │    │  HCS Reporter│  │
+│  └──────────────┘    └──────────────────┘    │              │  │
+│                                              │  Immutable   │  │
+│  ┌──────────────┐    ┌──────────────────┐    │  audit trail │  │
+│  │  FastAPI     │───▶│  Dashboard       │    │  on-chain    │  │
+│  │  REST API    │    │  (Single-page)   │    └──────────────┘  │
+│  │              │    │                  │                       │
+│  │  /alerts     │    │  Real-time view  │                       │
+│  │  /rules      │    │  of alerts,      │                       │
+│  │  /enforce    │    │  rules, and      │                       │
+│  │  /status     │    │  enforcement     │                       │
+│  └──────────────┘    └──────────────────┘                       │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Module Overview
+## Features
 
-| Module | Purpose |
-|--------|---------|
-| **Scanner** | Polls Hedera Mirror Node for token transfers, parses transactions |
-| **Compliance Engine** | Rule-based analysis: large transfers, velocity checks, sanctioned addresses |
-| **AI Analyzer** | Claude-powered risk scoring and natural language transaction analysis |
-| **Enforcer** | Executes HTS operations: freeze accounts, wipe tokens, revoke KYC |
-| **REST API** | FastAPI dashboard backend with endpoints for alerts, rules, and enforcement |
+### 🔍 Real-Time Monitoring
+- Polls Hedera Mirror Node REST API for HTS token transfers, HBAR transfers, and NFT movements
+- Automatic pagination across large result sets
+- Exponential backoff retry on transient failures (429, 5xx)
+- Configurable polling interval
 
----
+### 📋 8 Compliance Rules
+| Rule | Description | Default Severity |
+|------|-------------|-----------------|
+| **Large Transfer** | Flags transfers exceeding configurable threshold (per-token overrides) | HIGH |
+| **Velocity Check** | Detects excessive transfer frequency from a single account | MEDIUM |
+| **Sanctioned Address** | Matches sender/receiver against OFAC-style sanctions list | CRITICAL |
+| **Round Number** | Flags suspiciously round-number transfers (structuring indicator) | MEDIUM |
+| **Rapid Succession** | Detects bot-driven rapid-fire transfers within seconds | HIGH |
+| **Structuring (Anti-Smurfing)** | Catches transfers clustered just below reporting threshold | HIGH |
+| **Dormant Account Reactivation** | Flags sudden activity from long-inactive accounts | MEDIUM |
+| **Cross-Token Wash Trading** | Detects same-pair transfers across multiple token IDs | HIGH |
+
+### 🤖 AI-Powered Analysis
+- Uses Claude (Anthropic) for contextual risk scoring
+- Natural language explanations of flagged transactions
+- Adaptive risk assessment with recommended enforcement actions
+- Graceful fallback when AI is unavailable
+
+### ⚡ Automated Enforcement (HTS-Native)
+- **Freeze** accounts via `TokenFreezeTransaction`
+- **Wipe** tokens via `TokenWipeTransaction`
+- **Revoke KYC** via `TokenRevokeKycTransaction`
+- Dry-run mode by default for safety
+- Full Hedera SDK integration
+
+### 📝 Immutable Audit Trail (HCS)
+- Publishes every compliance alert to an HCS topic
+- Creates tamper-proof, timestamped audit log on the Hedera public ledger
+- Fetchable via Mirror Node for dashboard display
+- JSON-structured messages with version field for schema evolution
+
+### 🖥️ Real-Time Dashboard
+- Single-page web app with auto-refresh (10s)
+- Alert severity badges, risk score bars, expandable details
+- Rule management (add/remove/toggle via UI)
+- Enforcement action panel
+- Transaction browser with Mirror Node integration
+- Dark theme, responsive design
+
+### ⚙️ Configuration
+- YAML-based rule configuration with hot-reload
+- Per-token threshold overrides
+- External sanctions list file support
+- Environment-based settings (12-factor app)
 
 ## Quick Start
 
 ### Prerequisites
+- Python 3.12+
+- Hedera testnet account ([portal.hedera.com](https://portal.hedera.com))
+- Anthropic API key (optional, for AI analysis)
 
-- Python 3.11+
-- Hedera testnet account (for enforcement actions)
-- Anthropic API key (for AI analysis)
-
-### Installation
+### Option A: Docker (Recommended)
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/hedera-shield.git
+git clone https://github.com/your-username/hedera-shield.git
 cd hedera-shield
 
-# Create virtual environment
+cp .env.example .env
+# Edit .env with your credentials
+
+docker compose up --build
+```
+
+### Option B: Local Setup
+
+```bash
+git clone https://github.com/your-username/hedera-shield.git
+cd hedera-shield
+
 python -m venv venv
 source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
-```
 
-### Configuration
+cp .env.example .env
+# Edit .env with your credentials
 
-Create a `.env` file:
-
-```env
-HEDERA_SHIELD_HEDERA_NETWORK=testnet
-HEDERA_SHIELD_HEDERA_OPERATOR_ID=0.0.YOUR_ACCOUNT
-HEDERA_SHIELD_HEDERA_OPERATOR_KEY=your_private_key
-HEDERA_SHIELD_ANTHROPIC_API_KEY=sk-ant-...
-HEDERA_SHIELD_MONITORED_TOKEN_IDS=["0.0.TOKEN_ID"]
-HEDERA_SHIELD_SANCTIONED_ADDRESSES=["0.0.BLOCKED_1","0.0.BLOCKED_2"]
-HEDERA_SHIELD_LARGE_TRANSFER_THRESHOLD=10000
-```
-
-### Run the API
-
-```bash
+# Run the API server
 python -m hedera_shield.api
-# or
-uvicorn hedera_shield.api:app --reload
 ```
 
-The API will be available at `http://localhost:8000`. Interactive docs at `/docs`.
+Open **http://localhost:8000** for the dashboard.
 
-### Run with Docker
+### Run Tests
 
 ```bash
-docker build -t hedera-shield .
-docker run -p 8000:8000 --env-file .env hedera-shield
+# Unit tests (no network required)
+pytest tests/ -v
+
+# Include integration tests against testnet Mirror Node
+HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 ```
 
----
+## Configuration
 
-## API Reference
+### Environment Variables
 
-### System
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HEDERA_SHIELD_HEDERA_NETWORK` | Network: testnet, mainnet, previewnet | `testnet` |
+| `HEDERA_SHIELD_HEDERA_OPERATOR_ID` | Operator account ID | — |
+| `HEDERA_SHIELD_HEDERA_OPERATOR_KEY` | Operator private key | — |
+| `HEDERA_SHIELD_MIRROR_NODE_URL` | Mirror Node base URL | testnet URL |
+| `HEDERA_SHIELD_LARGE_TRANSFER_THRESHOLD` | Amount threshold for large transfer rule | `10000` |
+| `HEDERA_SHIELD_VELOCITY_MAX_TRANSFERS` | Max transfers in velocity window | `50` |
+| `HEDERA_SHIELD_MONITORED_TOKEN_IDS` | JSON array of token IDs to monitor | `[]` |
+| `HEDERA_SHIELD_SANCTIONED_ADDRESSES` | JSON array of sanctioned addresses | `[]` |
+| `HEDERA_SHIELD_ANTHROPIC_API_KEY` | Anthropic API key for Claude AI | — |
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/status` | GET | System status, alert counts, uptime |
+### Rules Configuration
 
-### Alerts
+Edit `config/rules.yaml` to customize rule parameters, enable/disable rules, and set per-token overrides. See the file for detailed documentation of each rule.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/alerts` | GET | List all alerts (query: `?unresolved_only=true`) |
-| `/alerts/{id}/resolve` | POST | Mark an alert as resolved |
+## Demo Walkthrough
 
-### Rules
+### 1. Start the System
+```bash
+docker compose up --build
+# or: python -m hedera_shield.api
+```
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/rules` | GET | List all compliance rules |
-| `/rules` | POST | Add a new rule |
-| `/rules/{id}` | DELETE | Remove a rule |
+### 2. View Dashboard
+Open http://localhost:8000 — see the live dashboard with status, alerts, and rules.
 
-### Transactions & Enforcement
+### 3. Check Rules
+```bash
+curl http://localhost:8000/rules | python -m json.tool
+```
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/transactions` | GET | Fetch recent transfers (query: `?token_id=0.0.XXX&limit=50`) |
-| `/enforce` | POST | Execute enforcement action (freeze, wipe, kyc_revoke) |
+### 4. Fetch Testnet Transactions
+```bash
+curl "http://localhost:8000/transactions?token_id=0.0.YOUR_TOKEN&limit=10" | python -m json.tool
+```
 
-### Example: Enforce a Freeze
+### 5. Run Alert Simulation
+```bash
+python demo/simulate_alerts.py
+```
 
+### 6. Test Enforcement (Dry Run)
 ```bash
 curl -X POST http://localhost:8000/enforce \
   -H "Content-Type: application/json" \
   -d '{"action": "freeze", "token_id": "0.0.5555", "account_id": "0.0.1111"}'
 ```
+Response: `{"status": "dry_run", ...}` — no real blockchain action in dry-run mode.
 
----
-
-## Compliance Rules
-
-HederaShield ships with three built-in rules:
-
-1. **Large Transfer Detection** -- Flags transfers exceeding a configurable threshold (default: 10,000 tokens)
-2. **Velocity Check** -- Flags accounts making too many transfers in a time window (default: 50 transfers per hour)
-3. **Sanctioned Address Matching** -- Flags any interaction with known sanctioned addresses (severity: CRITICAL)
-
-Rules can be added, removed, and toggled via the `/rules` API endpoint.
-
----
-
-## AI-Powered Analysis
-
-When the Anthropic API key is configured, HederaShield uses Claude to perform deep analysis on flagged transactions:
-
-- **Risk scoring** (0.0 to 1.0) with natural language reasoning
-- **Pattern detection** across transaction histories
-- **Enforcement recommendations** based on contextual analysis
-- **Flag identification** for specific risk indicators
-
-The AI analyzer is invoked after rule-based checks flag a transaction, providing a second layer of intelligent analysis.
-
----
-
-## Testing
-
+### 7. Resolve Alerts
 ```bash
-# Run all tests
-pytest -v
+# List alerts
+curl http://localhost:8000/alerts | python -m json.tool
 
-# Run specific test suite
-pytest tests/test_compliance.py -v
-pytest tests/test_scanner.py -v
-pytest tests/test_api.py -v
+# Resolve one
+curl -X POST http://localhost:8000/alerts/{ALERT_ID}/resolve
 ```
 
----
+## API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Dashboard UI |
+| `/health` | GET | Health check |
+| `/status` | GET | System status and stats |
+| `/alerts` | GET | List alerts (optional `?unresolved_only=true`) |
+| `/alerts/{id}/resolve` | POST | Resolve an alert |
+| `/rules` | GET | List compliance rules |
+| `/rules` | POST | Add a new rule |
+| `/rules/{id}` | DELETE | Remove a rule |
+| `/transactions` | GET | Fetch transfers from Mirror Node |
+| `/enforce` | POST | Execute enforcement action |
+| `/docs` | GET | Interactive API docs (Swagger) |
 
 ## Project Structure
 
 ```
 hedera-shield/
-  hedera_shield/
-    __init__.py
-    config.py          # Environment-based settings
-    models.py          # Pydantic data models
-    scanner.py         # Mirror node polling & transaction parsing
-    compliance.py      # Rule engine with configurable thresholds
-    enforcer.py        # HTS token operations (freeze, wipe, KYC)
-    ai_analyzer.py     # Claude-powered risk analysis
-    api.py             # FastAPI REST endpoints
-  tests/
-    test_scanner.py    # Scanner unit tests with mocked responses
-    test_compliance.py # Rule engine tests
-    test_api.py        # API endpoint tests
-  demo/
-    sample_alerts.json # Sample alert data for demos
-  Dockerfile
-  requirements.txt
-  README.md
+├── hedera_shield/
+│   ├── __init__.py          # Package init, logging setup
+│   ├── api.py               # FastAPI REST API + dashboard serving
+│   ├── compliance.py        # 8-rule compliance engine
+│   ├── scanner.py           # Mirror Node poller (tokens, HBAR, NFTs)
+│   ├── enforcer.py          # HTS enforcement (freeze/wipe/KYC)
+│   ├── hcs_reporter.py      # HCS audit trail publisher
+│   ├── ai_analyzer.py       # Claude AI risk analysis
+│   ├── config.py            # Environment-based settings
+│   ├── models.py            # Pydantic data models
+│   ├── rules_config.py      # YAML rule loader
+│   ├── logging_config.py    # Structured JSON logging
+│   └── static/
+│       └── dashboard.html   # Single-page dashboard
+├── config/
+│   ├── rules.yaml           # Compliance rule configuration
+│   └── sanctions.txt        # OFAC-style sanctions list
+├── tests/
+│   ├── test_compliance.py   # Compliance engine tests
+│   ├── test_scanner.py      # Scanner tests (mocked HTTP)
+│   ├── test_api.py          # API endpoint tests
+│   ├── test_new_rules.py    # New rules + HCS tests
+│   └── test_integration_testnet.py  # Live testnet tests
+├── demo/
+│   ├── simulate_alerts.py   # Alert simulation script
+│   ├── walkthrough.md       # Demo walkthrough guide
+│   └── sample_alerts.json   # Sample alert data
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── .env.example
 ```
 
----
+## Tech Stack
+
+- **Python 3.12+** with type hints and async/await
+- **FastAPI** — REST API framework
+- **Pydantic v2** — data validation and serialization
+- **httpx** — async HTTP client for Mirror Node
+- **Hedera SDK** — native HTS operations (freeze, wipe, KYC)
+- **Anthropic Claude** — AI-powered risk analysis
+- **PyYAML** — configuration management
+- **pytest + pytest-asyncio** — test framework
+- **Docker** — containerized deployment
 
 ## License
 
 MIT
+
+---
+
+*Built with ❤️ for the Hedera ecosystem*

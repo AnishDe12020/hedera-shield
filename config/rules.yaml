@@ -121,3 +121,60 @@ rapid_succession:
   min_transfers: 3
 
   recommended_action: freeze
+
+# -----------------------------------------------------------------------------
+# Structuring Detection (Anti-Smurfing)
+# -----------------------------------------------------------------------------
+# Detects when a sender breaks up a large transfer into multiple smaller
+# transfers just below the reporting threshold — a classic AML evasion
+# technique known as "structuring" or "smurfing".
+structuring:
+  enabled: true
+  severity: high
+
+  # Time window to look for clusters of just-below-threshold transfers
+  window_seconds: 7200
+
+  # Minimum number of just-below-threshold transfers to trigger
+  min_count: 3
+
+  # Transfers between (threshold * threshold_pct) and threshold are suspicious
+  threshold_pct: 0.9
+
+  recommended_action: freeze
+
+# -----------------------------------------------------------------------------
+# Dormant Account Reactivation
+# -----------------------------------------------------------------------------
+# Flags transfers from accounts that have been dormant (no observed activity)
+# for a configurable period. Suddenly active dormant accounts may indicate
+# compromised or sleeper accounts used for laundering.
+dormant_account:
+  enabled: true
+  severity: medium
+
+  # Account must be inactive for at least this many seconds (default: 30 days)
+  dormancy_seconds: 2592000
+
+  # Only flag if the transfer amount exceeds this minimum
+  min_amount: 1000.0
+
+  recommended_action: kyc_revoke
+
+# -----------------------------------------------------------------------------
+# Cross-Token Wash Trading
+# -----------------------------------------------------------------------------
+# Detects circular fund flows between the same pair of accounts across
+# multiple different token IDs. This pattern indicates wash trading,
+# layering, or attempts to obscure the origin of funds.
+cross_token_wash:
+  enabled: true
+  severity: high
+
+  # Time window for tracking cross-token activity
+  window_seconds: 3600
+
+  # Minimum number of distinct tokens involved to trigger
+  min_tokens: 3
+
+  recommended_action: freeze
