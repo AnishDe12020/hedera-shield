@@ -1,12 +1,14 @@
 """FastAPI REST API for the HederaShield compliance dashboard."""
 
+import csv
+import io
 import time
 import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -81,6 +83,58 @@ async def get_status() -> SystemStatus:
 async def get_alerts(unresolved_only: bool = False) -> list[Alert]:
     """Get all compliance alerts."""
     return compliance_engine.get_alerts(unresolved_only=unresolved_only)
+
+
+@app.get("/compliance/audit.csv")
+async def export_compliance_audit_csv(unresolved_only: bool = False) -> Response:
+    """Export compliance alerts as an audit-ready CSV."""
+    alerts = compliance_engine.get_alerts(unresolved_only=unresolved_only)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(
+        [
+            "alert_id",
+            "created_at",
+            "resolved",
+            "alert_type",
+            "severity",
+            "risk_score",
+            "recommended_action",
+            "description",
+            "transaction_id",
+            "token_id",
+            "sender",
+            "receiver",
+            "amount",
+            "transaction_timestamp",
+        ]
+    )
+    for alert in alerts:
+        writer.writerow(
+            [
+                alert.id,
+                alert.created_at.isoformat(),
+                alert.resolved,
+                alert.alert_type.value,
+                alert.severity.value,
+                alert.risk_score,
+                alert.recommended_action.value,
+                alert.description,
+                alert.transaction.transaction_id,
+                alert.transaction.token_id,
+                alert.transaction.sender,
+                alert.transaction.receiver,
+                alert.transaction.amount,
+                alert.transaction.timestamp.isoformat(),
+            ]
+        )
+
+    filename = "compliance_audit.csv"
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @app.post("/alerts/{alert_id}/resolve")

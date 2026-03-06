@@ -95,7 +95,7 @@ async def test_parse_ignores_other_tokens(scanner: MirrorNodeScanner) -> None:
 async def test_fetch_transfers_http_error(scanner: MirrorNodeScanner, monkeypatch) -> None:
     """Test that HTTP errors are handled gracefully."""
 
-    async def mock_get(*args, **kwargs):
+    async def mock_request(*args, **kwargs):
         raise httpx.HTTPStatusError(
             "Server Error",
             request=httpx.Request("GET", "https://example.com"),
@@ -104,8 +104,9 @@ async def test_fetch_transfers_http_error(scanner: MirrorNodeScanner, monkeypatc
 
     # Create a mock client
     client = httpx.AsyncClient()
-    monkeypatch.setattr(client, "get", mock_get)
+    monkeypatch.setattr(client, "request", mock_request)
     scanner._client = client
+    scanner.max_retries = 1
 
     transfers = await scanner.fetch_token_transfers("0.0.5555")
     assert transfers == []

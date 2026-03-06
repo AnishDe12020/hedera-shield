@@ -162,6 +162,9 @@ class ComplianceEngine:
             self._rules_cfg = {}
             self.rules = [r.model_copy() for r in DEFAULT_RULES]
 
+        # Optional calibration for risk scores loaded from YAML config.
+        self._risk_calibration = self._rules_cfg.get("risk_score_calibration", {})
+
         self.alerts: list[Alert] = []
         self._transfer_history: defaultdict[str, list[datetime]] = defaultdict(list)
         self._rapid_history: defaultdict[str, list[datetime]] = defaultdict(list)
@@ -254,6 +257,31 @@ class ComplianceEngine:
         action_str = str(self._get_rule_param(rule, "recommended_action", "freeze")).lower()
         return _ACTION_MAP.get(action_str, EnforcementAction.FREEZE)
 
+    def _calibrate_risk_score(self, alert_type: AlertType, base_score: float) -> float:
+        """Apply optional calibration settings to a base risk score.
+
+        Expected YAML shape:
+        risk_score_calibration:
+          default: {multiplier: 1.0, offset: 0.0, min: 0.0, max: 1.0}
+          by_alert_type:
+            large_transfer: {multiplier: 1.2, max: 0.95}
+        """
+        cfg = self._risk_calibration or {}
+        default_cfg = cfg.get("default", {})
+        by_type = cfg.get("by_alert_type", {})
+        type_cfg = by_type.get(alert_type.value, {})
+
+        multiplier = float(type_cfg.get("multiplier", default_cfg.get("multiplier", 1.0)))
+        offset = float(type_cfg.get("offset", default_cfg.get("offset", 0.0)))
+        min_score = float(type_cfg.get("min", default_cfg.get("min", 0.0)))
+        max_score = float(type_cfg.get("max", default_cfg.get("max", 1.0)))
+        if min_score > max_score:
+            min_score, max_score = max_score, min_score
+
+        calibrated = (base_score * multiplier) + offset
+        calibrated = max(min_score, min(max_score, calibrated))
+        return max(0.0, min(1.0, calibrated))
+
     def _check_large_transfer(self, transfer: TokenTransfer, rule: ComplianceRule) -> Alert | None:
         # Per-token threshold from YAML config takes highest priority,
         # then Settings threshold, then YAML default_threshold as last resort.
@@ -264,12 +292,13 @@ class ComplianceEngine:
             threshold = self.config.large_transfer_threshold
 
         if transfer.amount >= threshold:
+            base_score = min(transfer.amount / (threshold * 10), 1.0)
             return self._create_alert(
                 alert_type=AlertType.LARGE_TRANSFER,
                 severity=rule.severity,
                 transaction=transfer,
                 description=f"Transfer of {transfer.amount} exceeds threshold of {threshold}",
-                risk_score=min(transfer.amount / (threshold * 10), 1.0),
+                risk_score=self._calibrate_risk_score(AlertType.LARGE_TRANSFER, base_score),
                 recommended_action=self._get_recommended_action(rule),
             )
         return None
@@ -299,12 +328,13 @@ class ComplianceEngine:
 
         count = len(self._transfer_history[sender])
         if count >= max_transfers:
+            base_score = min(count / (max_transfers * 2), 1.0)
             return self._create_alert(
                 alert_type=AlertType.VELOCITY_BREACH,
                 severity=rule.severity,
                 transaction=transfer,
                 description=f"Account {sender} made {count} transfers in {window_secs}s window",
-                risk_score=min(count / (max_transfers * 2), 1.0),
+                risk_score=self._calibrate_risk_score(AlertType.VELOCITY_BREACH, base_score),
                 recommended_action=self._get_recommended_action(rule),
             )
         return None
@@ -317,12 +347,13 @@ class ComplianceEngine:
             flagged = transfer.receiver
 
         if flagged:
+            base_score = 1.0
             return self._create_alert(
                 alert_type=AlertType.SANCTIONED_ADDRESS,
                 severity=Severity.CRITICAL,
                 transaction=transfer,
                 description=f"Transaction involves sanctioned address: {flagged}",
-                risk_score=1.0,
+                risk_score=self._calibrate_risk_score(AlertType.SANCTIONED_ADDRESS, base_score),
                 recommended_action=self._get_recommended_action(rule),
             )
         return None
@@ -338,6 +369,7 @@ class ComplianceEngine:
         for divisor in sorted(divisors, reverse=True):
             divisor = float(divisor)
             if divisor > 0 and transfer.amount % divisor == 0:
+                base_score = min(transfer.amount / (divisor * 10), 1.0)
                 return self._create_alert(
                     alert_type=AlertType.ROUND_NUMBER,
                     severity=rule.severity,
@@ -346,7 +378,7 @@ class ComplianceEngine:
                         f"Suspicious round-number transfer: {transfer.amount} "
                         f"(divisible by {divisor})"
                     ),
-                    risk_score=min(transfer.amount / (divisor * 10), 1.0),
+                    risk_score=self._calibrate_risk_score(AlertType.ROUND_NUMBER, base_score),
                     recommended_action=self._get_recommended_action(rule),
                 )
 
@@ -369,6 +401,7 @@ class ComplianceEngine:
 
         count = len(self._rapid_history[sender])
         if count >= min_transfers:
+            base_score = min(count / (min_transfers * 3), 1.0)
             return self._create_alert(
                 alert_type=AlertType.RAPID_SUCCESSION,
                 severity=rule.severity,
@@ -377,7 +410,7 @@ class ComplianceEngine:
                     f"Rapid succession: {count} transfers from {sender} "
                     f"within {window_secs}s"
                 ),
-                risk_score=min(count / (min_transfers * 3), 1.0),
+                risk_score=self._calibrate_risk_score(AlertType.RAPID_SUCCESSION, base_score),
                 recommended_action=self._get_recommended_action(rule),
             )
         return None
@@ -415,6 +448,7 @@ class ComplianceEngine:
 
         if len(suspicious) >= min_count:
             total = sum(amt for _, amt in suspicious)
+            base_score = min(len(suspicious) / (min_count * 3), 1.0)
             return self._create_alert(
                 alert_type=AlertType.STRUCTURING,
                 severity=rule.severity,
@@ -424,7 +458,7 @@ class ComplianceEngine:
                     f"just below threshold ({just_below:.0f}-{base_threshold:.0f}), "
                     f"totaling {total:.0f}"
                 ),
-                risk_score=min(len(suspicious) / (min_count * 3), 1.0),
+                risk_score=self._calibrate_risk_score(AlertType.STRUCTURING, base_score),
                 recommended_action=self._get_recommended_action(rule),
             )
         return None
@@ -448,6 +482,7 @@ class ComplianceEngine:
             if gap >= dormancy_seconds and transfer.amount >= min_amount:
                 self._account_last_seen[sender] = now
                 days = int(gap / 86400)
+                base_score = min(gap / (dormancy_seconds * 3), 1.0)
                 return self._create_alert(
                     alert_type=AlertType.DORMANT_ACCOUNT,
                     severity=rule.severity,
@@ -456,7 +491,7 @@ class ComplianceEngine:
                         f"Dormant account reactivation: {sender} was inactive for "
                         f"{days} days, now transferring {transfer.amount}"
                     ),
-                    risk_score=min(gap / (dormancy_seconds * 3), 1.0),
+                    risk_score=self._calibrate_risk_score(AlertType.DORMANT_ACCOUNT, base_score),
                     recommended_action=self._get_recommended_action(rule),
                 )
 
@@ -486,6 +521,7 @@ class ComplianceEngine:
 
         unique_tokens = set(tid for _, tid in self._wash_history[pair])
         if len(unique_tokens) >= min_tokens:
+            base_score = min(len(unique_tokens) / (min_tokens * 2), 1.0)
             return self._create_alert(
                 alert_type=AlertType.CROSS_TOKEN_WASH,
                 severity=rule.severity,
@@ -494,7 +530,7 @@ class ComplianceEngine:
                     f"Cross-token wash trading: {transfer.sender} → {transfer.receiver} "
                     f"across {len(unique_tokens)} different tokens in {window_secs}s"
                 ),
-                risk_score=min(len(unique_tokens) / (min_tokens * 2), 1.0),
+                risk_score=self._calibrate_risk_score(AlertType.CROSS_TOKEN_WASH, base_score),
                 recommended_action=self._get_recommended_action(rule),
             )
         return None

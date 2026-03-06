@@ -74,6 +74,15 @@ _FALLBACK_CONFIG: dict[str, Any] = {
         "min_tokens": 3,
         "recommended_action": "freeze",
     },
+    "risk_score_calibration": {
+        "default": {
+            "multiplier": 1.0,
+            "offset": 0.0,
+            "min": 0.0,
+            "max": 1.0,
+        },
+        "by_alert_type": {},
+    },
 }
 
 
@@ -107,19 +116,30 @@ def load_rules_config(path: str | None = None) -> dict[str, Any]:
 
     file_config: dict[str, Any] = {}
     if os.path.isfile(config_path):
-        try:
-            import yaml  # type: ignore[import-untyped]
+        _, ext = os.path.splitext(config_path.lower())
+        if ext == ".json":
+            import json
 
-            with open(config_path, "r") as fh:
-                file_config = yaml.safe_load(fh) or {}
-            logger.info("Loaded rules config from %s", config_path)
-        except ImportError:
-            logger.warning(
-                "pyyaml is not installed; falling back to built-in defaults. "
-                "Install with: pip install pyyaml"
-            )
-        except Exception as exc:
-            logger.error("Failed to load rules config from %s: %s", config_path, exc)
+            try:
+                with open(config_path, "r") as fh:
+                    file_config = json.load(fh) or {}
+                logger.info("Loaded rules config from %s", config_path)
+            except Exception as exc:
+                logger.error("Failed to load rules config from %s: %s", config_path, exc)
+        else:
+            try:
+                import yaml  # type: ignore[import-untyped]
+
+                with open(config_path, "r") as fh:
+                    file_config = yaml.safe_load(fh) or {}
+                logger.info("Loaded rules config from %s", config_path)
+            except ImportError:
+                logger.warning(
+                    "pyyaml is not installed; falling back to built-in defaults. "
+                    "Install with: pip install pyyaml"
+                )
+            except Exception as exc:
+                logger.error("Failed to load rules config from %s: %s", config_path, exc)
     else:
         # Try JSON as a fallback
         json_path = config_path.rsplit(".", 1)[0] + ".json" if "." in config_path else config_path + ".json"
