@@ -39,3 +39,4 @@ logs/
 
 # Don't ignore example env
 !.env.example
+!.env.testnet.example
