@@ -159,6 +159,44 @@ python demo/simulate_alerts.py
 
 ---
 
+## Testnet Runbook + Evidence Checklist
+
+### Runbook
+
+```bash
+# 1) Prepare testnet env
+cp .env.testnet.example .env.testnet
+python3 scripts/validate-testnet-env.py .env.testnet
+
+# 2) Execute smoke checks (env + mirror connectivity)
+./scripts/run-testnet-smoke.sh .env.testnet
+
+# 3) Start API with testnet config
+cp .env.testnet .env
+python -m hedera_shield.api
+
+# 4) Verify health endpoint
+curl -s http://localhost:8000/health
+```
+
+Smoke output is machine-readable and expected in this format:
+
+```text
+SMOKE|<check_name>|PASS|<details>
+SMOKE|<check_name>|FAIL|<details>
+SMOKE|summary|PASS|all checks passed
+```
+
+### Evidence Checklist
+
+- Output from `python3 scripts/validate-testnet-env.py .env.testnet`
+- Output from `./scripts/run-testnet-smoke.sh .env.testnet` including summary pass line
+- API health check response from `GET /health`
+- One sample transaction query result (`GET /transactions`)
+- Optional: `HEDERA_SHIELD_RUN_INTEGRATION=1 pytest -q tests/test_integration_testnet.py` output
+
+---
+
 ## Test Coverage
 
 ```
