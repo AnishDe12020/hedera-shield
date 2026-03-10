@@ -182,19 +182,28 @@ Default command behavior:
 # 2) Verify final draft-referenced docs/artifacts
 ./scripts/pre-submit-verify.py
 
-# 3) Attempt one immediate sync + push with bounded retry/backoff
+# 3) Generate consolidated multi-repo sprint push dashboard (read-only by default)
+./scripts/sprint-multi-repo-dashboard.py
+
+# Optional: use mirrored GitLab/Hedera/DO config
+./scripts/sprint-multi-repo-dashboard.py --repo-config config/sprint-repos.json
+
+# Optional: attempt safe push via sync helper when remote is reachable
+./scripts/sprint-multi-repo-dashboard.py --attempt-push
+
+# 4) Attempt one immediate sync + push with bounded retry/backoff
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 4) If still blocked, run periodic network-recovery push runner until reachable
+# 5) If still blocked, run periodic network-recovery push runner until reachable
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 
 # Optional: verify behavior without pushing
 ./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
 
-# 5) If push remains blocked, create offline handoff package
+# 6) If push remains blocked, create offline handoff package
 ./scripts/offline-handoff.sh
 
-# 6) Generate a single handoff index for judges (markdown + json)
+# 7) Generate a single handoff index for judges (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: deterministic timestamp/output path
@@ -204,6 +213,10 @@ Default command behavior:
 Outputs:
 - `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
 - `dist/pre-submit-verify-latest.txt` (PASS/FAIL final draft-linked verification summary)
+- `dist/sprint-status/sprint-dashboard-<timestamp>.md` (multi-repo dashboard snapshot)
+- `dist/sprint-status/sprint-dashboard-<timestamp>.json` (machine-readable multi-repo snapshot)
+- `dist/sprint-status/sprint-dashboard-latest.md` (latest multi-repo dashboard markdown)
+- `dist/sprint-status/sprint-dashboard-latest.json` (latest multi-repo dashboard json)
 - `dist/sync-submit-status-latest.txt` (pending commits + remote reachability + exact push error when push fails)
 - `dist/network-recovery-push-status-latest.txt` (periodic DNS/reachability checks + exact push/network errors + blocked/clear status)
 - `dist/network-recovery-push-status-latest.json` (machine-readable recovery status for monitoring)

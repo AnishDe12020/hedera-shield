@@ -1,0 +1,19 @@
+{
+  "repos": [
+    {
+      "name": "gitlab",
+      "path": ".",
+      "remote": "origin"
+    },
+    {
+      "name": "hedera",
+      "path": ".",
+      "remote": "origin"
+    },
+    {
+      "name": "do",
+      "path": ".",
+      "remote": "origin"
+    }
+  ]
+}

@@ -42,12 +42,19 @@ pytest tests/ -v --tb=short
 ./scripts/package-submission.sh
 ./scripts/submission-readiness.sh
 ./scripts/pre-submit-verify.py
+./scripts/sprint-multi-repo-dashboard.py
+./scripts/sprint-multi-repo-dashboard.py --repo-config config/sprint-repos.json
+./scripts/sprint-multi-repo-dashboard.py --attempt-push
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 ./scripts/generate-handoff-index.py
 ```
 
 ## DNS/Network Outage Fallback (Offline Handoff)
+- [ ] Multi-repo dashboard markdown exists: `dist/sprint-status/sprint-dashboard-latest.md`
+- [ ] Multi-repo dashboard json exists: `dist/sprint-status/sprint-dashboard-latest.json`
+- [ ] Dashboard captures per-repo branch/ahead-behind/latest-commit/remote reachability
+- [ ] Dashboard captures exact push failure text when `--attempt-push` is used and push fails
 - [ ] Optional safe dry-run works: `./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4`
 - [ ] Runner text status exists: `dist/network-recovery-push-status-latest.txt`
 - [ ] Runner JSON status exists: `dist/network-recovery-push-status-latest.json`
