@@ -182,13 +182,19 @@ Default command behavior:
 # 2) Verify final draft-referenced docs/artifacts
 ./scripts/pre-submit-verify.py
 
-# 3) Capture immutable submission-freeze snapshot manifest (markdown + json)
+# 3) Generate final Hedera Apex portal packet (markdown + json)
+./scripts/generate-portal-submission-packet.py
+
+# 4) Verify all packet-referenced files/paths exist
+./scripts/verify-portal-submission-packet.py
+
+# 5) Capture immutable submission-freeze snapshot manifest (markdown + json)
 ./scripts/submission-freeze.py
 
-# 4) Verify current artifacts/commit state against latest freeze manifest
+# 6) Verify current artifacts/commit state against latest freeze manifest
 ./scripts/verify-submission-freeze.py
 
-# 5) Generate consolidated multi-repo sprint push dashboard (read-only by default)
+# 7) Generate consolidated multi-repo sprint push dashboard (read-only by default)
 ./scripts/sprint-multi-repo-dashboard.py
 
 # Optional: use mirrored GitLab/Hedera/DO config
@@ -197,31 +203,35 @@ Default command behavior:
 # Optional: attempt safe push via sync helper when remote is reachable
 ./scripts/sprint-multi-repo-dashboard.py --attempt-push
 
-# 6) Attempt one immediate sync + push with bounded retry/backoff
+# 8) Attempt one immediate sync + push with bounded retry/backoff
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 7) If still blocked, run periodic network-recovery push runner until reachable
+# 9) If still blocked, run periodic network-recovery push runner until reachable
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 
 # Optional: verify behavior without pushing
 ./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
 
-# 8) If push remains blocked, create offline handoff package
+# 10) If push remains blocked, create offline handoff package
 ./scripts/offline-handoff.sh
 
-# 9) Generate a single handoff index for judges (markdown + json)
+# 11) Generate a single handoff index for judges (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: deterministic timestamp/output path
 ./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
 
-# 10) Export cross-repo final handoff package (read-only across source repos)
+# 12) Export cross-repo final handoff package (read-only across source repos)
 ./scripts/final-handoff-export.sh
 ```
 
 Outputs:
 - `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
 - `dist/pre-submit-verify-latest.txt` (PASS/FAIL final draft-linked verification summary)
+- `dist/portal-submission/portal-submission-packet-latest.md` (portal copy-paste packet markdown)
+- `dist/portal-submission/portal-submission-packet-latest.json` (portal copy-paste packet json)
+- `dist/portal-submission/portal-submission-verify-latest.txt` (portal packet reference verification report)
+- `dist/portal-submission/portal-submission-verify-latest.json` (machine-readable portal packet verification report)
 - `dist/submission-freeze/submission-freeze-latest.md` (latest immutable freeze manifest markdown)
 - `dist/submission-freeze/submission-freeze-latest.json` (latest immutable freeze manifest json)
 - `dist/submission-freeze/drift-verify-latest.md` (latest drift report markdown)

@@ -37,6 +37,8 @@ required_files=(
   "scripts/sprint-multi-repo-dashboard.py"
   "scripts/submission-readiness.sh"
   "scripts/pre-submit-verify.py"
+  "scripts/generate-portal-submission-packet.py"
+  "scripts/verify-portal-submission-packet.py"
   "scripts/submission-freeze.py"
   "scripts/verify-submission-freeze.py"
   "scripts/sync-and-submit.sh"

@@ -1,0 +1,79 @@
+{
+  "manifest_type": "portal_submission_packet_verify",
+  "generated_at_utc": "20260310T182731Z",
+  "overall": "PASS",
+  "pass": 14,
+  "fail": 0,
+  "checks": [
+    {
+      "key": "referenced_paths",
+      "status": "PASS",
+      "details": "loaded 13 referenced paths"
+    },
+    {
+      "key": "path_01",
+      "status": "PASS",
+      "details": "found README.md"
+    },
+    {
+      "key": "path_02",
+      "status": "PASS",
+      "details": "found SUBMISSION.md"
+    },
+    {
+      "key": "path_03",
+      "status": "PASS",
+      "details": "found docs/SUBMISSION_FORM_DRAFT_PACK.md"
+    },
+    {
+      "key": "path_04",
+      "status": "PASS",
+      "details": "found docs/DEMO_RECORDING_RUNBOOK.md"
+    },
+    {
+      "key": "path_05",
+      "status": "PASS",
+      "details": "found docs/DEMO_NARRATION_3MIN.md"
+    },
+    {
+      "key": "path_06",
+      "status": "PASS",
+      "details": "found docs/FINAL_SUBMISSION_CHECKLIST.md"
+    },
+    {
+      "key": "path_07",
+      "status": "PASS",
+      "details": "found docs/TESTNET_SETUP.md"
+    },
+    {
+      "key": "path_08",
+      "status": "PASS",
+      "details": "found docs/TESTNET_EVIDENCE.md"
+    },
+    {
+      "key": "path_09",
+      "status": "PASS",
+      "details": "found docs/DEPLOY_PROOF.md"
+    },
+    {
+      "key": "path_10",
+      "status": "PASS",
+      "details": "found artifacts/demo/3min-offline/harness/report.md"
+    },
+    {
+      "key": "path_11",
+      "status": "PASS",
+      "details": "found artifacts/demo/3min-offline/harness/report.json"
+    },
+    {
+      "key": "path_12",
+      "status": "PASS",
+      "details": "found dist/submission-bundle.zip"
+    },
+    {
+      "key": "path_13",
+      "status": "PASS",
+      "details": "found dist/release-evidence-20260310T122842Z.tar.gz"
+    }
+  ]
+}

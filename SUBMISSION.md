@@ -215,7 +215,13 @@ Use the dedicated judge-facing docs:
 # Optional: explicit timestamp for deterministic handoff folder naming
 ./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
 
-# 11) Export cross-repo final handoff package (read-only across source repos)
+# 11) Generate final Hedera Apex portal submission packet (markdown + json)
+./scripts/generate-portal-submission-packet.py
+
+# 12) Verify all packet-referenced files/paths exist before portal submission
+./scripts/verify-portal-submission-packet.py
+
+# 13) Export cross-repo final handoff package (read-only across source repos)
 ./scripts/final-handoff-export.sh
 ```
 

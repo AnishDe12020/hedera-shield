@@ -1,0 +1,23 @@
+HederaShield Portal Submission Packet Verify
+Timestamp UTC: 20260310T182731Z
+
+Summary
+- Overall: PASS
+- PASS: 14
+- FAIL: 0
+
+Checks
+PORTAL_VERIFY|referenced_paths|PASS|loaded 13 referenced paths
+PORTAL_VERIFY|path_01|PASS|found README.md
+PORTAL_VERIFY|path_02|PASS|found SUBMISSION.md
+PORTAL_VERIFY|path_03|PASS|found docs/SUBMISSION_FORM_DRAFT_PACK.md
+PORTAL_VERIFY|path_04|PASS|found docs/DEMO_RECORDING_RUNBOOK.md
+PORTAL_VERIFY|path_05|PASS|found docs/DEMO_NARRATION_3MIN.md
+PORTAL_VERIFY|path_06|PASS|found docs/FINAL_SUBMISSION_CHECKLIST.md
+PORTAL_VERIFY|path_07|PASS|found docs/TESTNET_SETUP.md
+PORTAL_VERIFY|path_08|PASS|found docs/TESTNET_EVIDENCE.md
+PORTAL_VERIFY|path_09|PASS|found docs/DEPLOY_PROOF.md
+PORTAL_VERIFY|path_10|PASS|found artifacts/demo/3min-offline/harness/report.md
+PORTAL_VERIFY|path_11|PASS|found artifacts/demo/3min-offline/harness/report.json
+PORTAL_VERIFY|path_12|PASS|found dist/submission-bundle.zip
+PORTAL_VERIFY|path_13|PASS|found dist/release-evidence-20260310T122842Z.tar.gz

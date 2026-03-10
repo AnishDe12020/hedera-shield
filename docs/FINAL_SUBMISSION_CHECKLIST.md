@@ -42,6 +42,8 @@ pytest tests/ -v --tb=short
 ./scripts/package-submission.sh
 ./scripts/submission-readiness.sh
 ./scripts/pre-submit-verify.py
+./scripts/generate-portal-submission-packet.py
+./scripts/verify-portal-submission-packet.py
 ./scripts/submission-freeze.py
 ./scripts/verify-submission-freeze.py
 ./scripts/sprint-multi-repo-dashboard.py
