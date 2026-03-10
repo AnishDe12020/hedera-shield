@@ -1,6 +1,6 @@
 # Deploy Status
 
-**Timestamp:** 2026-03-10 08:21:24 CET (+0100)
+**Timestamp:** 2026-03-10 09:54:08 CET (+0100)  
 **Branch:** `master`
 
 ## 1) Full Test Suite
@@ -11,58 +11,35 @@ source venv/bin/activate && pytest
 ```
 
 Result:
-- **Total collected:** 68
-- **Passed:** 62
+- **Total collected:** 75
+- **Passed:** 69
 - **Skipped:** 6
 - **Failed:** 0
-- **Duration:** 0.32s
+- **Duration:** 0.70s
 
-Notes:
-- Skipped tests are the gated integration set in `tests/test_integration_testnet.py` when `HEDERA_SHIELD_RUN_INTEGRATION` is not enabled in the full-suite run.
+## 2) One-Command Live Integration Run
 
-## 2) Integration Preflight
-
-Preflight commands executed:
+Command:
 ```bash
-./scripts/run-testnet-smoke.sh .env.testnet.example
-source venv/bin/activate && HEDERA_SHIELD_RUN_INTEGRATION=1 pytest -q tests/test_integration_testnet.py -q
+source venv/bin/activate && ./scripts/run-live-integration.sh --env-file .env.testnet.example
 ```
 
-Preflight result:
-- `run-testnet-smoke.sh`: **PASS** (env format + testnet mirror probe checks)
+Result:
+- `validate-testnet-env`: **PASS**
+- `run-testnet-smoke`: **PASS**
 - `tests/test_integration_testnet.py`: **6 passed**
-
-Credential availability check:
-- `.env.testnet` file: **not present**
-- Exported `HEDERA_SHIELD_OPERATOR_ID` / `HEDERA_SHIELD_OPERATOR_KEY`: **not present**
+- Evidence markdown: `docs/evidence/live-integration-20260310T085339Z.md`
 
 ## 3) Deploy Readiness
 
-Current state: **Code and read-only testnet integration checks are green.**
+Current state: **Read-only live testnet validation is green and evidence is captured.**
 
-Deployment/integration blocker:
-- **Missing operator credentials** for state-changing Hedera actions and production-like end-to-end deploy validation.
-- Specifically missing: `HEDERA_SHIELD_OPERATOR_ID` and `HEDERA_SHIELD_OPERATOR_KEY` (typically in `.env.testnet` or exported env).
+Deploy blocker status:
+- **Blocker remains for state-changing deploy checks** until real non-placeholder operator credentials are configured.
+- Required values: `HEDERA_SHIELD_HEDERA_OPERATOR_ID` and `HEDERA_SHIELD_HEDERA_OPERATOR_KEY` in `.env.testnet`.
 
-## 4) Exact Next Commands
+## 4) References
 
-When credentials are available:
-```bash
-cp .env.testnet.example .env.testnet
-# edit .env.testnet and set real values for:
-# - HEDERA_SHIELD_OPERATOR_ID
-# - HEDERA_SHIELD_OPERATOR_KEY
-
-python3 scripts/validate-testnet-env.py .env.testnet
-./scripts/run-testnet-smoke.sh .env.testnet
-source venv/bin/activate && HEDERA_SHIELD_RUN_INTEGRATION=1 pytest -q tests/test_integration_testnet.py
-cp .env.testnet .env
-source venv/bin/activate && python -m hedera_shield.main
-```
-
-Git publish commands:
-```bash
-git add DEPLOY_STATUS.md
-git commit -m "Add deploy status with test counts and integration preflight"
-git push origin master
-```
+- One-command live runner: `scripts/run-live-integration.sh`
+- Testnet runbook: `docs/TESTNET_SETUP.md`
+- Latest evidence file: `docs/evidence/live-integration-20260310T085339Z.md`

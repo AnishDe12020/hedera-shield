@@ -173,6 +173,15 @@ Harness artifacts are generated in `artifacts/integration/<timestamp>/` and incl
 
 See [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full runbook.
 
+### One-Command Live Integration Evidence
+
+```bash
+# Uses .env.testnet by default; override with --env-file if needed
+./scripts/run-live-integration.sh --env-file .env.testnet
+```
+
+This command runs env validation, testnet smoke checks, and live integration pytest, then writes a timestamped evidence markdown file to `docs/evidence/`.
+
 ## Configuration
 
 ### Environment Variables
