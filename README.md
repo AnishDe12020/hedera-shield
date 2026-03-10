@@ -179,13 +179,16 @@ Default command behavior:
 # 1) Verify docs/demo/artifacts readiness
 ./scripts/submission-readiness.sh
 
-# 2) Attempt sync + push with bounded retry/backoff and status report
+# 2) Verify final draft-referenced docs/artifacts
+./scripts/pre-submit-verify.py
+
+# 3) Attempt sync + push with bounded retry/backoff and status report
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 3) If push is blocked by DNS/network outage, create offline handoff package
+# 4) If push is blocked by DNS/network outage, create offline handoff package
 ./scripts/offline-handoff.sh
 
-# 4) Generate a single handoff index for judges (markdown + json)
+# 5) Generate a single handoff index for judges (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: deterministic timestamp/output path
@@ -194,6 +197,7 @@ Default command behavior:
 
 Outputs:
 - `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
+- `dist/pre-submit-verify-latest.txt` (PASS/FAIL final draft-linked verification summary)
 - `dist/sync-submit-status-latest.txt` (pending commits + remote reachability + exact push error when push fails)
 - `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
 - `artifacts/offline-handoff/<timestamp>/branch-status.txt`
@@ -206,6 +210,8 @@ Outputs:
 
 Judge-focused docs:
 - [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
+- [docs/DEMO_NARRATION_3MIN.md](docs/DEMO_NARRATION_3MIN.md) for timestamped narration aligned to runbook checkpoints.
+- [docs/SUBMISSION_FORM_DRAFT_PACK.md](docs/SUBMISSION_FORM_DRAFT_PACK.md) for concise copy-paste-ready submission form answers.
 - [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.
 - [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full testnet setup/runbook details.
 

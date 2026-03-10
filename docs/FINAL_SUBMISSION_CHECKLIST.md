@@ -13,6 +13,8 @@ Use this as the final gate before hackathon portal submission.
 
 ## Required Evidence Artifacts
 - [ ] Demo runbook used: `docs/DEMO_RECORDING_RUNBOOK.md`
+- [ ] Demo narration script ready: `docs/DEMO_NARRATION_3MIN.md`
+- [ ] Submission form draft pack ready: `docs/SUBMISSION_FORM_DRAFT_PACK.md`
 - [ ] Offline demo artifacts directory exists: `artifacts/demo/3min-offline/`
 - [ ] Harness outputs exist:
   - [ ] `artifacts/demo/3min-offline/harness/report.md`
@@ -39,6 +41,7 @@ ruff check hedera_shield/ tests/
 pytest tests/ -v --tb=short
 ./scripts/package-submission.sh
 ./scripts/submission-readiness.sh
+./scripts/pre-submit-verify.py
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 ./scripts/generate-handoff-index.py
 ```

@@ -18,6 +18,8 @@ REQUIRED_ARCHIVE_ENTRIES = {
     "docs/TESTNET_EVIDENCE.md",
     "docs/DEPLOY_PROOF.md",
     "docs/DEMO_RECORDING_RUNBOOK.md",
+    "docs/DEMO_NARRATION_3MIN.md",
+    "docs/SUBMISSION_FORM_DRAFT_PACK.md",
     "docs/FINAL_SUBMISSION_CHECKLIST.md",
     ".env.testnet.example",
     "scripts/run-integration-harness.sh",
@@ -28,6 +30,7 @@ REQUIRED_ARCHIVE_ENTRIES = {
     "scripts/release-evidence.sh",
     "scripts/generate-handoff-index.py",
     "scripts/submission-readiness.sh",
+    "scripts/pre-submit-verify.py",
     "scripts/sync-and-submit.sh",
     "scripts/offline-handoff.sh",
 }

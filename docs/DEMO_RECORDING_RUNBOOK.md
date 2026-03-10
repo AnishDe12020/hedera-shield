@@ -1,6 +1,7 @@
 # HederaShield 3-Minute Demo Recording Runbook
 
 Purpose: deterministic, offline-safe demo flow for hackathon judging.
+Narration companion: `docs/DEMO_NARRATION_3MIN.md`.
 
 ## Scope
 - Default mode is offline-safe (mock harness, no live testnet probe).

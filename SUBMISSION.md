@@ -164,6 +164,8 @@ python demo/simulate_alerts.py
 Use the dedicated judge-facing docs:
 
 - Deterministic 3-minute demo runbook (offline-safe by default): `docs/DEMO_RECORDING_RUNBOOK.md`
+- Timestamped 3-minute narration aligned to runbook artifacts: `docs/DEMO_NARRATION_3MIN.md`
+- Copy-paste-ready submission form draft answers: `docs/SUBMISSION_FORM_DRAFT_PACK.md`
 - Final portal submission checklist (links + evidence placeholders): `docs/FINAL_SUBMISSION_CHECKLIST.md`
 - Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`
 - Testnet transaction evidence document: `docs/TESTNET_EVIDENCE.md`
@@ -177,13 +179,16 @@ Use the dedicated judge-facing docs:
 # 2) Confirm submission readiness state (docs + artifacts + bundle checks)
 ./scripts/submission-readiness.sh
 
-# 3) Sync and push with graceful DNS/offline failure handling + status report
+# 3) Final draft-linked verifier for required docs/artifacts
+./scripts/pre-submit-verify.py
+
+# 4) Sync and push with graceful DNS/offline failure handling + status report
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 4) If push is blocked by DNS/network outage, export offline handoff package
+# 5) If push is blocked by DNS/network outage, export offline handoff package
 ./scripts/offline-handoff.sh
 
-# 5) Generate final judge handoff index (markdown + json)
+# 6) Generate final judge handoff index (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: explicit timestamp for deterministic handoff folder naming
@@ -192,6 +197,7 @@ Use the dedicated judge-facing docs:
 
 Report outputs:
 - `dist/submission-readiness-latest.txt`
+- `dist/pre-submit-verify-latest.txt`
 - `dist/sync-submit-status-latest.txt`
 - `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
 - `artifacts/offline-handoff/<timestamp>/offline.bundle`
