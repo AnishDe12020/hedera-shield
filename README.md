@@ -173,7 +173,10 @@ Default command behavior:
 - Builds `dist/submission-bundle.zip`
 - Emits `dist/release-evidence-<timestamp>.tar.gz` with logs + artifacts + submission zip
 
-See [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full runbook.
+Judge-focused docs:
+- [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
+- [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.
+- [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full testnet setup/runbook details.
 
 ## Configuration
 

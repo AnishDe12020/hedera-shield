@@ -161,56 +161,12 @@ python demo/simulate_alerts.py
 
 ## Testnet Runbook + Evidence Checklist
 
-### Runbook
+Use the dedicated judge-facing docs:
 
-```bash
-# 1) Prepare testnet env
-cp .env.testnet.example .env.testnet
-
-# 2a) One-command release evidence bundle (safe default)
-./scripts/release-evidence.sh
-
-# 2b) Optional real testnet artifacts (explicit opt-in + non-placeholder creds)
-HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
-./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
-
-# 3) Start API with testnet config
-cp .env.testnet .env
-python -m hedera_shield.api
-
-# 4) Verify health endpoint
-curl -s http://localhost:8000/health
-
-# 5) Optional: capture/refresh standalone transaction evidence doc
-./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
-```
-
-Harness output is machine-readable and expected in this format:
-
-```text
-HARNESS|<check_name>|PASS|<details>
-HARNESS|<check_name>|FAIL|<details>
-HARNESS|summary|PASS|harness checks passed
-```
-
-### Evidence Checklist
-
-- Harness artifact bundle under `artifacts/integration/<timestamp>/`:
-  - `report.md` and `report.json`
-  - `harness.log`, `validator.log`, `smoke.log`, `integration.log`
-- Release evidence pack under `artifacts/integration/release-<timestamp>/`:
-  - `logs/lint.log`, `logs/pytest.log`
-  - `release-report.md`, `release-report.json`, `release-summary.log`
-  - Optional `real/` artifacts only when real opt-in is enabled
-- Final submission bundle:
-  - `dist/submission-bundle.zip`
-  - `dist/release-evidence-<timestamp>.tar.gz`
-- Transaction evidence document:
-  - `docs/TESTNET_EVIDENCE.md` (tx IDs/hashes + mirror/hashscan links)
-- Harness output showing summary pass line in selected mode
-- API health check response from `GET /health`
-- One sample transaction query result (`GET /transactions`)
-- Optional: real-mode harness run with integration pytest passing
+- Deterministic 3-minute demo runbook (offline-safe by default): `docs/DEMO_RECORDING_RUNBOOK.md`
+- Final portal submission checklist (links + evidence placeholders): `docs/FINAL_SUBMISSION_CHECKLIST.md`
+- Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`
+- Testnet transaction evidence document: `docs/TESTNET_EVIDENCE.md`
 
 ---
 

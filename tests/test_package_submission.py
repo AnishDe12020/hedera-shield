@@ -17,6 +17,8 @@ REQUIRED_ARCHIVE_ENTRIES = {
     "docs/TESTNET_SETUP.md",
     "docs/TESTNET_EVIDENCE.md",
     "docs/DEPLOY_PROOF.md",
+    "docs/DEMO_RECORDING_RUNBOOK.md",
+    "docs/FINAL_SUBMISSION_CHECKLIST.md",
     ".env.testnet.example",
     "scripts/run-integration-harness.sh",
     "scripts/run-testnet-smoke.sh",
