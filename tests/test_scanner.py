@@ -2,7 +2,6 @@
 
 import pytest
 import httpx
-import pytest_asyncio
 
 from hedera_shield.config import Settings
 from hedera_shield.scanner import MirrorNodeScanner

@@ -166,10 +166,13 @@ python demo/simulate_alerts.py
 ```bash
 # 1) Prepare testnet env
 cp .env.testnet.example .env.testnet
-python3 scripts/validate-testnet-env.py .env.testnet
 
-# 2) Execute smoke checks (env + mirror connectivity)
-./scripts/run-testnet-smoke.sh .env.testnet
+# 2a) Mock/demo harness (safe default, credentials optional)
+./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
+
+# 2b) Real testnet harness (explicit opt-in + non-placeholder creds)
+HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
 
 # 3) Start API with testnet config
 cp .env.testnet .env
@@ -179,21 +182,23 @@ python -m hedera_shield.api
 curl -s http://localhost:8000/health
 ```
 
-Smoke output is machine-readable and expected in this format:
+Harness output is machine-readable and expected in this format:
 
 ```text
-SMOKE|<check_name>|PASS|<details>
-SMOKE|<check_name>|FAIL|<details>
-SMOKE|summary|PASS|all checks passed
+HARNESS|<check_name>|PASS|<details>
+HARNESS|<check_name>|FAIL|<details>
+HARNESS|summary|PASS|harness checks passed
 ```
 
 ### Evidence Checklist
 
-- Output from `python3 scripts/validate-testnet-env.py .env.testnet`
-- Output from `./scripts/run-testnet-smoke.sh .env.testnet` including summary pass line
+- Harness artifact bundle under `artifacts/integration/<timestamp>/`:
+  - `report.md` and `report.json`
+  - `harness.log`, `validator.log`, `smoke.log`, `integration.log`
+- Harness output showing summary pass line in selected mode
 - API health check response from `GET /health`
 - One sample transaction query result (`GET /transactions`)
-- Optional: `HEDERA_SHIELD_RUN_INTEGRATION=1 pytest -q tests/test_integration_testnet.py` output
+- Optional: real-mode harness run with integration pytest passing
 
 ---
 

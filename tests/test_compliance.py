@@ -8,7 +8,6 @@ from hedera_shield.compliance import ComplianceEngine
 from hedera_shield.models import (
     AlertType,
     ComplianceRule,
-    EnforcementAction,
     Severity,
     TokenTransfer,
 )

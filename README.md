@@ -155,6 +155,24 @@ pytest tests/ -v
 HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 ```
 
+### Integration Harness (Mock vs Real Testnet)
+
+```bash
+# Safe default (credentials optional, no live network probe)
+cp .env.testnet.example .env.testnet
+./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
+
+# Real testnet validation (explicit opt-in + non-placeholder creds required)
+HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
+```
+
+Harness artifacts are generated in `artifacts/integration/<timestamp>/` and include:
+- `report.md` and `report.json`
+- `harness.log`, `validator.log`, `smoke.log`, `integration.log`
+
+See [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full runbook.
+
 ## Configuration
 
 ### Environment Variables

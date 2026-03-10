@@ -1,82 +1,85 @@
-# HederaShield Testnet Setup and Smoke Runbook
+# HederaShield Integration Harness Runbook
 
-## 1. Prepare Environment
+## Quick Start
 
 ```bash
 cp .env.testnet.example .env.testnet
+./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
 ```
 
-Populate `.env.testnet` with your values:
+Default mode is `mock` (safe/offline-style checks). Artifacts are generated under `artifacts/integration/<timestamp>/`.
 
+## Modes
+
+### 1) Mock/Demo Mode (default, credentials-optional)
+
+```bash
+./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
+```
+
+What it does:
+- Runs env validation (`scripts/validate-testnet-env.py`)
+- Runs smoke checks with Mirror Node network probe disabled
+- Generates evidence artifacts (`report.md`, `report.json`, logs)
+
+Use this mode for judge/demo environments with placeholder or missing private keys.
+
+### 2) Real Testnet Mode (explicit opt-in)
+
+```bash
+HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
+```
+
+Real mode requirements:
+- `HEDERA_SHIELD_ENABLE_REAL_TESTNET=1` must be set
+- `.env.testnet` must include non-placeholder operator id/key
 - `HEDERA_SHIELD_HEDERA_NETWORK=testnet`
-- `HEDERA_SHIELD_HEDERA_OPERATOR_ID=0.0.x`
-- `HEDERA_SHIELD_HEDERA_OPERATOR_KEY=<ed25519 private key>`
-- `HEDERA_SHIELD_MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com`
-- `HEDERA_SHIELD_MONITORED_TOKEN_IDS=["0.0.x"]`
 
-Validate format offline:
+What it does:
+- Runs env validation
+- Runs live Mirror Node smoke probe
+- Runs live read-only integration tests: `tests/test_integration_testnet.py`
 
-```bash
-python3 scripts/validate-testnet-env.py .env.testnet
-```
+Notes:
+- Harness is designed for read-only validation; it does not run HTS enforcement transactions.
+- To skip live pytest in real mode: `--skip-integration-tests`
 
-Expected success line:
+## Artifact Output (Submission Evidence)
 
-```text
-Validation passed: env format is compatible with offline testnet setup.
-```
-
-## 2. Run Testnet Smoke
-
-```bash
-./scripts/run-testnet-smoke.sh .env.testnet
-```
-
-Smoke output uses a stable machine-readable format:
+By default artifacts are written to:
 
 ```text
-SMOKE|<check_name>|PASS|<details>
-SMOKE|<check_name>|FAIL|<details>
+artifacts/integration/<UTC timestamp>/
 ```
 
-Expected successful summary:
-
-```text
-SMOKE|summary|PASS|all checks passed
-```
-
-If you only want local/offline checks:
+Override location:
 
 ```bash
-HEDERA_SHIELD_SMOKE_SKIP_NETWORK=1 ./scripts/run-testnet-smoke.sh .env.testnet
+./scripts/run-integration-harness.sh \
+  --mode mock \
+  --env-file .env.testnet \
+  --artifacts-dir artifacts/submission/mock
 ```
 
-## 3. Start HederaShield with Testnet Config
+Generated files:
+- `harness.log` (structured `HARNESS|...` lines)
+- `validator.log`
+- `smoke.log`
+- `integration.log` (empty/skipped in mock mode)
+- `report.md` (copy-paste friendly snippets)
+- `report.json` (machine-readable status summary)
+
+## Optional: Run API Demo After Harness
 
 ```bash
 cp .env.testnet .env
 python -m hedera_shield.api
-```
-
-Health check:
-
-```bash
 curl -s http://localhost:8000/health
 ```
 
-## 4. Optional Live Integration Tests
+## Troubleshooting
 
-```bash
-HEDERA_SHIELD_RUN_INTEGRATION=1 pytest -q tests/test_integration_testnet.py
-```
-
-## 5. Evidence Checklist
-
-Collect the following artifacts for submission/review:
-
-- `.env.testnet` validation output (`validate-testnet-env.py`)
-- Smoke script output showing `SMOKE|summary|PASS|all checks passed`
-- `/health` response from local API
-- Sample `/transactions` response for a monitored token
-- If enforcement is demonstrated: dry-run enforcement response payload
-- If integration tests are run: `pytest` output for `tests/test_integration_testnet.py`
+- `real_opt_in` fail: set `HEDERA_SHIELD_ENABLE_REAL_TESTNET=1`.
+- `real_creds` fail: replace placeholder operator credentials in `.env.testnet`.
+- `smoke` fail in real mode: inspect `smoke.log`; mirror endpoint may be unavailable.

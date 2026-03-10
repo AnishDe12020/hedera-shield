@@ -11,8 +11,6 @@ from hedera_shield.api import app, compliance_engine, enforcer
 from hedera_shield.models import (
     Alert,
     AlertType,
-    ComplianceRule,
-    EnforcementAction,
     Severity,
     TokenTransfer,
 )
