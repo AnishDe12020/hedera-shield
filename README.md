@@ -155,32 +155,25 @@ pytest tests/ -v
 HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 ```
 
-### Integration Harness (Mock vs Real Testnet)
+### One-Command Judge Evidence Bundle
 
 ```bash
-# Safe default (credentials optional, no live network probe)
-cp .env.testnet.example .env.testnet
-./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
+# Safe default (credential-free, non-destructive)
+./scripts/release-evidence.sh
 
-# Real testnet validation (explicit opt-in + non-placeholder creds required)
+# Optional: include real testnet artifacts only with explicit opt-in
 HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
-./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
+./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
 ```
 
-Harness artifacts are generated in `artifacts/integration/<timestamp>/` and include:
-- `report.md` and `report.json`
-- `harness.log`, `validator.log`, `smoke.log`, `integration.log`
+Default command behavior:
+- Runs `ruff check hedera_shield/ tests/`
+- Runs `pytest tests/ -v --tb=short`
+- Runs mock harness (`scripts/run-integration-harness.sh --mode mock`)
+- Builds `dist/submission-bundle.zip`
+- Emits `dist/release-evidence-<timestamp>.tar.gz` with logs + artifacts + submission zip
 
 See [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full runbook.
-
-### One-Command Live Integration Evidence
-
-```bash
-# Uses .env.testnet by default; override with --env-file if needed
-./scripts/run-live-integration.sh --env-file .env.testnet
-```
-
-This command runs env validation, testnet smoke checks, and live integration pytest, then writes a timestamped evidence markdown file to `docs/evidence/`.
 
 ## Configuration
 

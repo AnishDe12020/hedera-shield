@@ -3,11 +3,20 @@
 ## Quick Start
 
 ```bash
-cp .env.testnet.example .env.testnet
-./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
+# Safe, credential-free default
+./scripts/release-evidence.sh
 ```
 
-Default mode is `mock` (safe/offline-style checks). Artifacts are generated under `artifacts/integration/<timestamp>/`.
+This runs lint + tests + mock harness, packages submission docs, and creates `dist/release-evidence-<timestamp>.tar.gz`.
+
+To include real testnet artifacts, opt in explicitly:
+
+```bash
+HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
+```
+
+Default mode remains `mock` (safe/offline-style checks). Harness artifacts are generated under `artifacts/integration/<timestamp>/`.
 
 ## Modes
 

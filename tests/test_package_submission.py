@@ -23,6 +23,7 @@ REQUIRED_ARCHIVE_ENTRIES = {
     "scripts/capture-testnet-evidence.sh",
     "scripts/generate-integration-evidence.py",
     "scripts/package-submission.sh",
+    "scripts/release-evidence.sh",
 }
 
 

@@ -167,12 +167,12 @@ python demo/simulate_alerts.py
 # 1) Prepare testnet env
 cp .env.testnet.example .env.testnet
 
-# 2a) Mock/demo harness (safe default, credentials optional)
-./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
+# 2a) One-command release evidence bundle (safe default)
+./scripts/release-evidence.sh
 
-# 2b) Real testnet harness (explicit opt-in + non-placeholder creds)
+# 2b) Optional real testnet artifacts (explicit opt-in + non-placeholder creds)
 HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
-./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
+./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
 
 # 3) Start API with testnet config
 cp .env.testnet .env
@@ -181,7 +181,7 @@ python -m hedera_shield.api
 # 4) Verify health endpoint
 curl -s http://localhost:8000/health
 
-# 5) Capture transaction evidence doc
+# 5) Optional: capture/refresh standalone transaction evidence doc
 ./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
 ```
 
@@ -198,6 +198,13 @@ HARNESS|summary|PASS|harness checks passed
 - Harness artifact bundle under `artifacts/integration/<timestamp>/`:
   - `report.md` and `report.json`
   - `harness.log`, `validator.log`, `smoke.log`, `integration.log`
+- Release evidence pack under `artifacts/integration/release-<timestamp>/`:
+  - `logs/lint.log`, `logs/pytest.log`
+  - `release-report.md`, `release-report.json`, `release-summary.log`
+  - Optional `real/` artifacts only when real opt-in is enabled
+- Final submission bundle:
+  - `dist/submission-bundle.zip`
+  - `dist/release-evidence-<timestamp>.tar.gz`
 - Transaction evidence document:
   - `docs/TESTNET_EVIDENCE.md` (tx IDs/hashes + mirror/hashscan links)
 - Harness output showing summary pass line in selected mode
