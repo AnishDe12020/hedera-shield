@@ -7,10 +7,8 @@ then pushes the resulting alerts to the running HederaShield API.
 """
 
 import httpx
-import json
 import sys
 import time
-from datetime import datetime, timezone
 
 API_BASE = "http://localhost:8000"
 
@@ -86,9 +84,9 @@ def main():
         # We can't directly inject transfers via API, but we can demonstrate
         # enforcement actions
         if tx["amount"] >= 10000:
-            print(f"   -> Would trigger LARGE_TRANSFER alert")
+            print("   -> Would trigger LARGE_TRANSFER alert")
         if tx["sender"] in ["0.0.6666", "0.0.7777"]:
-            print(f"   -> Would trigger SANCTIONED_ADDRESS alert (CRITICAL)")
+            print("   -> Would trigger SANCTIONED_ADDRESS alert (CRITICAL)")
 
         time.sleep(0.5)
 

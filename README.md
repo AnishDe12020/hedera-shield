@@ -214,6 +214,9 @@ Default command behavior:
 
 # Optional: deterministic timestamp/output path
 ./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
+
+# 10) Export cross-repo final handoff package (read-only across source repos)
+./scripts/final-handoff-export.sh
 ```
 
 Outputs:
@@ -238,6 +241,10 @@ Outputs:
 - `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
 - `artifacts/handoff-index/<timestamp>/handoff-index.md`
 - `artifacts/handoff-index/<timestamp>/handoff-index.json`
+- `dist/final-handoff/final-handoff-<timestamp>/master-index.md`
+- `dist/final-handoff/final-handoff-<timestamp>/master-index.json`
+- `dist/final-handoff/final-handoff-latest.md`
+- `dist/final-handoff/final-handoff-latest.json`
 
 Judge-focused docs:
 - [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).

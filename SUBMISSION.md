@@ -214,6 +214,9 @@ Use the dedicated judge-facing docs:
 
 # Optional: explicit timestamp for deterministic handoff folder naming
 ./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
+
+# 11) Export cross-repo final handoff package (read-only across source repos)
+./scripts/final-handoff-export.sh
 ```
 
 Report outputs:
@@ -236,6 +239,10 @@ Report outputs:
 - `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
 - `artifacts/handoff-index/<timestamp>/handoff-index.md`
 - `artifacts/handoff-index/<timestamp>/handoff-index.json`
+- `dist/final-handoff/final-handoff-<timestamp>/master-index.md`
+- `dist/final-handoff/final-handoff-<timestamp>/master-index.json`
+- `dist/final-handoff/final-handoff-latest.md`
+- `dist/final-handoff/final-handoff-latest.json`
 
 ---
 

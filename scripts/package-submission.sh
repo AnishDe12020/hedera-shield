@@ -32,6 +32,8 @@ required_files=(
   "scripts/package-submission.sh"
   "scripts/release-evidence.sh"
   "scripts/generate-handoff-index.py"
+  "scripts/final_handoff_exporter.py"
+  "scripts/final-handoff-export.sh"
   "scripts/sprint-multi-repo-dashboard.py"
   "scripts/submission-readiness.sh"
   "scripts/pre-submit-verify.py"

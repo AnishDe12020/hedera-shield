@@ -50,6 +50,7 @@ pytest tests/ -v --tb=short
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 ./scripts/generate-handoff-index.py
+./scripts/final-handoff-export.sh
 ```
 
 ## DNS/Network Outage Fallback (Offline Handoff)
@@ -74,6 +75,11 @@ pytest tests/ -v --tb=short
 - [ ] Summary contains exact push failure text when present in `dist/sync-submit-status-latest.txt`
 - [ ] Judge handoff index exists: `artifacts/handoff-index/<timestamp>/handoff-index.md`
 - [ ] Judge handoff json exists: `artifacts/handoff-index/<timestamp>/handoff-index.json`
+- [ ] Cross-repo final handoff package exists: `dist/final-handoff/final-handoff-<timestamp>/`
+- [ ] Cross-repo master index markdown exists: `dist/final-handoff/final-handoff-<timestamp>/master-index.md`
+- [ ] Cross-repo master index json exists: `dist/final-handoff/final-handoff-<timestamp>/master-index.json`
+- [ ] Cross-repo latest markdown alias exists: `dist/final-handoff/final-handoff-latest.md`
+- [ ] Cross-repo latest json alias exists: `dist/final-handoff/final-handoff-latest.json`
 
 ## Submission Notes
 - [ ] Notes to judges added in `SUBMISSION.md`
