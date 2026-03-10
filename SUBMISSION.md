@@ -182,6 +182,12 @@ Use the dedicated judge-facing docs:
 
 # 4) If push is blocked by DNS/network outage, export offline handoff package
 ./scripts/offline-handoff.sh
+
+# 5) Generate final judge handoff index (markdown + json)
+./scripts/generate-handoff-index.py
+
+# Optional: explicit timestamp for deterministic handoff folder naming
+./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
 ```
 
 Report outputs:
@@ -191,6 +197,8 @@ Report outputs:
 - `artifacts/offline-handoff/<timestamp>/offline.bundle`
 - `artifacts/offline-handoff/<timestamp>/patches/*.patch`
 - `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
+- `artifacts/handoff-index/<timestamp>/handoff-index.md`
+- `artifacts/handoff-index/<timestamp>/handoff-index.json`
 
 ---
 

@@ -40,6 +40,7 @@ pytest tests/ -v --tb=short
 ./scripts/package-submission.sh
 ./scripts/submission-readiness.sh
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
+./scripts/generate-handoff-index.py
 ```
 
 ## DNS/Network Outage Fallback (Offline Handoff)
@@ -50,6 +51,8 @@ pytest tests/ -v --tb=short
 - [ ] Patch series exists: `artifacts/offline-handoff/<timestamp>/patches/*.patch`
 - [ ] Restore/apply instructions exist: `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
 - [ ] Summary contains exact push failure text when present in `dist/sync-submit-status-latest.txt`
+- [ ] Judge handoff index exists: `artifacts/handoff-index/<timestamp>/handoff-index.md`
+- [ ] Judge handoff json exists: `artifacts/handoff-index/<timestamp>/handoff-index.json`
 
 ## Submission Notes
 - [ ] Notes to judges added in `SUBMISSION.md`

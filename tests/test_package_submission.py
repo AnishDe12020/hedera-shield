@@ -26,6 +26,7 @@ REQUIRED_ARCHIVE_ENTRIES = {
     "scripts/generate-integration-evidence.py",
     "scripts/package-submission.sh",
     "scripts/release-evidence.sh",
+    "scripts/generate-handoff-index.py",
     "scripts/submission-readiness.sh",
     "scripts/sync-and-submit.sh",
     "scripts/offline-handoff.sh",

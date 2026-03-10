@@ -184,6 +184,12 @@ Default command behavior:
 
 # 3) If push is blocked by DNS/network outage, create offline handoff package
 ./scripts/offline-handoff.sh
+
+# 4) Generate a single handoff index for judges (markdown + json)
+./scripts/generate-handoff-index.py
+
+# Optional: deterministic timestamp/output path
+./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
 ```
 
 Outputs:
@@ -195,6 +201,8 @@ Outputs:
 - `artifacts/offline-handoff/<timestamp>/offline.bundle`
 - `artifacts/offline-handoff/<timestamp>/patches/*.patch`
 - `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
+- `artifacts/handoff-index/<timestamp>/handoff-index.md`
+- `artifacts/handoff-index/<timestamp>/handoff-index.json`
 
 Judge-focused docs:
 - [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
