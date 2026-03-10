@@ -21,6 +21,7 @@ What it does:
 - Runs env validation (`scripts/validate-testnet-env.py`)
 - Runs smoke checks with Mirror Node network probe disabled
 - Generates evidence artifacts (`report.md`, `report.json`, logs)
+- Supports a follow-up evidence capture document via `scripts/capture-testnet-evidence.sh`
 
 Use this mode for judge/demo environments with placeholder or missing private keys.
 
@@ -69,8 +70,17 @@ Generated files:
 - `integration.log` (empty/skipped in mock mode)
 - `report.md` (copy-paste friendly snippets)
 - `report.json` (machine-readable status summary)
+- `docs/TESTNET_EVIDENCE.md` (transaction hashes + mirror/hashscan links) after running capture script
 
-For submission proof requirements and copy-ready output templates, use [DEPLOY_PROOF.md](DEPLOY_PROOF.md).
+Generate or refresh testnet transaction evidence:
+
+```bash
+./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
+```
+
+If credentials are placeholders/missing, the script enters safe dry-run mode, writes `docs/TESTNET_EVIDENCE.md`, and prints exact commands to run once credentials are ready.
+
+For submission proof requirements and copy-ready output templates, use [DEPLOY_PROOF.md](DEPLOY_PROOF.md) and [TESTNET_EVIDENCE.md](TESTNET_EVIDENCE.md).
 
 ## Optional: Run API Demo After Harness
 

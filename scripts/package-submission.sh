@@ -17,10 +17,12 @@ required_files=(
   "SUBMISSION.md"
   "DEPLOY_STATUS.md"
   "docs/TESTNET_SETUP.md"
+  "docs/TESTNET_EVIDENCE.md"
   "docs/DEPLOY_PROOF.md"
   ".env.testnet.example"
   "scripts/run-integration-harness.sh"
   "scripts/run-testnet-smoke.sh"
+  "scripts/capture-testnet-evidence.sh"
   "scripts/generate-integration-evidence.py"
   "scripts/package-submission.sh"
 )

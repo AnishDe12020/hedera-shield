@@ -180,6 +180,9 @@ python -m hedera_shield.api
 
 # 4) Verify health endpoint
 curl -s http://localhost:8000/health
+
+# 5) Capture transaction evidence doc
+./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
 ```
 
 Harness output is machine-readable and expected in this format:
@@ -195,6 +198,8 @@ HARNESS|summary|PASS|harness checks passed
 - Harness artifact bundle under `artifacts/integration/<timestamp>/`:
   - `report.md` and `report.json`
   - `harness.log`, `validator.log`, `smoke.log`, `integration.log`
+- Transaction evidence document:
+  - `docs/TESTNET_EVIDENCE.md` (tx IDs/hashes + mirror/hashscan links)
 - Harness output showing summary pass line in selected mode
 - API health check response from `GET /health`
 - One sample transaction query result (`GET /transactions`)
