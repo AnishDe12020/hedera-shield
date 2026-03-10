@@ -182,13 +182,19 @@ Default command behavior:
 # 2) Verify final draft-referenced docs/artifacts
 ./scripts/pre-submit-verify.py
 
-# 3) Attempt sync + push with bounded retry/backoff and status report
+# 3) Attempt one immediate sync + push with bounded retry/backoff
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 4) If push is blocked by DNS/network outage, create offline handoff package
+# 4) If still blocked, run periodic network-recovery push runner until reachable
+./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
+
+# Optional: verify behavior without pushing
+./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
+
+# 5) If push remains blocked, create offline handoff package
 ./scripts/offline-handoff.sh
 
-# 5) Generate a single handoff index for judges (markdown + json)
+# 6) Generate a single handoff index for judges (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: deterministic timestamp/output path
@@ -199,6 +205,8 @@ Outputs:
 - `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
 - `dist/pre-submit-verify-latest.txt` (PASS/FAIL final draft-linked verification summary)
 - `dist/sync-submit-status-latest.txt` (pending commits + remote reachability + exact push error when push fails)
+- `dist/network-recovery-push-status-latest.txt` (periodic DNS/reachability checks + exact push/network errors + blocked/clear status)
+- `dist/network-recovery-push-status-latest.json` (machine-readable recovery status for monitoring)
 - `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
 - `artifacts/offline-handoff/<timestamp>/branch-status.txt`
 - `artifacts/offline-handoff/<timestamp>/commit-list.txt`

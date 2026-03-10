@@ -43,10 +43,15 @@ pytest tests/ -v --tb=short
 ./scripts/submission-readiness.sh
 ./scripts/pre-submit-verify.py
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
+./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 ./scripts/generate-handoff-index.py
 ```
 
 ## DNS/Network Outage Fallback (Offline Handoff)
+- [ ] Optional safe dry-run works: `./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4`
+- [ ] Runner text status exists: `dist/network-recovery-push-status-latest.txt`
+- [ ] Runner JSON status exists: `dist/network-recovery-push-status-latest.json`
+- [ ] Runner status captures exact push/network error text when push fails
 - [ ] If sync/push fails, run: `./scripts/offline-handoff.sh`
 - [ ] Handoff output directory exists: `artifacts/offline-handoff/<timestamp>/`
 - [ ] Handoff summary exists: `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`

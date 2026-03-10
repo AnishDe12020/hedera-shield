@@ -185,10 +185,16 @@ Use the dedicated judge-facing docs:
 # 4) Sync and push with graceful DNS/offline failure handling + status report
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 5) If push is blocked by DNS/network outage, export offline handoff package
+# 5) If still blocked, run periodic network-recovery push runner
+./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
+
+# Optional: safe dry-run mode (never pushes)
+./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
+
+# 6) If push remains blocked by DNS/network outage, export offline handoff package
 ./scripts/offline-handoff.sh
 
-# 6) Generate final judge handoff index (markdown + json)
+# 7) Generate final judge handoff index (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: explicit timestamp for deterministic handoff folder naming
@@ -199,6 +205,8 @@ Report outputs:
 - `dist/submission-readiness-latest.txt`
 - `dist/pre-submit-verify-latest.txt`
 - `dist/sync-submit-status-latest.txt`
+- `dist/network-recovery-push-status-latest.txt`
+- `dist/network-recovery-push-status-latest.json`
 - `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
 - `artifacts/offline-handoff/<timestamp>/offline.bundle`
 - `artifacts/offline-handoff/<timestamp>/patches/*.patch`
