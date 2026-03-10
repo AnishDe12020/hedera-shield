@@ -223,6 +223,9 @@ Use the dedicated judge-facing docs:
 
 # 13) Export cross-repo final handoff package (read-only across source repos)
 ./scripts/final-handoff-export.sh
+
+# 14) Generate execution-ready human handoff playbook (manual final steps + blockers)
+./scripts/generate-human-handoff-playbook.sh
 ```
 
 Report outputs:
@@ -249,6 +252,10 @@ Report outputs:
 - `dist/final-handoff/final-handoff-<timestamp>/master-index.json`
 - `dist/final-handoff/final-handoff-latest.md`
 - `dist/final-handoff/final-handoff-latest.json`
+- `dist/handoff-playbook/<timestamp>/human-handoff-playbook.md`
+- `dist/handoff-playbook/<timestamp>/human-handoff-playbook.json`
+- `dist/handoff-playbook/human-handoff-playbook-latest.md`
+- `dist/handoff-playbook/human-handoff-playbook-latest.json`
 
 ---
 

@@ -34,6 +34,8 @@ required_files=(
   "scripts/generate-handoff-index.py"
   "scripts/final_handoff_exporter.py"
   "scripts/final-handoff-export.sh"
+  "scripts/generate-human-handoff-playbook.py"
+  "scripts/generate-human-handoff-playbook.sh"
   "scripts/sprint-multi-repo-dashboard.py"
   "scripts/submission-readiness.sh"
   "scripts/pre-submit-verify.py"
@@ -43,6 +45,7 @@ required_files=(
   "scripts/verify-submission-freeze.py"
   "scripts/sync-and-submit.sh"
   "scripts/offline-handoff.sh"
+  "docs/HUMAN_HANDOFF_PLAYBOOK.md"
 )
 
 missing=()
