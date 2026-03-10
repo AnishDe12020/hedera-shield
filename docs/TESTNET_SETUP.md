@@ -70,6 +70,8 @@ Generated files:
 - `report.md` (copy-paste friendly snippets)
 - `report.json` (machine-readable status summary)
 
+For submission proof requirements and copy-ready output templates, use [DEPLOY_PROOF.md](DEPLOY_PROOF.md).
+
 ## Optional: Run API Demo After Harness
 
 ```bash
