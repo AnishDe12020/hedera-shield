@@ -28,6 +28,8 @@ required_files=(
   "scripts/generate-integration-evidence.py"
   "scripts/package-submission.sh"
   "scripts/release-evidence.sh"
+  "scripts/submission-readiness.sh"
+  "scripts/sync-and-submit.sh"
 )
 
 missing=()

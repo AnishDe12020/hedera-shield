@@ -173,6 +173,20 @@ Default command behavior:
 - Builds `dist/submission-bundle.zip`
 - Emits `dist/release-evidence-<timestamp>.tar.gz` with logs + artifacts + submission zip
 
+### Submission Readiness + Sync (DNS/Offline Safe)
+
+```bash
+# 1) Verify docs/demo/artifacts readiness
+./scripts/submission-readiness.sh
+
+# 2) Attempt sync + push with bounded retry/backoff and status report
+./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
+```
+
+Outputs:
+- `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
+- `dist/sync-submit-status-latest.txt` (pending commits + remote reachability + exact push error when push fails)
+
 Judge-focused docs:
 - [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
 - [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.

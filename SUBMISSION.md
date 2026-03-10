@@ -168,6 +168,23 @@ Use the dedicated judge-facing docs:
 - Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`
 - Testnet transaction evidence document: `docs/TESTNET_EVIDENCE.md`
 
+## Submission Execution Commands
+
+```bash
+# 1) Build lint/test/harness/package evidence bundle
+./scripts/release-evidence.sh
+
+# 2) Confirm submission readiness state (docs + artifacts + bundle checks)
+./scripts/submission-readiness.sh
+
+# 3) Sync and push with graceful DNS/offline failure handling + status report
+./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
+```
+
+Report outputs:
+- `dist/submission-readiness-latest.txt`
+- `dist/sync-submit-status-latest.txt`
+
 ---
 
 ## Test Coverage
