@@ -38,7 +38,18 @@ Use this as the final gate before hackathon portal submission.
 ruff check hedera_shield/ tests/
 pytest tests/ -v --tb=short
 ./scripts/package-submission.sh
+./scripts/submission-readiness.sh
+./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 ```
+
+## DNS/Network Outage Fallback (Offline Handoff)
+- [ ] If sync/push fails, run: `./scripts/offline-handoff.sh`
+- [ ] Handoff output directory exists: `artifacts/offline-handoff/<timestamp>/`
+- [ ] Handoff summary exists: `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
+- [ ] Bundle exists: `artifacts/offline-handoff/<timestamp>/offline.bundle`
+- [ ] Patch series exists: `artifacts/offline-handoff/<timestamp>/patches/*.patch`
+- [ ] Restore/apply instructions exist: `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
+- [ ] Summary contains exact push failure text when present in `dist/sync-submit-status-latest.txt`
 
 ## Submission Notes
 - [ ] Notes to judges added in `SUBMISSION.md`

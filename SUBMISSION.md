@@ -179,11 +179,18 @@ Use the dedicated judge-facing docs:
 
 # 3) Sync and push with graceful DNS/offline failure handling + status report
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
+
+# 4) If push is blocked by DNS/network outage, export offline handoff package
+./scripts/offline-handoff.sh
 ```
 
 Report outputs:
 - `dist/submission-readiness-latest.txt`
 - `dist/sync-submit-status-latest.txt`
+- `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
+- `artifacts/offline-handoff/<timestamp>/offline.bundle`
+- `artifacts/offline-handoff/<timestamp>/patches/*.patch`
+- `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
 
 ---
 

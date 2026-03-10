@@ -28,6 +28,7 @@ REQUIRED_ARCHIVE_ENTRIES = {
     "scripts/release-evidence.sh",
     "scripts/submission-readiness.sh",
     "scripts/sync-and-submit.sh",
+    "scripts/offline-handoff.sh",
 }
 
 

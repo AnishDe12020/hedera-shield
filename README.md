@@ -181,11 +181,20 @@ Default command behavior:
 
 # 2) Attempt sync + push with bounded retry/backoff and status report
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
+
+# 3) If push is blocked by DNS/network outage, create offline handoff package
+./scripts/offline-handoff.sh
 ```
 
 Outputs:
 - `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
 - `dist/sync-submit-status-latest.txt` (pending commits + remote reachability + exact push error when push fails)
+- `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
+- `artifacts/offline-handoff/<timestamp>/branch-status.txt`
+- `artifacts/offline-handoff/<timestamp>/commit-list.txt`
+- `artifacts/offline-handoff/<timestamp>/offline.bundle`
+- `artifacts/offline-handoff/<timestamp>/patches/*.patch`
+- `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
 
 Judge-focused docs:
 - [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
