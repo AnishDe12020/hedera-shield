@@ -42,6 +42,8 @@ pytest tests/ -v --tb=short
 ./scripts/package-submission.sh
 ./scripts/submission-readiness.sh
 ./scripts/pre-submit-verify.py
+./scripts/submission-freeze.py
+./scripts/verify-submission-freeze.py
 ./scripts/sprint-multi-repo-dashboard.py
 ./scripts/sprint-multi-repo-dashboard.py --repo-config config/sprint-repos.json
 ./scripts/sprint-multi-repo-dashboard.py --attempt-push
@@ -59,6 +61,10 @@ pytest tests/ -v --tb=short
 - [ ] Runner text status exists: `dist/network-recovery-push-status-latest.txt`
 - [ ] Runner JSON status exists: `dist/network-recovery-push-status-latest.json`
 - [ ] Runner status captures exact push/network error text when push fails
+- [ ] Submission-freeze latest markdown exists: `dist/submission-freeze/submission-freeze-latest.md`
+- [ ] Submission-freeze latest json exists: `dist/submission-freeze/submission-freeze-latest.json`
+- [ ] Drift verify latest markdown exists: `dist/submission-freeze/drift-verify-latest.md`
+- [ ] Drift verify latest json exists: `dist/submission-freeze/drift-verify-latest.json`
 - [ ] If sync/push fails, run: `./scripts/offline-handoff.sh`
 - [ ] Handoff output directory exists: `artifacts/offline-handoff/<timestamp>/`
 - [ ] Handoff summary exists: `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`

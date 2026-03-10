@@ -182,7 +182,13 @@ Default command behavior:
 # 2) Verify final draft-referenced docs/artifacts
 ./scripts/pre-submit-verify.py
 
-# 3) Generate consolidated multi-repo sprint push dashboard (read-only by default)
+# 3) Capture immutable submission-freeze snapshot manifest (markdown + json)
+./scripts/submission-freeze.py
+
+# 4) Verify current artifacts/commit state against latest freeze manifest
+./scripts/verify-submission-freeze.py
+
+# 5) Generate consolidated multi-repo sprint push dashboard (read-only by default)
 ./scripts/sprint-multi-repo-dashboard.py
 
 # Optional: use mirrored GitLab/Hedera/DO config
@@ -191,19 +197,19 @@ Default command behavior:
 # Optional: attempt safe push via sync helper when remote is reachable
 ./scripts/sprint-multi-repo-dashboard.py --attempt-push
 
-# 4) Attempt one immediate sync + push with bounded retry/backoff
+# 6) Attempt one immediate sync + push with bounded retry/backoff
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 5) If still blocked, run periodic network-recovery push runner until reachable
+# 7) If still blocked, run periodic network-recovery push runner until reachable
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 
 # Optional: verify behavior without pushing
 ./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
 
-# 6) If push remains blocked, create offline handoff package
+# 8) If push remains blocked, create offline handoff package
 ./scripts/offline-handoff.sh
 
-# 7) Generate a single handoff index for judges (markdown + json)
+# 9) Generate a single handoff index for judges (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: deterministic timestamp/output path
@@ -213,6 +219,10 @@ Default command behavior:
 Outputs:
 - `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
 - `dist/pre-submit-verify-latest.txt` (PASS/FAIL final draft-linked verification summary)
+- `dist/submission-freeze/submission-freeze-latest.md` (latest immutable freeze manifest markdown)
+- `dist/submission-freeze/submission-freeze-latest.json` (latest immutable freeze manifest json)
+- `dist/submission-freeze/drift-verify-latest.md` (latest drift report markdown)
+- `dist/submission-freeze/drift-verify-latest.json` (latest drift report json)
 - `dist/sprint-status/sprint-dashboard-<timestamp>.md` (multi-repo dashboard snapshot)
 - `dist/sprint-status/sprint-dashboard-<timestamp>.json` (machine-readable multi-repo snapshot)
 - `dist/sprint-status/sprint-dashboard-latest.md` (latest multi-repo dashboard markdown)

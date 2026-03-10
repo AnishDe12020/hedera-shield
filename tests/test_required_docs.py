@@ -46,3 +46,9 @@ def test_readme_references_demo_and_checklist_docs() -> None:
 def test_checklist_references_pre_submit_verifier() -> None:
     content = (ROOT / "docs" / "FINAL_SUBMISSION_CHECKLIST.md").read_text(encoding="utf-8")
     assert "./scripts/pre-submit-verify.py" in content
+
+
+def test_checklist_references_submission_freeze_commands() -> None:
+    content = (ROOT / "docs" / "FINAL_SUBMISSION_CHECKLIST.md").read_text(encoding="utf-8")
+    assert "./scripts/submission-freeze.py" in content
+    assert "./scripts/verify-submission-freeze.py" in content

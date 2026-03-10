@@ -182,7 +182,13 @@ Use the dedicated judge-facing docs:
 # 3) Final draft-linked verifier for required docs/artifacts
 ./scripts/pre-submit-verify.py
 
-# 4) Generate consolidated multi-repo sprint push dashboard (read-only default)
+# 4) Capture immutable submission-freeze snapshot manifest (markdown + json)
+./scripts/submission-freeze.py
+
+# 5) Verify current artifacts/commit state against latest freeze manifest
+./scripts/verify-submission-freeze.py
+
+# 6) Generate consolidated multi-repo sprint push dashboard (read-only default)
 ./scripts/sprint-multi-repo-dashboard.py
 
 # Optional: explicit mirrored GitLab/Hedera/DO repo config
@@ -191,19 +197,19 @@ Use the dedicated judge-facing docs:
 # Optional: attempt safe push for reachable repos
 ./scripts/sprint-multi-repo-dashboard.py --attempt-push
 
-# 5) Sync and push with graceful DNS/offline failure handling + status report
+# 7) Sync and push with graceful DNS/offline failure handling + status report
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 6) If still blocked, run periodic network-recovery push runner
+# 8) If still blocked, run periodic network-recovery push runner
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 
 # Optional: safe dry-run mode (never pushes)
 ./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
 
-# 7) If push remains blocked by DNS/network outage, export offline handoff package
+# 9) If push remains blocked by DNS/network outage, export offline handoff package
 ./scripts/offline-handoff.sh
 
-# 8) Generate final judge handoff index (markdown + json)
+# 10) Generate final judge handoff index (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: explicit timestamp for deterministic handoff folder naming
@@ -213,6 +219,10 @@ Use the dedicated judge-facing docs:
 Report outputs:
 - `dist/submission-readiness-latest.txt`
 - `dist/pre-submit-verify-latest.txt`
+- `dist/submission-freeze/submission-freeze-latest.md`
+- `dist/submission-freeze/submission-freeze-latest.json`
+- `dist/submission-freeze/drift-verify-latest.md`
+- `dist/submission-freeze/drift-verify-latest.json`
 - `dist/sprint-status/sprint-dashboard-<timestamp>.md`
 - `dist/sprint-status/sprint-dashboard-<timestamp>.json`
 - `dist/sprint-status/sprint-dashboard-latest.md`
