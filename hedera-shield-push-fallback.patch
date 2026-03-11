@@ -1,0 +1,503 @@
+From 98ce3c0c4097b98fdd6c709a4cc4dab43d80dd17 Mon Sep 17 00:00:00 2001
+From: Anish De <63192115+AnishDe12020@users.noreply.github.com>
+Date: Wed, 11 Mar 2026 05:53:47 +0100
+Subject: [PATCH] Add offline E2E HTS-to-HCS simulation command
+
+---
+ README.md                        |  13 +-
+ SUBMISSION.md                    |   8 +-
+ demo/sample_hts_events.json      |  76 +++++++++
+ scripts/run-e2e-simulation.py    | 256 +++++++++++++++++++++++++++++++
+ tests/test_run_e2e_simulation.py |  74 +++++++++
+ 5 files changed, 423 insertions(+), 4 deletions(-)
+ create mode 100644 demo/sample_hts_events.json
+ create mode 100755 scripts/run-e2e-simulation.py
+ create mode 100644 tests/test_run_e2e_simulation.py
+
+diff --git a/README.md b/README.md
+index d36a68c..f68728a 100644
+--- a/README.md
++++ b/README.md
+@@ -179,6 +179,9 @@ Quick run:
+ ### One-Command Judge Evidence Bundle
+ 
+ ```bash
++# Fast judge-visible compliance simulation (no credentials, offline-safe)
++./scripts/run-e2e-simulation.py
++
+ # Safe default (credential-free, non-destructive)
+ ./scripts/release-evidence.sh
+ 
+@@ -327,8 +330,11 @@ curl "http://localhost:8000/transactions?token_id=0.0.YOUR_TOKEN&limit=10" | pyt
+ 
+ ### 5. Run Alert Simulation
+ ```bash
+-python demo/simulate_alerts.py
++./scripts/run-e2e-simulation.py
+ ```
++Outputs:
++- `artifacts/demo/e2e-simulation/<timestamp>/report.json`
++- `artifacts/demo/e2e-simulation/<timestamp>/report.md`
+ 
+ ### 6. Test Enforcement (Dry Run)
+ ```bash
+@@ -393,7 +399,10 @@ hedera-shield/
+ ├── demo/
+ │   ├── simulate_alerts.py   # Alert simulation script
+ │   ├── walkthrough.md       # Demo walkthrough guide
+-│   └── sample_alerts.json   # Sample alert data
++│   ├── sample_alerts.json   # Sample alert data
++│   └── sample_hts_events.json # Sample HTS transfer stream for E2E simulation
++├── scripts/
++│   └── run-e2e-simulation.py # Offline end-to-end simulation (events -> rules -> HCS artifact)
+ ├── Dockerfile
+ ├── docker-compose.yml
+ ├── requirements.txt
+diff --git a/SUBMISSION.md b/SUBMISSION.md
+index a6d19d5..c9f32dc 100644
+--- a/SUBMISSION.md
++++ b/SUBMISSION.md
+@@ -153,10 +153,14 @@ docker compose up --build
+ # Open dashboard
+ open http://localhost:8000
+ 
+-# Run simulation
+-python demo/simulate_alerts.py
++# Run judge-visible offline simulation (sample HTS events -> rules -> HCS dry-run report)
++./scripts/run-e2e-simulation.py
+ ```
+ 
++Generated artifact paths:
++- `artifacts/demo/e2e-simulation/<timestamp>/report.json`
++- `artifacts/demo/e2e-simulation/<timestamp>/report.md`
++
+ ---
+ 
+ ## Testnet Runbook + Evidence Checklist
+diff --git a/demo/sample_hts_events.json b/demo/sample_hts_events.json
+new file mode 100644
+index 0000000..e22df7a
+--- /dev/null
++++ b/demo/sample_hts_events.json
+@@ -0,0 +1,76 @@
++{
++  "events": [
++    {
++      "transaction_id": "sim-tx-001",
++      "token_id": "0.0.5555",
++      "sender": "0.0.1111",
++      "receiver": "0.0.2222",
++      "amount": 25000.0,
++      "seconds_from_start": 0,
++      "memo": "Treasury rebalance outflow"
++    },
++    {
++      "transaction_id": "sim-tx-002",
++      "token_id": "0.0.5555",
++      "sender": "0.0.6666",
++      "receiver": "0.0.3333",
++      "amount": 1200.0,
++      "seconds_from_start": 1,
++      "memo": "Counterparty settlement"
++    },
++    {
++      "transaction_id": "sim-tx-003",
++      "token_id": "0.0.5555",
++      "sender": "0.0.9000",
++      "receiver": "0.0.3000",
++      "amount": 9500.0,
++      "seconds_from_start": 2,
++      "memo": "Split payout part 1"
++    },
++    {
++      "transaction_id": "sim-tx-004",
++      "token_id": "0.0.5555",
++      "sender": "0.0.9000",
++      "receiver": "0.0.3001",
++      "amount": 9400.0,
++      "seconds_from_start": 3,
++      "memo": "Split payout part 2"
++    },
++    {
++      "transaction_id": "sim-tx-005",
++      "token_id": "0.0.5555",
++      "sender": "0.0.9000",
++      "receiver": "0.0.3002",
++      "amount": 9300.0,
++      "seconds_from_start": 4,
++      "memo": "Split payout part 3"
++    },
++    {
++      "transaction_id": "sim-tx-006",
++      "token_id": "0.0.7001",
++      "sender": "0.0.1234",
++      "receiver": "0.0.5678",
++      "amount": 2100.0,
++      "seconds_from_start": 5,
++      "memo": "Cross-token leg A"
++    },
++    {
++      "transaction_id": "sim-tx-007",
++      "token_id": "0.0.7002",
++      "sender": "0.0.1234",
++      "receiver": "0.0.5678",
++      "amount": 2200.0,
++      "seconds_from_start": 6,
++      "memo": "Cross-token leg B"
++    },
++    {
++      "transaction_id": "sim-tx-008",
++      "token_id": "0.0.7003",
++      "sender": "0.0.1234",
++      "receiver": "0.0.5678",
++      "amount": 2300.0,
++      "seconds_from_start": 7,
++      "memo": "Cross-token leg C"
++    }
++  ]
++}
+diff --git a/scripts/run-e2e-simulation.py b/scripts/run-e2e-simulation.py
+new file mode 100755
+index 0000000..b11e993
+--- /dev/null
++++ b/scripts/run-e2e-simulation.py
+@@ -0,0 +1,256 @@
++#!/usr/bin/env python3
++"""Run an offline end-to-end HederaShield simulation and emit judge-visible artifacts.
++
++Flow:
++sample HTS events -> compliance rules engine -> HCS reporting (dry-run) -> report artifacts
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++from collections import Counter
++from datetime import datetime, timedelta, timezone
++from pathlib import Path
++from typing import Any
++
++ROOT = Path(__file__).resolve().parent.parent
++if str(ROOT) not in sys.path:
++    sys.path.insert(0, str(ROOT))
++
++from hedera_shield.compliance import ComplianceEngine
++from hedera_shield.hcs_reporter import HCSReporter
++from hedera_shield.models import TokenTransfer
++
++
++def _parse_args() -> argparse.Namespace:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument(
++        "--sample-events",
++        default="demo/sample_hts_events.json",
++        help="Path to sample HTS events JSON (default: demo/sample_hts_events.json)",
++    )
++    parser.add_argument(
++        "--output-base-dir",
++        default="artifacts/demo/e2e-simulation",
++        help="Base output directory for timestamped artifacts",
++    )
++    parser.add_argument(
++        "--timestamp",
++        default="",
++        help="Optional UTC timestamp folder name (e.g. 20260311T120000Z)",
++    )
++    parser.add_argument(
++        "--topic-id",
++        default="0.0.123456",
++        help="Demo HCS topic id to record in dry-run results",
++    )
++    return parser.parse_args()
++
++
++def _load_sample_events(path: Path) -> list[dict[str, Any]]:
++    payload = json.loads(path.read_text(encoding="utf-8"))
++    if isinstance(payload, dict):
++        events = payload.get("events", [])
++    else:
++        events = payload
++
++    if not isinstance(events, list):
++        raise ValueError("sample events JSON must contain a list or {'events': [...]} shape")
++
++    normalized: list[dict[str, Any]] = []
++    for index, event in enumerate(events, start=1):
++        if not isinstance(event, dict):
++            raise ValueError(f"event #{index} is not an object")
++        normalized.append(event)
++    return normalized
++
++
++def _build_transfers(events: list[dict[str, Any]]) -> list[TokenTransfer]:
++    now = datetime.now(timezone.utc)
++    base = now - timedelta(seconds=15)
++    transfers: list[TokenTransfer] = []
++
++    for idx, event in enumerate(events, start=1):
++        tx_id = str(event.get("transaction_id") or f"sim-tx-{idx:03d}")
++        token_id = str(event.get("token_id") or "0.0.5555")
++        sender = str(event.get("sender") or "0.0.1111")
++        receiver = str(event.get("receiver") or "0.0.2222")
++        amount = float(event.get("amount") or 0.0)
++        offset = int(event.get("seconds_from_start", idx - 1))
++        memo = str(event.get("memo") or "")
++
++        transfers.append(
++            TokenTransfer(
++                transaction_id=tx_id,
++                token_id=token_id,
++                sender=sender,
++                receiver=receiver,
++                amount=amount,
++                timestamp=base + timedelta(seconds=offset),
++                memo=memo,
++            )
++        )
++
++    return transfers
++
++
++def _write_artifacts(
++    output_dir: Path,
++    sample_path: Path,
++    transfers: list[TokenTransfer],
++    alerts: list[dict[str, Any]],
++    hcs_results: list[dict[str, Any]],
++    topic_id: str,
++) -> tuple[Path, Path]:
++    output_dir.mkdir(parents=True, exist_ok=True)
++
++    alerts_by_type = Counter(item["alert_type"] for item in alerts)
++    alerts_by_severity = Counter(item["severity"] for item in alerts)
++
++    report = {
++        "meta": {
++            "generated_at": datetime.now(timezone.utc).isoformat(),
++            "sample_events_path": str(sample_path),
++            "hcs_topic_id": topic_id,
++            "mode": "offline_dry_run",
++        },
++        "summary": {
++            "sample_events": len(transfers),
++            "alerts_generated": len(alerts),
++            "hcs_messages_published": len(hcs_results),
++            "hcs_statuses": dict(Counter(item.get("status", "unknown") for item in hcs_results)),
++            "alerts_by_type": dict(alerts_by_type),
++            "alerts_by_severity": dict(alerts_by_severity),
++        },
++        "transfers": [
++            {
++                "transaction_id": tx.transaction_id,
++                "token_id": tx.token_id,
++                "sender": tx.sender,
++                "receiver": tx.receiver,
++                "amount": tx.amount,
++                "timestamp": tx.timestamp.isoformat(),
++                "memo": tx.memo,
++            }
++            for tx in transfers
++        ],
++        "alerts": alerts,
++        "hcs_publish_results": hcs_results,
++    }
++
++    json_path = output_dir / "report.json"
++    json_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
++
++    lines = [
++        "# HederaShield E2E Simulation Report",
++        "",
++        f"- Generated at: `{report['meta']['generated_at']}`",
++        f"- Sample events: `{sample_path}`",
++        f"- HCS topic: `{topic_id}` (dry-run)",
++        "",
++        "## Summary",
++        "",
++        f"- Sample HTS events processed: **{report['summary']['sample_events']}**",
++        f"- Compliance alerts generated: **{report['summary']['alerts_generated']}**",
++        f"- HCS publish attempts: **{report['summary']['hcs_messages_published']}**",
++        f"- HCS statuses: `{json.dumps(report['summary']['hcs_statuses'], sort_keys=True)}`",
++        "",
++        "## Alert Breakdown",
++        "",
++        f"- By type: `{json.dumps(report['summary']['alerts_by_type'], sort_keys=True)}`",
++        f"- By severity: `{json.dumps(report['summary']['alerts_by_severity'], sort_keys=True)}`",
++        "",
++        "## Top Alerts",
++        "",
++    ]
++
++    if alerts:
++        for alert in alerts[:5]:
++            lines.append(
++                "- "
++                f"`{alert['alert_id']}` "
++                f"[{alert['severity']}] `{alert['alert_type']}` "
++                f"tx=`{alert['transaction_id']}` risk=`{alert['risk_score']:.3f}` "
++                f"action=`{alert['recommended_action']}`"
++            )
++    else:
++        lines.append("- No alerts generated.")
++
++    lines.extend(
++        [
++            "",
++            "## Output Files",
++            "",
++            f"- `{json_path}`",
++            f"- `{output_dir / 'report.md'}`",
++        ]
++    )
++
++    md_path = output_dir / "report.md"
++    md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
++
++    return json_path, md_path
++
++
++async def _run(args: argparse.Namespace) -> int:
++    sample_path = Path(args.sample_events).resolve()
++    if not sample_path.is_file():
++        print(f"SIM|input|FAIL|sample events file not found: {sample_path}")
++        return 1
++
++    timestamp = args.timestamp or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
++    output_dir = Path(args.output_base_dir).resolve() / timestamp
++
++    events = _load_sample_events(sample_path)
++    transfers = _build_transfers(events)
++
++    engine = ComplianceEngine(rules_config_path="auto")
++    alerts_raw = engine.analyze_batch(transfers)
++
++    reporter = HCSReporter(topic_id=args.topic_id, dry_run=True)
++    hcs_results = await reporter.publish_batch(alerts_raw)
++
++    alerts = [
++        {
++            "alert_id": alert.id,
++            "alert_type": alert.alert_type.value,
++            "severity": alert.severity.value,
++            "risk_score": alert.risk_score,
++            "description": alert.description,
++            "recommended_action": alert.recommended_action.value,
++            "transaction_id": alert.transaction.transaction_id,
++            "token_id": alert.transaction.token_id,
++            "sender": alert.transaction.sender,
++            "receiver": alert.transaction.receiver,
++            "amount": alert.transaction.amount,
++        }
++        for alert in alerts_raw
++    ]
++
++    json_path, md_path = _write_artifacts(
++        output_dir=output_dir,
++        sample_path=sample_path,
++        transfers=transfers,
++        alerts=alerts,
++        hcs_results=hcs_results,
++        topic_id=args.topic_id,
++    )
++
++    print(f"SIM|input|PASS|loaded {len(transfers)} sample HTS events from {sample_path}")
++    print(f"SIM|rules|PASS|generated {len(alerts)} compliance alerts")
++    print(f"SIM|hcs|PASS|published {len(hcs_results)} dry-run HCS messages")
++    print(f"SIM|artifact|PASS|wrote {json_path} and {md_path}")
++    return 0
++
++
++def main() -> int:
++    args = _parse_args()
++    import asyncio
++
++    return asyncio.run(_run(args))
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tests/test_run_e2e_simulation.py b/tests/test_run_e2e_simulation.py
+new file mode 100644
+index 0000000..2cac40c
+--- /dev/null
++++ b/tests/test_run_e2e_simulation.py
+@@ -0,0 +1,74 @@
++from __future__ import annotations
++
++import json
++import shutil
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parent.parent
++SCRIPT = ROOT / "scripts" / "run-e2e-simulation.py"
++SAMPLE_EVENTS = ROOT / "demo" / "sample_hts_events.json"
++
++
++def test_e2e_simulation_generates_artifacts_and_hcs_dry_run_results(tmp_path: Path) -> None:
++    project = tmp_path / "project"
++    project.mkdir()
++
++    script_path = project / "scripts" / "run-e2e-simulation.py"
++    script_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SCRIPT, script_path)
++
++    hedera_pkg_src = ROOT / "hedera_shield"
++    hedera_pkg_dst = project / "hedera_shield"
++    shutil.copytree(hedera_pkg_src, hedera_pkg_dst)
++
++    config_src = ROOT / "config"
++    config_dst = project / "config"
++    shutil.copytree(config_src, config_dst)
++
++    sample_events_path = project / "demo" / "sample_hts_events.json"
++    sample_events_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SAMPLE_EVENTS, sample_events_path)
++
++    timestamp = "20260311T120000Z"
++    result = subprocess.run(
++        [
++            "python3",
++            str(script_path),
++            "--sample-events",
++            str(sample_events_path),
++            "--output-base-dir",
++            "artifacts/demo/e2e-simulation",
++            "--timestamp",
++            timestamp,
++            "--topic-id",
++            "0.0.424242",
++        ],
++        cwd=project,
++        capture_output=True,
++        text=True,
++        check=False,
++    )
++
++    assert result.returncode == 0
++    assert "SIM|rules|PASS|" in result.stdout
++    assert "SIM|hcs|PASS|" in result.stdout
++
++    out_dir = project / "artifacts" / "demo" / "e2e-simulation" / timestamp
++    report_json = out_dir / "report.json"
++    report_md = out_dir / "report.md"
++
++    assert report_json.exists()
++    assert report_md.exists()
++
++    payload = json.loads(report_json.read_text(encoding="utf-8"))
++    assert payload["summary"]["sample_events"] == 8
++    assert payload["summary"]["alerts_generated"] > 0
++    assert payload["summary"]["hcs_messages_published"] == payload["summary"]["alerts_generated"]
++    assert payload["summary"]["hcs_statuses"]["dry_run"] == payload["summary"]["alerts_generated"]
++    assert "large_transfer" in payload["summary"]["alerts_by_type"]
++
++    md_content = report_md.read_text(encoding="utf-8")
++    assert "HederaShield E2E Simulation Report" in md_content
++    assert "HCS topic" in md_content
+-- 
+2.43.0
+
