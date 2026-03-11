@@ -1,0 +1,331 @@
+From 0f51adc4664e691a0bd7680004b78f8346581e0f Mon Sep 17 00:00:00 2001
+From: Anish De <63192115+AnishDe12020@users.noreply.github.com>
+Date: Tue, 10 Mar 2026 13:40:49 +0100
+Subject: [PATCH 3/5] Add deterministic demo runbook and final submission
+ checklist
+
+---
+ README.md                          |   5 +-
+ SUBMISSION.md                      |  54 ++------------
+ docs/DEMO_RECORDING_RUNBOOK.md     | 116 +++++++++++++++++++++++++++++
+ docs/FINAL_SUBMISSION_CHECKLIST.md |  45 +++++++++++
+ scripts/package-submission.sh      |   2 +
+ tests/test_package_submission.py   |   2 +
+ tests/test_required_docs.py        |  14 ++++
+ 7 files changed, 188 insertions(+), 50 deletions(-)
+ create mode 100644 docs/DEMO_RECORDING_RUNBOOK.md
+ create mode 100644 docs/FINAL_SUBMISSION_CHECKLIST.md
+
+diff --git a/README.md b/README.md
+index 672c593145ba01901c8f858249f694192fd3120d..93510e0c3f12ae6814d06f51870a848e70b1d3fe 100644
+--- a/README.md
++++ b/README.md
+@@ -173,7 +173,10 @@ Default command behavior:
+ - Builds `dist/submission-bundle.zip`
+ - Emits `dist/release-evidence-<timestamp>.tar.gz` with logs + artifacts + submission zip
+ 
+-See [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full runbook.
++Judge-focused docs:
++- [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
++- [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.
++- [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full testnet setup/runbook details.
+ 
+ ## Configuration
+ 
+diff --git a/SUBMISSION.md b/SUBMISSION.md
+index e06b57ecc1850a10c9a47a5ea2338759dbcf7506..ac04a5fc4e64f5a040934194552cd4bddb52bcc0 100644
+--- a/SUBMISSION.md
++++ b/SUBMISSION.md
+@@ -161,56 +161,12 @@ python demo/simulate_alerts.py
+ 
+ ## Testnet Runbook + Evidence Checklist
+ 
+-### Runbook
++Use the dedicated judge-facing docs:
+ 
+-```bash
+-# 1) Prepare testnet env
+-cp .env.testnet.example .env.testnet
+-
+-# 2a) One-command release evidence bundle (safe default)
+-./scripts/release-evidence.sh
+-
+-# 2b) Optional real testnet artifacts (explicit opt-in + non-placeholder creds)
+-HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+-./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
+-
+-# 3) Start API with testnet config
+-cp .env.testnet .env
+-python -m hedera_shield.api
+-
+-# 4) Verify health endpoint
+-curl -s http://localhost:8000/health
+-
+-# 5) Optional: capture/refresh standalone transaction evidence doc
+-./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
+-```
+-
+-Harness output is machine-readable and expected in this format:
+-
+-```text
+-HARNESS|<check_name>|PASS|<details>
+-HARNESS|<check_name>|FAIL|<details>
+-HARNESS|summary|PASS|harness checks passed
+-```
+-
+-### Evidence Checklist
+-
+-- Harness artifact bundle under `artifacts/integration/<timestamp>/`:
+-  - `report.md` and `report.json`
+-  - `harness.log`, `validator.log`, `smoke.log`, `integration.log`
+-- Release evidence pack under `artifacts/integration/release-<timestamp>/`:
+-  - `logs/lint.log`, `logs/pytest.log`
+-  - `release-report.md`, `release-report.json`, `release-summary.log`
+-  - Optional `real/` artifacts only when real opt-in is enabled
+-- Final submission bundle:
+-  - `dist/submission-bundle.zip`
+-  - `dist/release-evidence-<timestamp>.tar.gz`
+-- Transaction evidence document:
+-  - `docs/TESTNET_EVIDENCE.md` (tx IDs/hashes + mirror/hashscan links)
+-- Harness output showing summary pass line in selected mode
+-- API health check response from `GET /health`
+-- One sample transaction query result (`GET /transactions`)
+-- Optional: real-mode harness run with integration pytest passing
++- Deterministic 3-minute demo runbook (offline-safe by default): `docs/DEMO_RECORDING_RUNBOOK.md`
++- Final portal submission checklist (links + evidence placeholders): `docs/FINAL_SUBMISSION_CHECKLIST.md`
++- Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`
++- Testnet transaction evidence document: `docs/TESTNET_EVIDENCE.md`
+ 
+ ---
+ 
+diff --git a/docs/DEMO_RECORDING_RUNBOOK.md b/docs/DEMO_RECORDING_RUNBOOK.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..715734159e5c59a385c5488a017b17a9a85eda73
+--- /dev/null
++++ b/docs/DEMO_RECORDING_RUNBOOK.md
+@@ -0,0 +1,116 @@
++# HederaShield 3-Minute Demo Recording Runbook
++
++Purpose: deterministic, offline-safe demo flow for hackathon judging.
++
++## Scope
++- Default mode is offline-safe (mock harness, no live testnet probe).
++- Real testnet commands are listed separately and are opt-in only.
++
++## 3-Minute Script (Offline-Safe Default)
++
++### 0:00-0:20 Setup deterministic artifact paths
++```bash
++export DEMO_ID="3min-offline"
++export DEMO_DIR="artifacts/demo/${DEMO_ID}"
++rm -rf "$DEMO_DIR"
++mkdir -p "$DEMO_DIR"
++```
++
++Expected result:
++- `artifacts/demo/3min-offline/` exists and is empty.
++
++### 0:20-1:20 Run integration harness in mock mode (no network)
++```bash
++./scripts/run-integration-harness.sh \
++  --mode mock \
++  --env-file .env.testnet.example \
++  --artifacts-dir "$DEMO_DIR/harness" \
++  | tee "$DEMO_DIR/harness.stdout.log"
++```
++
++Expected output markers:
++```text
++HARNESS|mode|PASS|running mode=mock
++HARNESS|validator|PASS|env file format accepted
++HARNESS|smoke|PASS|smoke checks passed
++HARNESS|summary|PASS|harness checks passed
++```
++
++Expected artifacts:
++- `artifacts/demo/3min-offline/harness/harness.log`
++- `artifacts/demo/3min-offline/harness/validator.log`
++- `artifacts/demo/3min-offline/harness/smoke.log`
++- `artifacts/demo/3min-offline/harness/integration.log`
++- `artifacts/demo/3min-offline/harness/report.md`
++- `artifacts/demo/3min-offline/harness/report.json`
++- `artifacts/demo/3min-offline/harness.stdout.log`
++
++### 1:20-2:00 Build submission bundle
++```bash
++./scripts/package-submission.sh | tee "$DEMO_DIR/package.stdout.log"
++```
++
++Expected output markers:
++```text
++PACKAGE|required_files|PASS|all required files present
++PACKAGE|bundle|PASS|created /.../dist/submission-bundle.zip with <N> files
++```
++
++Expected artifacts:
++- `dist/submission-bundle.zip`
++- `artifacts/demo/3min-offline/package.stdout.log`
++
++### 2:00-2:20 Record immutable checksum for the bundle
++```bash
++sha256sum dist/submission-bundle.zip | tee "$DEMO_DIR/submission-bundle.zip.sha256"
++```
++
++Expected output pattern:
++```text
++<sha256_hex>  dist/submission-bundle.zip
++```
++
++Expected artifact:
++- `artifacts/demo/3min-offline/submission-bundle.zip.sha256`
++
++### 2:20-3:00 Show final evidence tree
++```bash
++find "$DEMO_DIR" -maxdepth 2 -type f | sort
++```
++
++Expected output list (order deterministic from `sort`):
++```text
++artifacts/demo/3min-offline/harness.stdout.log
++artifacts/demo/3min-offline/harness/harness.log
++artifacts/demo/3min-offline/harness/integration.log
++artifacts/demo/3min-offline/harness/report.json
++artifacts/demo/3min-offline/harness/report.md
++artifacts/demo/3min-offline/harness/smoke.log
++artifacts/demo/3min-offline/harness/validator.log
++artifacts/demo/3min-offline/package.stdout.log
++artifacts/demo/3min-offline/submission-bundle.zip.sha256
++```
++
++## Optional Real-Testnet Add-On (Opt-In Only)
++
++Prerequisites:
++- `.env.testnet` populated with non-placeholder testnet operator credentials
++- `HEDERA_SHIELD_ENABLE_REAL_TESTNET=1` explicitly set
++
++Command:
++```bash
++HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
++./scripts/run-integration-harness.sh \
++  --mode real \
++  --env-file .env.testnet \
++  --artifacts-dir artifacts/demo/3min-real \
++  | tee artifacts/demo/3min-real.stdout.log
++```
++
++Expected additional output markers:
++```text
++HARNESS|real_opt_in|PASS|explicit real mode opt-in enabled
++HARNESS|real_network|PASS|network is testnet
++HARNESS|real_creds|PASS|operator credentials look non-placeholder
++HARNESS|summary|PASS|harness checks passed
++```
+diff --git a/docs/FINAL_SUBMISSION_CHECKLIST.md b/docs/FINAL_SUBMISSION_CHECKLIST.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..05bbeb85735192562bc9810a37197cdb1a611ce1
+--- /dev/null
++++ b/docs/FINAL_SUBMISSION_CHECKLIST.md
+@@ -0,0 +1,45 @@
++# HederaShield Final Submission Checklist
++
++Use this as the final gate before hackathon portal submission.
++
++## Submission Metadata
++- [ ] Team name: `<FILL_TEAM_NAME>`
++- [ ] Primary contact: `<FILL_NAME_AND_EMAIL>`
++- [ ] Repository URL: `<PASTE_REPO_URL>`
++- [ ] Commit SHA submitted: `<PASTE_GIT_SHA>`
++- [ ] Hackathon portal submission URL: `<PASTE_PORTAL_URL>`
++- [ ] Demo video URL (public/unlisted): `<PASTE_VIDEO_URL>`
++- [ ] Optional live deployment URL: `<PASTE_DEPLOYMENT_URL_OR_NA>`
++
++## Required Evidence Artifacts
++- [ ] Demo runbook used: `docs/DEMO_RECORDING_RUNBOOK.md`
++- [ ] Offline demo artifacts directory exists: `artifacts/demo/3min-offline/`
++- [ ] Harness outputs exist:
++  - [ ] `artifacts/demo/3min-offline/harness/report.md`
++  - [ ] `artifacts/demo/3min-offline/harness/report.json`
++  - [ ] `artifacts/demo/3min-offline/harness/harness.log`
++  - [ ] `artifacts/demo/3min-offline/harness/smoke.log`
++  - [ ] `artifacts/demo/3min-offline/harness/validator.log`
++- [ ] Bundle outputs exist:
++  - [ ] `dist/submission-bundle.zip`
++  - [ ] `artifacts/demo/3min-offline/submission-bundle.zip.sha256`
++- [ ] Testnet docs included:
++  - [ ] `docs/TESTNET_SETUP.md`
++  - [ ] `docs/TESTNET_EVIDENCE.md`
++  - [ ] `docs/DEPLOY_PROOF.md`
++
++## Optional Real-Testnet Evidence (Only If Used)
++- [ ] Real opt-in command recorded (`HEDERA_SHIELD_ENABLE_REAL_TESTNET=1`)
++- [ ] Real harness artifact directory: `artifacts/demo/3min-real/`
++- [ ] Real harness summary line shows PASS in logs
++
++## Final Verification Commands
++```bash
++ruff check hedera_shield/ tests/
++pytest tests/ -v --tb=short
++./scripts/package-submission.sh
++```
++
++## Submission Notes
++- [ ] Notes to judges added in `SUBMISSION.md`
++- [ ] Any known limitations disclosed
+diff --git a/scripts/package-submission.sh b/scripts/package-submission.sh
+index 06b66a4d522a09f059750d60d95b7148fbc76442..6aa42429e330911a5dd6d0918bb93b232e7893dd 100755
+--- a/scripts/package-submission.sh
++++ b/scripts/package-submission.sh
+@@ -19,6 +19,8 @@ required_files=(
+   "docs/TESTNET_SETUP.md"
+   "docs/TESTNET_EVIDENCE.md"
+   "docs/DEPLOY_PROOF.md"
++  "docs/DEMO_RECORDING_RUNBOOK.md"
++  "docs/FINAL_SUBMISSION_CHECKLIST.md"
+   ".env.testnet.example"
+   "scripts/run-integration-harness.sh"
+   "scripts/run-testnet-smoke.sh"
+diff --git a/tests/test_package_submission.py b/tests/test_package_submission.py
+index d5aabe1d85640a10a623b6a5c16fcf9aca38581b..6079635dc5bc393187d896a86ced7e4dd9f1fbf9 100644
+--- a/tests/test_package_submission.py
++++ b/tests/test_package_submission.py
+@@ -17,6 +17,8 @@ REQUIRED_ARCHIVE_ENTRIES = {
+     "docs/TESTNET_SETUP.md",
+     "docs/TESTNET_EVIDENCE.md",
+     "docs/DEPLOY_PROOF.md",
++    "docs/DEMO_RECORDING_RUNBOOK.md",
++    "docs/FINAL_SUBMISSION_CHECKLIST.md",
+     ".env.testnet.example",
+     "scripts/run-integration-harness.sh",
+     "scripts/run-testnet-smoke.sh",
+diff --git a/tests/test_required_docs.py b/tests/test_required_docs.py
+index 560feceaf0d5db6aebe7eb4064ad912ae2dc8d4f..8cd5f627706871917c37aec53c54a876aab912e3 100644
+--- a/tests/test_required_docs.py
++++ b/tests/test_required_docs.py
+@@ -10,6 +10,8 @@ def test_required_submission_docs_exist() -> None:
+     assert (ROOT / "docs" / "DEPLOY_PROOF.md").is_file()
+     assert (ROOT / "docs" / "TESTNET_SETUP.md").is_file()
+     assert (ROOT / "docs" / "TESTNET_EVIDENCE.md").is_file()
++    assert (ROOT / "docs" / "DEMO_RECORDING_RUNBOOK.md").is_file()
++    assert (ROOT / "docs" / "FINAL_SUBMISSION_CHECKLIST.md").is_file()
+ 
+ 
+ def test_testnet_setup_references_deploy_proof_checklist() -> None:
+@@ -21,3 +23,15 @@ def test_testnet_setup_references_deploy_proof_checklist() -> None:
+ def test_submission_references_testnet_evidence() -> None:
+     content = (ROOT / "SUBMISSION.md").read_text(encoding="utf-8")
+     assert "TESTNET_EVIDENCE.md" in content
++
++
++def test_submission_references_demo_and_checklist_docs() -> None:
++    content = (ROOT / "SUBMISSION.md").read_text(encoding="utf-8")
++    assert "DEMO_RECORDING_RUNBOOK.md" in content
++    assert "FINAL_SUBMISSION_CHECKLIST.md" in content
++
++
++def test_readme_references_demo_and_checklist_docs() -> None:
++    content = (ROOT / "README.md").read_text(encoding="utf-8")
++    assert "DEMO_RECORDING_RUNBOOK.md" in content
++    assert "FINAL_SUBMISSION_CHECKLIST.md" in content
+-- 
+2.43.0
+

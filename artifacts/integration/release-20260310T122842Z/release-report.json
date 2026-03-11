@@ -1,0 +1,19 @@
+{
+  "timestamp_utc": "20260310T122842Z",
+  "env_file": ".env.testnet.example",
+  "overall": "PASS",
+  "steps": {
+    "lint": 0,
+    "pytest": 0,
+    "mock_harness": 0,
+    "real_harness": "SKIP",
+    "real_evidence": "SKIP",
+    "package_submission": 0,
+    "release_bundle": 0
+  },
+  "outputs": {
+    "submission_zip": "dist/submission-bundle.zip",
+    "release_bundle": "dist/release-evidence-20260310T122842Z.tar.gz",
+    "release_dir": "artifacts/integration/release-20260310T122842Z"
+  }
+}

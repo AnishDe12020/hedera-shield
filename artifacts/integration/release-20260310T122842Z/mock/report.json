@@ -1,0 +1,24 @@
+{
+  "timestamp_utc": "2026-03-10T12:28:44+00:00",
+  "mode": "mock",
+  "env_file": "/home/anish/hedera-shield/.env.testnet.example",
+  "artifacts_dir": "/home/anish/hedera-shield/artifacts/integration/release-20260310T122842Z/mock",
+  "checks": {
+    "validator": {
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    "smoke": {
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    "integration_pytest": {
+      "exit_code": null,
+      "status": "SKIP"
+    },
+    "harness": {
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  }
+}

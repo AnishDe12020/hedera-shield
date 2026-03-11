@@ -1,0 +1,767 @@
+From 1f2fd5cfe75daa2893c4709f24406a1fee04a4b0 Mon Sep 17 00:00:00 2001
+From: Anish De <63192115+AnishDe12020@users.noreply.github.com>
+Date: Tue, 10 Mar 2026 14:03:33 +0100
+Subject: [PATCH 4/5] Add submission readiness and resilient sync/push tooling
+
+---
+ README.md                          |  14 ++
+ SUBMISSION.md                      |  17 ++
+ scripts/package-submission.sh      |   2 +
+ scripts/submission-readiness.sh    | 189 ++++++++++++++++++++++
+ scripts/sync-and-submit.sh         | 250 +++++++++++++++++++++++++++++
+ tests/test_package_submission.py   |   2 +
+ tests/test_submission_readiness.py |  88 ++++++++++
+ tests/test_sync_and_submit.py      | 114 +++++++++++++
+ 8 files changed, 676 insertions(+)
+ create mode 100755 scripts/submission-readiness.sh
+ create mode 100755 scripts/sync-and-submit.sh
+ create mode 100644 tests/test_submission_readiness.py
+ create mode 100644 tests/test_sync_and_submit.py
+
+diff --git a/README.md b/README.md
+index 93510e0c3f12ae6814d06f51870a848e70b1d3fe..52e457d0b075fa9c61f5b56838e93bb3cee438d7 100644
+--- a/README.md
++++ b/README.md
+@@ -173,6 +173,20 @@ Default command behavior:
+ - Builds `dist/submission-bundle.zip`
+ - Emits `dist/release-evidence-<timestamp>.tar.gz` with logs + artifacts + submission zip
+ 
++### Submission Readiness + Sync (DNS/Offline Safe)
++
++```bash
++# 1) Verify docs/demo/artifacts readiness
++./scripts/submission-readiness.sh
++
++# 2) Attempt sync + push with bounded retry/backoff and status report
++./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
++```
++
++Outputs:
++- `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
++- `dist/sync-submit-status-latest.txt` (pending commits + remote reachability + exact push error when push fails)
++
+ Judge-focused docs:
+ - [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
+ - [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.
+diff --git a/SUBMISSION.md b/SUBMISSION.md
+index ac04a5fc4e64f5a040934194552cd4bddb52bcc0..c767baea0f297b52426281b7eb990dc941ee12d2 100644
+--- a/SUBMISSION.md
++++ b/SUBMISSION.md
+@@ -168,6 +168,23 @@ Use the dedicated judge-facing docs:
+ - Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`
+ - Testnet transaction evidence document: `docs/TESTNET_EVIDENCE.md`
+ 
++## Submission Execution Commands
++
++```bash
++# 1) Build lint/test/harness/package evidence bundle
++./scripts/release-evidence.sh
++
++# 2) Confirm submission readiness state (docs + artifacts + bundle checks)
++./scripts/submission-readiness.sh
++
++# 3) Sync and push with graceful DNS/offline failure handling + status report
++./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
++```
++
++Report outputs:
++- `dist/submission-readiness-latest.txt`
++- `dist/sync-submit-status-latest.txt`
++
+ ---
+ 
+ ## Test Coverage
+diff --git a/scripts/package-submission.sh b/scripts/package-submission.sh
+index 6aa42429e330911a5dd6d0918bb93b232e7893dd..6a1de9b5ed8bd974b03486cf0ffec5082273dffb 100755
+--- a/scripts/package-submission.sh
++++ b/scripts/package-submission.sh
+@@ -28,6 +28,8 @@ required_files=(
+   "scripts/generate-integration-evidence.py"
+   "scripts/package-submission.sh"
+   "scripts/release-evidence.sh"
++  "scripts/submission-readiness.sh"
++  "scripts/sync-and-submit.sh"
+ )
+ 
+ missing=()
+diff --git a/scripts/submission-readiness.sh b/scripts/submission-readiness.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..6d06f3b436962d87d8262af8f92c846598b5bcfa
+--- /dev/null
++++ b/scripts/submission-readiness.sh
+@@ -0,0 +1,189 @@
++#!/usr/bin/env bash
++set -u -o pipefail
++
++ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
++cd "$ROOT_DIR"
++
++DEMO_ID="3min-offline"
++DEMO_DIR="$ROOT_DIR/artifacts/demo/$DEMO_ID"
++DIST_DIR="$ROOT_DIR/dist"
++INTEGRATION_ARTIFACTS_DIR="$ROOT_DIR/artifacts/integration"
++REPORT_FILE=""
++
++usage() {
++  cat <<'USAGE'
++Usage:
++  ./scripts/submission-readiness.sh [--demo-id NAME] [--demo-dir PATH] [--dist-dir PATH] [--integration-artifacts-dir PATH] [--report-file PATH]
++
++Checks:
++  - Required docs and checklists exist.
++  - Demo artifacts required by docs/FINAL_SUBMISSION_CHECKLIST.md exist.
++  - Submission bundle and release evidence artifacts exist.
++  - Emits pass/fail summary and writes report to dist/ by default.
++USAGE
++}
++
++while [[ $# -gt 0 ]]; do
++  case "$1" in
++    --demo-id)
++      DEMO_ID="${2:-}"
++      DEMO_DIR="$ROOT_DIR/artifacts/demo/$DEMO_ID"
++      shift 2
++      ;;
++    --demo-dir)
++      DEMO_DIR="${2:-}"
++      shift 2
++      ;;
++    --dist-dir)
++      DIST_DIR="${2:-}"
++      shift 2
++      ;;
++    --integration-artifacts-dir)
++      INTEGRATION_ARTIFACTS_DIR="${2:-}"
++      shift 2
++      ;;
++    --report-file)
++      REPORT_FILE="${2:-}"
++      shift 2
++      ;;
++    -h|--help)
++      usage
++      exit 0
++      ;;
++    *)
++      echo "Unknown argument: $1" >&2
++      usage
++      exit 2
++      ;;
++  esac
++done
++
++TIMESTAMP_UTC="$(date -u +%Y%m%dT%H%M%SZ)"
++mkdir -p "$DIST_DIR"
++if [[ -z "$REPORT_FILE" ]]; then
++  REPORT_FILE="$DIST_DIR/submission-readiness-$TIMESTAMP_UTC.txt"
++fi
++LATEST_REPORT="$DIST_DIR/submission-readiness-latest.txt"
++
++PASS_COUNT=0
++FAIL_COUNT=0
++WARN_COUNT=0
++RESULT_LINES=()
++
++emit() {
++  local check="$1"
++  local status="$2"
++  local details="$3"
++  RESULT_LINES+=("READINESS|$check|$status|$details")
++  printf 'READINESS|%s|%s|%s\n' "$check" "$status" "$details"
++  case "$status" in
++    PASS) PASS_COUNT=$((PASS_COUNT + 1)) ;;
++    FAIL) FAIL_COUNT=$((FAIL_COUNT + 1)) ;;
++    WARN) WARN_COUNT=$((WARN_COUNT + 1)) ;;
++  esac
++}
++
++check_file() {
++  local check_name="$1"
++  local path="$2"
++  if [[ -f "$path" ]]; then
++    emit "$check_name" "PASS" "found ${path#"$ROOT_DIR/"}"
++  else
++    emit "$check_name" "FAIL" "missing ${path#"$ROOT_DIR/"}"
++  fi
++}
++
++check_dir() {
++  local check_name="$1"
++  local path="$2"
++  if [[ -d "$path" ]]; then
++    emit "$check_name" "PASS" "found ${path#"$ROOT_DIR/"}/"
++  else
++    emit "$check_name" "FAIL" "missing ${path#"$ROOT_DIR/"}/"
++  fi
++}
++
++# Required docs
++check_file "doc_submission" "$ROOT_DIR/SUBMISSION.md"
++check_file "doc_readme" "$ROOT_DIR/README.md"
++check_file "doc_testnet_setup" "$ROOT_DIR/docs/TESTNET_SETUP.md"
++check_file "doc_testnet_evidence" "$ROOT_DIR/docs/TESTNET_EVIDENCE.md"
++check_file "doc_deploy_proof" "$ROOT_DIR/docs/DEPLOY_PROOF.md"
++check_file "doc_demo_runbook" "$ROOT_DIR/docs/DEMO_RECORDING_RUNBOOK.md"
++check_file "doc_final_checklist" "$ROOT_DIR/docs/FINAL_SUBMISSION_CHECKLIST.md"
++
++# Demo/checklist artifacts
++check_dir "demo_dir" "$DEMO_DIR"
++check_dir "demo_harness_dir" "$DEMO_DIR/harness"
++check_file "demo_harness_report_md" "$DEMO_DIR/harness/report.md"
++check_file "demo_harness_report_json" "$DEMO_DIR/harness/report.json"
++check_file "demo_harness_log" "$DEMO_DIR/harness/harness.log"
++check_file "demo_smoke_log" "$DEMO_DIR/harness/smoke.log"
++check_file "demo_validator_log" "$DEMO_DIR/harness/validator.log"
++check_file "demo_bundle_sha256" "$DEMO_DIR/submission-bundle.zip.sha256"
++
++# Bundles/evidence
++check_file "submission_bundle" "$DIST_DIR/submission-bundle.zip"
++
++if compgen -G "$DIST_DIR/release-evidence-*.tar.gz" > /dev/null; then
++  latest_release_bundle="$(ls -1 "$DIST_DIR"/release-evidence-*.tar.gz | sort | tail -n1)"
++  emit "release_bundle" "PASS" "found ${latest_release_bundle#"$ROOT_DIR/"}"
++else
++  emit "release_bundle" "FAIL" "missing dist/release-evidence-*.tar.gz"
++fi
++
++if [[ -d "$INTEGRATION_ARTIFACTS_DIR" ]] && compgen -G "$INTEGRATION_ARTIFACTS_DIR/release-*/release-report.md" > /dev/null; then
++  latest_release_dir="$(ls -1d "$INTEGRATION_ARTIFACTS_DIR"/release-* | sort | tail -n1)"
++  emit "integration_release_report_md" "PASS" "found ${latest_release_dir#"$ROOT_DIR/"}/release-report.md"
++  if [[ -f "$latest_release_dir/release-report.json" ]]; then
++    emit "integration_release_report_json" "PASS" "found ${latest_release_dir#"$ROOT_DIR/"}/release-report.json"
++  else
++    emit "integration_release_report_json" "FAIL" "missing ${latest_release_dir#"$ROOT_DIR/"}/release-report.json"
++  fi
++else
++  emit "integration_release_report_md" "FAIL" "missing artifacts/integration/release-*/release-report.md"
++  emit "integration_release_report_json" "FAIL" "missing artifacts/integration/release-*/release-report.json"
++fi
++
++summary_status="PASS"
++if (( FAIL_COUNT > 0 )); then
++  summary_status="FAIL"
++fi
++
++{
++  echo "HederaShield Submission Readiness"
++  echo "Timestamp UTC: $TIMESTAMP_UTC"
++  echo "Demo ID: $DEMO_ID"
++  echo "Demo dir: $DEMO_DIR"
++  echo "Dist dir: $DIST_DIR"
++  echo ""
++  echo "Summary"
++  echo "- Overall: $summary_status"
++  echo "- PASS: $PASS_COUNT"
++  echo "- FAIL: $FAIL_COUNT"
++  echo "- WARN: $WARN_COUNT"
++  echo ""
++  echo "Checks"
++  for line in "${RESULT_LINES[@]}"; do
++    printf '%s\n' "$line"
++  done
++
++  if (( FAIL_COUNT > 0 )); then
++    echo ""
++    echo "Actionable Next Step"
++    echo "- Run docs/DEMO_RECORDING_RUNBOOK.md commands to regenerate missing demo artifacts."
++    echo "- Run ./scripts/release-evidence.sh to regenerate dist/ and artifacts/integration release outputs."
++  fi
++} > "$REPORT_FILE"
++
++cp "$REPORT_FILE" "$LATEST_REPORT"
++emit "report" "PASS" "wrote $REPORT_FILE"
++emit "report_latest" "PASS" "updated $LATEST_REPORT"
++
++if (( FAIL_COUNT == 0 )); then
++  emit "summary" "PASS" "submission readiness checks passed"
++  exit 0
++fi
++
++emit "summary" "FAIL" "submission readiness checks failed"
++exit 1
+diff --git a/scripts/sync-and-submit.sh b/scripts/sync-and-submit.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..27c529f5afde31ebfebb7412a8868115abf28e45
+--- /dev/null
++++ b/scripts/sync-and-submit.sh
+@@ -0,0 +1,250 @@
++#!/usr/bin/env bash
++set -u -o pipefail
++
++ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
++cd "$ROOT_DIR"
++
++REMOTE="origin"
++BRANCH=""
++MAX_RETRIES=3
++INITIAL_BACKOFF_SECONDS=2
++MAX_BACKOFF_SECONDS=16
++DIST_DIR="$ROOT_DIR/dist"
++REPORT_FILE=""
++
++usage() {
++  cat <<'USAGE'
++Usage:
++  ./scripts/sync-and-submit.sh [--remote NAME] [--branch NAME] [--max-retries N] [--initial-backoff-seconds N] [--max-backoff-seconds N] [--report-file PATH]
++
++Behavior:
++  - Computes pending local commits versus upstream.
++  - Checks remote reachability with git ls-remote.
++  - Retries git push with bounded exponential backoff.
++  - Writes a clear status report to dist/ by default.
++USAGE
++}
++
++while [[ $# -gt 0 ]]; do
++  case "$1" in
++    --remote)
++      REMOTE="${2:-}"
++      shift 2
++      ;;
++    --branch)
++      BRANCH="${2:-}"
++      shift 2
++      ;;
++    --max-retries)
++      MAX_RETRIES="${2:-}"
++      shift 2
++      ;;
++    --initial-backoff-seconds)
++      INITIAL_BACKOFF_SECONDS="${2:-}"
++      shift 2
++      ;;
++    --max-backoff-seconds)
++      MAX_BACKOFF_SECONDS="${2:-}"
++      shift 2
++      ;;
++    --report-file)
++      REPORT_FILE="${2:-}"
++      shift 2
++      ;;
++    -h|--help)
++      usage
++      exit 0
++      ;;
++    *)
++      echo "Unknown argument: $1" >&2
++      usage
++      exit 2
++      ;;
++  esac
++done
++
++if ! [[ "$MAX_RETRIES" =~ ^[0-9]+$ ]] || (( MAX_RETRIES < 1 )); then
++  echo "--max-retries must be a positive integer" >&2
++  exit 2
++fi
++if ! [[ "$INITIAL_BACKOFF_SECONDS" =~ ^[0-9]+$ ]]; then
++  echo "--initial-backoff-seconds must be a non-negative integer" >&2
++  exit 2
++fi
++if ! [[ "$MAX_BACKOFF_SECONDS" =~ ^[0-9]+$ ]] || (( MAX_BACKOFF_SECONDS < 1 )); then
++  echo "--max-backoff-seconds must be a positive integer" >&2
++  exit 2
++fi
++
++if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
++  echo "SYNC|git_repo|FAIL|current directory is not a git repository"
++  exit 1
++fi
++
++if [[ -z "$BRANCH" ]]; then
++  BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
++fi
++if [[ -z "$BRANCH" || "$BRANCH" == "HEAD" ]]; then
++  echo "SYNC|branch|FAIL|unable to determine current branch"
++  exit 1
++fi
++
++if ! git remote get-url "$REMOTE" > /dev/null 2>&1; then
++  echo "SYNC|remote|FAIL|remote '$REMOTE' is not configured"
++  exit 1
++fi
++REMOTE_URL="$(git remote get-url "$REMOTE")"
++
++TIMESTAMP_UTC="$(date -u +%Y%m%dT%H%M%SZ)"
++mkdir -p "$DIST_DIR"
++if [[ -z "$REPORT_FILE" ]]; then
++  REPORT_FILE="$DIST_DIR/sync-submit-status-$TIMESTAMP_UTC.txt"
++fi
++mkdir -p "$(dirname "$REPORT_FILE")"
++LATEST_REPORT="$DIST_DIR/sync-submit-status-latest.txt"
++
++emit() {
++  local check="$1"
++  local status="$2"
++  local details="$3"
++  printf 'SYNC|%s|%s|%s\n' "$check" "$status" "$details"
++}
++
++UPSTREAM_REF=""
++if upstream="$(git rev-parse --abbrev-ref --symbolic-full-name "${BRANCH}@{upstream}" 2>/dev/null)"; then
++  UPSTREAM_REF="$upstream"
++fi
++
++AHEAD_COUNT=0
++BEHIND_COUNT=0
++PENDING_COMMITS=""
++if [[ -n "$UPSTREAM_REF" ]]; then
++  counts="$(git rev-list --left-right --count "$UPSTREAM_REF...HEAD" 2>/dev/null || echo "0 0")"
++  read -r BEHIND_COUNT AHEAD_COUNT <<< "$counts"
++  PENDING_COMMITS="$(git log --oneline "$UPSTREAM_REF..HEAD" 2>/dev/null || true)"
++else
++  AHEAD_COUNT="$(git rev-list --count HEAD 2>/dev/null || echo "0")"
++  BEHIND_COUNT=0
++  PENDING_COMMITS="$(git log --oneline -n 20 HEAD 2>/dev/null || true)"
++fi
++
++PUSH_STATUS="SKIP"
++REACHABLE_STATUS="FAIL"
++REACHABILITY_ERROR=""
++PUSH_ERROR=""
++PUSH_ATTEMPT_LOG=""
++
++reachability_output="$(git ls-remote --heads "$REMOTE" 2>&1)"
++reachability_exit=$?
++if [[ $reachability_exit -eq 0 ]]; then
++  REACHABLE_STATUS="PASS"
++  emit "remote_reachability" "PASS" "remote '$REMOTE' reachable"
++else
++  REACHABILITY_ERROR="$reachability_output"
++  if (( AHEAD_COUNT > 0 )); then
++    emit "remote_reachability" "FAIL" "remote '$REMOTE' unreachable; push skipped"
++  else
++    emit "remote_reachability" "WARN" "remote '$REMOTE' unreachable but no pending commits"
++  fi
++fi
++
++if (( AHEAD_COUNT == 0 )); then
++  PUSH_STATUS="NO_PENDING_COMMITS"
++  emit "pending_commits" "PASS" "no local commits pending push"
++elif [[ "$REACHABLE_STATUS" != "PASS" ]]; then
++  PUSH_STATUS="SKIPPED_UNREACHABLE"
++  emit "pending_commits" "WARN" "$AHEAD_COUNT local commits pending push"
++else
++  backoff="$INITIAL_BACKOFF_SECONDS"
++  attempt=1
++  while (( attempt <= MAX_RETRIES )); do
++    push_output="$(git push "$REMOTE" "$BRANCH" 2>&1)"
++    push_exit=$?
++
++    PUSH_ATTEMPT_LOG+="Attempt $attempt/$MAX_RETRIES exit=$push_exit\n$push_output\n\n"
++
++    if [[ $push_exit -eq 0 ]]; then
++      PUSH_STATUS="PUSHED"
++      emit "push" "PASS" "push succeeded on attempt $attempt"
++      break
++    fi
++
++    PUSH_ERROR="$push_output"
++    if (( attempt == MAX_RETRIES )); then
++      PUSH_STATUS="FAILED_AFTER_RETRIES"
++      emit "push" "FAIL" "push failed after $MAX_RETRIES attempts"
++      break
++    fi
++
++    emit "push" "WARN" "attempt $attempt failed; retrying in ${backoff}s"
++    sleep "$backoff"
++    backoff=$(( backoff * 2 ))
++    if (( backoff > MAX_BACKOFF_SECONDS )); then
++      backoff=$MAX_BACKOFF_SECONDS
++    fi
++    attempt=$(( attempt + 1 ))
++  done
++fi
++
++{
++  echo "HederaShield Sync + Submit Status"
++  echo "Timestamp UTC: $TIMESTAMP_UTC"
++  echo "Branch: $BRANCH"
++  echo "Remote: $REMOTE"
++  echo "Remote URL: $REMOTE_URL"
++  if [[ -n "$UPSTREAM_REF" ]]; then
++    echo "Upstream: $UPSTREAM_REF"
++  else
++    echo "Upstream: <none>"
++  fi
++  echo ""
++  echo "Summary"
++  echo "- Remote reachability: $REACHABLE_STATUS"
++  echo "- Pending local commits: $AHEAD_COUNT"
++  echo "- Behind upstream: $BEHIND_COUNT"
++  echo "- Push status: $PUSH_STATUS"
++  echo ""
++  echo "Pending Commit List"
++  if [[ -n "$PENDING_COMMITS" ]]; then
++    printf '%s\n' "$PENDING_COMMITS"
++  else
++    echo "<none>"
++  fi
++  echo ""
++
++  if [[ -n "$REACHABILITY_ERROR" ]]; then
++    echo "REMOTE_REACHABILITY_ERROR:"
++    printf '%s\n' "$REACHABILITY_ERROR"
++    echo ""
++  fi
++
++  if [[ -n "$PUSH_ATTEMPT_LOG" ]]; then
++    echo "PUSH_ATTEMPTS:"
++    printf '%b' "$PUSH_ATTEMPT_LOG"
++    echo ""
++  fi
++
++  if [[ -n "$PUSH_ERROR" ]]; then
++    echo "PUSH_FINAL_ERROR:"
++    printf '%s\n' "$PUSH_ERROR"
++    echo ""
++  fi
++
++  if [[ "$PUSH_STATUS" == "SKIPPED_UNREACHABLE" || "$PUSH_STATUS" == "FAILED_AFTER_RETRIES" ]]; then
++    echo "Actionable Next Step"
++    echo "- Keep working locally; rerun this script once remote/DNS recovers."
++    echo "- Pending commits are listed above and remain only in your local branch."
++  fi
++} > "$REPORT_FILE"
++
++cp "$REPORT_FILE" "$LATEST_REPORT"
++emit "report" "PASS" "wrote $REPORT_FILE"
++emit "report_latest" "PASS" "updated $LATEST_REPORT"
++
++if [[ "$PUSH_STATUS" == "PUSHED" || "$PUSH_STATUS" == "NO_PENDING_COMMITS" ]]; then
++  emit "summary" "PASS" "sync state is clean"
++  exit 0
++fi
++
++emit "summary" "FAIL" "sync incomplete; see $REPORT_FILE"
++exit 1
+diff --git a/tests/test_package_submission.py b/tests/test_package_submission.py
+index 6079635dc5bc393187d896a86ced7e4dd9f1fbf9..9d8fe465aceeadb650a65d2195739a47946bdbd3 100644
+--- a/tests/test_package_submission.py
++++ b/tests/test_package_submission.py
+@@ -26,6 +26,8 @@ REQUIRED_ARCHIVE_ENTRIES = {
+     "scripts/generate-integration-evidence.py",
+     "scripts/package-submission.sh",
+     "scripts/release-evidence.sh",
++    "scripts/submission-readiness.sh",
++    "scripts/sync-and-submit.sh",
+ }
+ 
+ 
+diff --git a/tests/test_submission_readiness.py b/tests/test_submission_readiness.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..b05540b7b48a6a581a8f8fab78ebc7be9b191ed7
+--- /dev/null
++++ b/tests/test_submission_readiness.py
+@@ -0,0 +1,88 @@
++from __future__ import annotations
++
++import shutil
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parent.parent
++SCRIPT = ROOT / "scripts" / "submission-readiness.sh"
++
++
++REQUIRED_FILES = [
++    "README.md",
++    "SUBMISSION.md",
++    "docs/TESTNET_SETUP.md",
++    "docs/TESTNET_EVIDENCE.md",
++    "docs/DEPLOY_PROOF.md",
++    "docs/DEMO_RECORDING_RUNBOOK.md",
++    "docs/FINAL_SUBMISSION_CHECKLIST.md",
++    "artifacts/demo/3min-offline/harness/report.md",
++    "artifacts/demo/3min-offline/harness/report.json",
++    "artifacts/demo/3min-offline/harness/harness.log",
++    "artifacts/demo/3min-offline/harness/smoke.log",
++    "artifacts/demo/3min-offline/harness/validator.log",
++    "artifacts/demo/3min-offline/submission-bundle.zip.sha256",
++    "dist/submission-bundle.zip",
++    "dist/release-evidence-20260310T000000Z.tar.gz",
++    "artifacts/integration/release-20260310T000000Z/release-report.md",
++    "artifacts/integration/release-20260310T000000Z/release-report.json",
++]
++
++
++def _write(path: Path, content: str = "ok\n") -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text(content, encoding="utf-8")
++
++
++def test_submission_readiness_passes_with_required_artifacts(tmp_path: Path) -> None:
++    project = tmp_path / "project"
++    project.mkdir()
++
++    script_path = project / "scripts" / "submission-readiness.sh"
++    script_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SCRIPT, script_path)
++
++    for rel in REQUIRED_FILES:
++        _write(project / rel)
++
++    report_path = project / "dist" / "readiness.txt"
++    result = subprocess.run(
++        ["bash", str(script_path), "--report-file", str(report_path)],
++        cwd=project,
++        capture_output=True,
++        text=True,
++        check=False,
++    )
++
++    assert result.returncode == 0
++    assert "READINESS|summary|PASS|submission readiness checks passed" in result.stdout
++    report = report_path.read_text(encoding="utf-8")
++    assert "Overall: PASS" in report
++
++
++def test_submission_readiness_fails_with_missing_required_artifacts(tmp_path: Path) -> None:
++    project = tmp_path / "project"
++    project.mkdir()
++
++    script_path = project / "scripts" / "submission-readiness.sh"
++    script_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SCRIPT, script_path)
++
++    _write(project / "README.md")
++
++    report_path = project / "dist" / "readiness.txt"
++    result = subprocess.run(
++        ["bash", str(script_path), "--report-file", str(report_path)],
++        cwd=project,
++        capture_output=True,
++        text=True,
++        check=False,
++    )
++
++    assert result.returncode == 1
++    assert "READINESS|doc_submission|FAIL|" in result.stdout
++    assert "READINESS|summary|FAIL|submission readiness checks failed" in result.stdout
++
++    report = report_path.read_text(encoding="utf-8")
++    assert "Overall: FAIL" in report
+diff --git a/tests/test_sync_and_submit.py b/tests/test_sync_and_submit.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..25444df30b1f3a1b9bd71fabe962fd93714444b3
+--- /dev/null
++++ b/tests/test_sync_and_submit.py
+@@ -0,0 +1,114 @@
++from __future__ import annotations
++
++import os
++import shutil
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parent.parent
++SCRIPT = ROOT / "scripts" / "sync-and-submit.sh"
++
++
++def _run(cmd: list[str], cwd: Path, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
++    run_env = dict(os.environ)
++    run_env.setdefault("GIT_TERMINAL_PROMPT", "0")
++    if env:
++        run_env.update(env)
++    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False, env=run_env)
++
++
++def _git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
++    return _run(["git", *args], cwd=cwd)
++
++
++def _init_repo_with_commit(path: Path, file_name: str = "README.md", content: str = "hello\n") -> None:
++    _git(path, "init")
++    _git(path, "config", "user.email", "test@example.com")
++    _git(path, "config", "user.name", "Test User")
++    (path / file_name).write_text(content, encoding="utf-8")
++    _git(path, "add", file_name)
++    _git(path, "commit", "-m", "initial commit")
++
++
++def test_sync_script_reports_pending_commits_when_remote_unreachable(tmp_path: Path) -> None:
++    repo = tmp_path / "repo"
++    repo.mkdir()
++    script_path = repo / "scripts" / "sync-and-submit.sh"
++    script_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SCRIPT, script_path)
++    _init_repo_with_commit(repo)
++    _git(repo, "remote", "add", "origin", "https://nonexistent.invalid/hedera-shield.git")
++
++    report_path = repo / "dist" / "sync-report.txt"
++    result = _run(
++        [
++            "bash",
++            str(script_path),
++            "--report-file",
++            str(report_path),
++            "--max-retries",
++            "2",
++            "--initial-backoff-seconds",
++            "0",
++        ],
++        cwd=repo,
++    )
++
++    assert result.returncode == 1
++    assert "SYNC|remote_reachability|FAIL|" in result.stdout
++    assert "SYNC|summary|FAIL|" in result.stdout
++    assert report_path.exists()
++
++    report = report_path.read_text(encoding="utf-8")
++    assert "Push status: SKIPPED_UNREACHABLE" in report
++    assert "Pending local commits: 1" in report
++    assert "initial commit" in report
++    assert "REMOTE_REACHABILITY_ERROR:" in report
++
++
++def test_sync_script_retries_push_and_captures_final_error(tmp_path: Path) -> None:
++    remote = tmp_path / "remote"
++    remote.mkdir()
++    _init_repo_with_commit(remote, file_name="seed.txt", content="seed\n")
++
++    local = tmp_path / "local"
++    clone = _run(["git", "clone", str(remote), str(local)], cwd=tmp_path)
++    assert clone.returncode == 0
++
++    _git(local, "config", "user.email", "test@example.com")
++    _git(local, "config", "user.name", "Test User")
++    script_path = local / "scripts" / "sync-and-submit.sh"
++    script_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SCRIPT, script_path)
++    (local / "change.txt").write_text("change\n", encoding="utf-8")
++    _git(local, "add", "change.txt")
++    _git(local, "commit", "-m", "local change")
++
++    report_path = local / "dist" / "sync-report.txt"
++    result = _run(
++        [
++            "bash",
++            str(script_path),
++            "--report-file",
++            str(report_path),
++            "--max-retries",
++            "2",
++            "--initial-backoff-seconds",
++            "0",
++            "--max-backoff-seconds",
++            "1",
++        ],
++        cwd=local,
++    )
++
++    assert result.returncode == 1
++    assert "SYNC|remote_reachability|PASS|" in result.stdout
++    assert "SYNC|push|FAIL|push failed after 2 attempts" in result.stdout
++
++    report = report_path.read_text(encoding="utf-8")
++    assert "Push status: FAILED_AFTER_RETRIES" in report
++    assert "PUSH_ATTEMPTS:" in report
++    assert "Attempt 1/2 exit=" in report
++    assert "Attempt 2/2 exit=" in report
++    assert "PUSH_FINAL_ERROR:" in report
+-- 
+2.43.0
+

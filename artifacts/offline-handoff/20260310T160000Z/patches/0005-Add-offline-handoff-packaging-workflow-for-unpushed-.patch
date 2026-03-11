@@ -1,0 +1,511 @@
+From 47a2d19c1064843cde30d18346096da178b1666f Mon Sep 17 00:00:00 2001
+From: Anish De <63192115+AnishDe12020@users.noreply.github.com>
+Date: Tue, 10 Mar 2026 15:50:51 +0100
+Subject: [PATCH 5/5] Add offline handoff packaging workflow for unpushed
+ commits
+
+---
+ README.md                          |   9 +
+ SUBMISSION.md                      |   7 +
+ docs/FINAL_SUBMISSION_CHECKLIST.md |  11 ++
+ scripts/offline-handoff.sh         | 262 +++++++++++++++++++++++++++++
+ scripts/package-submission.sh      |   1 +
+ tests/test_offline_handoff.py      | 120 +++++++++++++
+ tests/test_package_submission.py   |   1 +
+ 7 files changed, 411 insertions(+)
+ create mode 100755 scripts/offline-handoff.sh
+ create mode 100644 tests/test_offline_handoff.py
+
+diff --git a/README.md b/README.md
+index 52e457d0b075fa9c61f5b56838e93bb3cee438d7..7ebd704ccd6593ab63ad4bade578888d35faca3d 100644
+--- a/README.md
++++ b/README.md
+@@ -181,11 +181,20 @@ Default command behavior:
+ 
+ # 2) Attempt sync + push with bounded retry/backoff and status report
+ ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
++
++# 3) If push is blocked by DNS/network outage, create offline handoff package
++./scripts/offline-handoff.sh
+ ```
+ 
+ Outputs:
+ - `dist/submission-readiness-latest.txt` (PASS/FAIL checklist summary)
+ - `dist/sync-submit-status-latest.txt` (pending commits + remote reachability + exact push error when push fails)
++- `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
++- `artifacts/offline-handoff/<timestamp>/branch-status.txt`
++- `artifacts/offline-handoff/<timestamp>/commit-list.txt`
++- `artifacts/offline-handoff/<timestamp>/offline.bundle`
++- `artifacts/offline-handoff/<timestamp>/patches/*.patch`
++- `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
+ 
+ Judge-focused docs:
+ - [docs/DEMO_RECORDING_RUNBOOK.md](docs/DEMO_RECORDING_RUNBOOK.md) for deterministic 3-minute recording flow (offline-safe default).
+diff --git a/SUBMISSION.md b/SUBMISSION.md
+index c767baea0f297b52426281b7eb990dc941ee12d2..54ac5327be10b66ca284b37a2580e457b52fec70 100644
+--- a/SUBMISSION.md
++++ b/SUBMISSION.md
+@@ -179,11 +179,18 @@ Use the dedicated judge-facing docs:
+ 
+ # 3) Sync and push with graceful DNS/offline failure handling + status report
+ ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
++
++# 4) If push is blocked by DNS/network outage, export offline handoff package
++./scripts/offline-handoff.sh
+ ```
+ 
+ Report outputs:
+ - `dist/submission-readiness-latest.txt`
+ - `dist/sync-submit-status-latest.txt`
++- `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
++- `artifacts/offline-handoff/<timestamp>/offline.bundle`
++- `artifacts/offline-handoff/<timestamp>/patches/*.patch`
++- `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
+ 
+ ---
+ 
+diff --git a/docs/FINAL_SUBMISSION_CHECKLIST.md b/docs/FINAL_SUBMISSION_CHECKLIST.md
+index 05bbeb85735192562bc9810a37197cdb1a611ce1..95e4421a62138520d138522583caa5c7dfaa5c2a 100644
+--- a/docs/FINAL_SUBMISSION_CHECKLIST.md
++++ b/docs/FINAL_SUBMISSION_CHECKLIST.md
+@@ -38,8 +38,19 @@ Use this as the final gate before hackathon portal submission.
+ ruff check hedera_shield/ tests/
+ pytest tests/ -v --tb=short
+ ./scripts/package-submission.sh
++./scripts/submission-readiness.sh
++./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
+ ```
+ 
++## DNS/Network Outage Fallback (Offline Handoff)
++- [ ] If sync/push fails, run: `./scripts/offline-handoff.sh`
++- [ ] Handoff output directory exists: `artifacts/offline-handoff/<timestamp>/`
++- [ ] Handoff summary exists: `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
++- [ ] Bundle exists: `artifacts/offline-handoff/<timestamp>/offline.bundle`
++- [ ] Patch series exists: `artifacts/offline-handoff/<timestamp>/patches/*.patch`
++- [ ] Restore/apply instructions exist: `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
++- [ ] Summary contains exact push failure text when present in `dist/sync-submit-status-latest.txt`
++
+ ## Submission Notes
+ - [ ] Notes to judges added in `SUBMISSION.md`
+ - [ ] Any known limitations disclosed
+diff --git a/scripts/offline-handoff.sh b/scripts/offline-handoff.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..04e739cfa7ec3b7366139a7449dd618a736ea5a4
+--- /dev/null
++++ b/scripts/offline-handoff.sh
+@@ -0,0 +1,262 @@
++#!/usr/bin/env bash
++set -u -o pipefail
++
++ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
++cd "$ROOT_DIR"
++
++TIMESTAMP_UTC="$(date -u +%Y%m%dT%H%M%SZ)"
++OUTPUT_BASE_DIR="$ROOT_DIR/artifacts/offline-handoff"
++OUTPUT_DIR=""
++REMOTE="origin"
++BRANCH=""
++SYNC_REPORT="$ROOT_DIR/dist/sync-submit-status-latest.txt"
++
++usage() {
++  cat <<'USAGE'
++Usage:
++  ./scripts/offline-handoff.sh [--timestamp YYYYMMDDTHHMMSSZ] [--output-base-dir PATH] [--output-dir PATH] [--remote NAME] [--branch NAME] [--sync-report PATH]
++
++Behavior:
++  - Produces an offline handoff package for local commits not pushed upstream.
++  - Writes branch/upstream/ahead-behind summary + commit list.
++  - Exports git bundle + format-patch series.
++  - Emits restore/apply instructions for transfer to another machine.
++USAGE
++}
++
++while [[ $# -gt 0 ]]; do
++  case "$1" in
++    --timestamp)
++      TIMESTAMP_UTC="${2:-}"
++      shift 2
++      ;;
++    --output-base-dir)
++      OUTPUT_BASE_DIR="${2:-}"
++      shift 2
++      ;;
++    --output-dir)
++      OUTPUT_DIR="${2:-}"
++      shift 2
++      ;;
++    --remote)
++      REMOTE="${2:-}"
++      shift 2
++      ;;
++    --branch)
++      BRANCH="${2:-}"
++      shift 2
++      ;;
++    --sync-report)
++      SYNC_REPORT="${2:-}"
++      shift 2
++      ;;
++    -h|--help)
++      usage
++      exit 0
++      ;;
++    *)
++      echo "Unknown argument: $1" >&2
++      usage
++      exit 2
++      ;;
++  esac
++done
++
++emit() {
++  local check="$1"
++  local status="$2"
++  local details="$3"
++  printf 'HANDOFF|%s|%s|%s\n' "$check" "$status" "$details"
++}
++
++if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
++  emit "git_repo" "FAIL" "current directory is not a git repository"
++  exit 1
++fi
++
++if [[ -z "$BRANCH" ]]; then
++  BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
++fi
++if [[ -z "$BRANCH" || "$BRANCH" == "HEAD" ]]; then
++  emit "branch" "FAIL" "unable to determine current branch"
++  exit 1
++fi
++
++if [[ -z "$OUTPUT_DIR" ]]; then
++  OUTPUT_DIR="$OUTPUT_BASE_DIR/$TIMESTAMP_UTC"
++fi
++
++mkdir -p "$OUTPUT_DIR"
++
++SUMMARY_FILE="$OUTPUT_DIR/handoff-summary.txt"
++STATUS_FILE="$OUTPUT_DIR/branch-status.txt"
++COMMIT_LIST_FILE="$OUTPUT_DIR/commit-list.txt"
++BUNDLE_FILE="$OUTPUT_DIR/offline.bundle"
++PATCH_DIR="$OUTPUT_DIR/patches"
++RESTORE_FILE="$OUTPUT_DIR/RESTORE_APPLY.md"
++
++UPSTREAM_REF=""
++if upstream="$(git rev-parse --abbrev-ref --symbolic-full-name "${BRANCH}@{upstream}" 2>/dev/null)"; then
++  UPSTREAM_REF="$upstream"
++fi
++
++AHEAD_COUNT=0
++BEHIND_COUNT=0
++COMMIT_RANGE=""
++
++if [[ -n "$UPSTREAM_REF" ]]; then
++  counts="$(git rev-list --left-right --count "$UPSTREAM_REF...HEAD" 2>/dev/null || echo "0 0")"
++  read -r BEHIND_COUNT AHEAD_COUNT <<< "$counts"
++  COMMIT_RANGE="$UPSTREAM_REF..HEAD"
++else
++  AHEAD_COUNT="$(git rev-list --count HEAD 2>/dev/null || echo "0")"
++  BEHIND_COUNT=0
++  COMMIT_RANGE="HEAD"
++fi
++
++{
++  echo "Branch: $BRANCH"
++  if [[ -n "$UPSTREAM_REF" ]]; then
++    echo "Upstream: $UPSTREAM_REF"
++  else
++    echo "Upstream: <none>"
++  fi
++  echo "Ahead: $AHEAD_COUNT"
++  echo "Behind: $BEHIND_COUNT"
++  echo "Remote: $REMOTE"
++  if git remote get-url "$REMOTE" > /dev/null 2>&1; then
++    echo "Remote URL: $(git remote get-url "$REMOTE")"
++  else
++    echo "Remote URL: <not configured>"
++  fi
++} > "$STATUS_FILE"
++
++if [[ -n "$UPSTREAM_REF" ]]; then
++  git log --reverse --date=iso-strict --pretty=format:'%H|%ad|%an|%s' "$COMMIT_RANGE" > "$COMMIT_LIST_FILE"
++else
++  git log --reverse --date=iso-strict --pretty=format:'%H|%ad|%an|%s' HEAD > "$COMMIT_LIST_FILE"
++fi
++
++BUNDLE_STATUS="SKIPPED"
++PATCH_STATUS="SKIPPED"
++
++if (( AHEAD_COUNT > 0 )); then
++  if [[ -n "$UPSTREAM_REF" ]]; then
++    git bundle create "$BUNDLE_FILE" "$COMMIT_RANGE"
++    git format-patch --output-directory "$PATCH_DIR" --full-index --binary "$COMMIT_RANGE" > /dev/null
++  else
++    git bundle create "$BUNDLE_FILE" HEAD
++    git format-patch --output-directory "$PATCH_DIR" --full-index --binary --root HEAD > /dev/null
++  fi
++  BUNDLE_STATUS="CREATED"
++  PATCH_STATUS="CREATED"
++fi
++
++extract_sync_error() {
++  local header="$1"
++  local report="$2"
++  awk -v header="$header" '
++    $0 == header { in_block = 1; next }
++    in_block && $0 == "" { exit }
++    in_block { print }
++  ' "$report"
++}
++
++SYNC_REACHABILITY_ERROR=""
++SYNC_PUSH_FINAL_ERROR=""
++if [[ -f "$SYNC_REPORT" ]]; then
++  SYNC_REACHABILITY_ERROR="$(extract_sync_error "REMOTE_REACHABILITY_ERROR:" "$SYNC_REPORT")"
++  SYNC_PUSH_FINAL_ERROR="$(extract_sync_error "PUSH_FINAL_ERROR:" "$SYNC_REPORT")"
++fi
++
++PATCH_COUNT=0
++if [[ -d "$PATCH_DIR" ]]; then
++  PATCH_COUNT="$(find "$PATCH_DIR" -maxdepth 1 -type f -name '*.patch' | wc -l | tr -d ' ')"
++fi
++
++{
++  echo "HederaShield Offline Handoff"
++  echo "Timestamp UTC: $TIMESTAMP_UTC"
++  echo ""
++  echo "Summary"
++  echo "- Branch: $BRANCH"
++  if [[ -n "$UPSTREAM_REF" ]]; then
++    echo "- Upstream: $UPSTREAM_REF"
++  else
++    echo "- Upstream: <none>"
++  fi
++  echo "- Ahead: $AHEAD_COUNT"
++  echo "- Behind: $BEHIND_COUNT"
++  echo "- Bundle: $BUNDLE_STATUS"
++  echo "- Patch series: $PATCH_STATUS ($PATCH_COUNT patches)"
++  echo ""
++  echo "Files"
++  echo "- branch-status.txt"
++  echo "- commit-list.txt"
++  if [[ "$BUNDLE_STATUS" == "CREATED" ]]; then
++    echo "- offline.bundle"
++    echo "- patches/*.patch"
++  else
++    echo "- offline.bundle <not created: no unpushed commits>"
++    echo "- patches/*.patch <not created: no unpushed commits>"
++  fi
++  echo "- RESTORE_APPLY.md"
++  if [[ -n "$SYNC_REACHABILITY_ERROR" || -n "$SYNC_PUSH_FINAL_ERROR" ]]; then
++    echo ""
++    echo "Sync Error Context"
++    if [[ -n "$SYNC_REACHABILITY_ERROR" ]]; then
++      echo "REMOTE_REACHABILITY_ERROR (from $(realpath --relative-to="$ROOT_DIR" "$SYNC_REPORT")):"
++      printf '%s\n' "$SYNC_REACHABILITY_ERROR"
++      echo ""
++    fi
++    if [[ -n "$SYNC_PUSH_FINAL_ERROR" ]]; then
++      echo "PUSH_FINAL_ERROR (from $(realpath --relative-to="$ROOT_DIR" "$SYNC_REPORT")):"
++      printf '%s\n' "$SYNC_PUSH_FINAL_ERROR"
++      echo ""
++    fi
++  fi
++} > "$SUMMARY_FILE"
++
++{
++  echo "# Offline Restore and Apply"
++  echo ""
++  echo "Package directory: $(realpath --relative-to="$ROOT_DIR" "$OUTPUT_DIR")"
++  echo ""
++  echo "## Option 1: Restore using git bundle"
++  echo "1. Copy \`offline.bundle\` to target machine."
++  echo "2. In target repo:"
++  echo ""
++  echo "   \`\`\`bash"
++  echo "   git fetch /path/to/offline.bundle \"$BRANCH\""
++  echo "   git checkout -B \"$BRANCH\" FETCH_HEAD"
++  echo "   \`\`\`"
++  echo ""
++  echo "## Option 2: Apply patch series"
++  echo "1. Copy \`patches/*.patch\` to target machine."
++  echo "2. In target repo on desired base branch:"
++  echo ""
++  echo "   \`\`\`bash"
++  echo "   git am /path/to/patches/*.patch"
++  echo "   \`\`\`"
++  echo ""
++  echo "## Validate"
++  echo ""
++  echo "\`\`\`bash"
++  echo "git log --oneline --decorate -n 20"
++  echo "git status --short --branch"
++  echo "\`\`\`"
++} > "$RESTORE_FILE"
++
++emit "status" "PASS" "wrote $STATUS_FILE"
++emit "commits" "PASS" "wrote $COMMIT_LIST_FILE"
++if [[ "$BUNDLE_STATUS" == "CREATED" ]]; then
++  emit "bundle" "PASS" "wrote $BUNDLE_FILE"
++  emit "patches" "PASS" "wrote $PATCH_DIR ($PATCH_COUNT patches)"
++else
++  emit "bundle" "WARN" "skipped; no unpushed commits"
++  emit "patches" "WARN" "skipped; no unpushed commits"
++fi
++emit "restore" "PASS" "wrote $RESTORE_FILE"
++emit "summary" "PASS" "wrote $SUMMARY_FILE"
++
++exit 0
+diff --git a/scripts/package-submission.sh b/scripts/package-submission.sh
+index 6a1de9b5ed8bd974b03486cf0ffec5082273dffb..f62477621e59c60ba89664064c7b9313ecf7aa4a 100755
+--- a/scripts/package-submission.sh
++++ b/scripts/package-submission.sh
+@@ -30,6 +30,7 @@ required_files=(
+   "scripts/release-evidence.sh"
+   "scripts/submission-readiness.sh"
+   "scripts/sync-and-submit.sh"
++  "scripts/offline-handoff.sh"
+ )
+ 
+ missing=()
+diff --git a/tests/test_offline_handoff.py b/tests/test_offline_handoff.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..c6d46b8272924305cb083cae3bc4975173ef394c
+--- /dev/null
++++ b/tests/test_offline_handoff.py
+@@ -0,0 +1,120 @@
++from __future__ import annotations
++
++import shutil
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parent.parent
++SCRIPT = ROOT / "scripts" / "offline-handoff.sh"
++
++
++def _run(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False)
++
++
++def _git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
++    return _run(["git", *args], cwd=cwd)
++
++
++def _init_repo(path: Path) -> None:
++    _git(path, "init")
++    _git(path, "config", "user.email", "test@example.com")
++    _git(path, "config", "user.name", "Test User")
++
++
++def _commit_file(path: Path, file_name: str, content: str, message: str) -> None:
++    (path / file_name).write_text(content, encoding="utf-8")
++    _git(path, "add", file_name)
++    _git(path, "commit", "-m", message)
++
++
++def test_offline_handoff_exports_bundle_patch_and_instructions(tmp_path: Path) -> None:
++    remote = tmp_path / "remote.git"
++    _git(tmp_path, "init", "--bare", str(remote))
++
++    repo = tmp_path / "repo"
++    repo.mkdir()
++    _init_repo(repo)
++    _commit_file(repo, "README.md", "base\n", "base commit")
++    _git(repo, "remote", "add", "origin", str(remote))
++
++    branch = _git(repo, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
++    _git(repo, "push", "-u", "origin", branch)
++
++    script_path = repo / "scripts" / "offline-handoff.sh"
++    script_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SCRIPT, script_path)
++
++    _commit_file(repo, "change.txt", "change\n", "offline change")
++
++    timestamp = "20260310T000000Z"
++    result = _run(["bash", str(script_path), "--timestamp", timestamp], cwd=repo)
++
++    assert result.returncode == 0
++    assert "HANDOFF|summary|PASS|" in result.stdout
++
++    out_dir = repo / "artifacts" / "offline-handoff" / timestamp
++    assert (out_dir / "branch-status.txt").exists()
++    assert (out_dir / "commit-list.txt").exists()
++    assert (out_dir / "offline.bundle").exists()
++    assert (out_dir / "RESTORE_APPLY.md").exists()
++
++    patches = list((out_dir / "patches").glob("*.patch"))
++    assert patches
++
++    summary = (out_dir / "handoff-summary.txt").read_text(encoding="utf-8")
++    assert "Ahead: 1" in summary
++    assert "Behind: 0" in summary
++    assert "Bundle: CREATED" in summary
++    assert "Patch series: CREATED" in summary
++
++    commits = (out_dir / "commit-list.txt").read_text(encoding="utf-8")
++    assert "offline change" in commits
++
++    restore = (out_dir / "RESTORE_APPLY.md").read_text(encoding="utf-8")
++    assert "git fetch /path/to/offline.bundle" in restore
++    assert "git am /path/to/patches/*.patch" in restore
++
++
++def test_offline_handoff_includes_sync_push_error_when_available(tmp_path: Path) -> None:
++    remote = tmp_path / "remote.git"
++    _git(tmp_path, "init", "--bare", str(remote))
++
++    repo = tmp_path / "repo"
++    repo.mkdir()
++    _init_repo(repo)
++    _commit_file(repo, "README.md", "base\n", "base commit")
++    _git(repo, "remote", "add", "origin", str(remote))
++
++    branch = _git(repo, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
++    _git(repo, "push", "-u", "origin", branch)
++
++    script_path = repo / "scripts" / "offline-handoff.sh"
++    script_path.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copyfile(SCRIPT, script_path)
++
++    _commit_file(repo, "change.txt", "change\n", "offline change")
++
++    sync_report = repo / "dist" / "sync-submit-status-latest.txt"
++    sync_report.parent.mkdir(parents=True, exist_ok=True)
++    sync_report.write_text(
++        "REMOTE_REACHABILITY_ERROR:\n"
++        "fatal: unable to access 'https://example.invalid/repo.git/': Could not resolve host\n"
++        "\n"
++        "PUSH_FINAL_ERROR:\n"
++        "fatal: unable to access 'https://example.invalid/repo.git/': Could not resolve host\n"
++        "\n",
++        encoding="utf-8",
++    )
++
++    timestamp = "20260310T010000Z"
++    result = _run(["bash", str(script_path), "--timestamp", timestamp], cwd=repo)
++
++    assert result.returncode == 0
++
++    summary = (repo / "artifacts" / "offline-handoff" / timestamp / "handoff-summary.txt").read_text(
++        encoding="utf-8"
++    )
++    assert "PUSH_FINAL_ERROR (from dist/sync-submit-status-latest.txt):" in summary
++    assert "Could not resolve host" in summary
+diff --git a/tests/test_package_submission.py b/tests/test_package_submission.py
+index 9d8fe465aceeadb650a65d2195739a47946bdbd3..9f5bccef9c7206044b449fd22df0182aa258785c 100644
+--- a/tests/test_package_submission.py
++++ b/tests/test_package_submission.py
+@@ -28,6 +28,7 @@ REQUIRED_ARCHIVE_ENTRIES = {
+     "scripts/release-evidence.sh",
+     "scripts/submission-readiness.sh",
+     "scripts/sync-and-submit.sh",
++    "scripts/offline-handoff.sh",
+ }
+ 
+ 
+-- 
+2.43.0
+

@@ -1,0 +1,4 @@
+45a5ca94503718818139401c71e09bfcfadbb022|2026-03-10T10:44:42+01:00|Anish De|Add testnet evidence capture script, dry-run mode, and docs/tests
+38d2cf76d875fde2859ff80f4a4528d6e1b8ebd7|2026-03-10T13:29:10+01:00|Anish De|Add one-command release evidence packaging workflow
+0f51adc4664e691a0bd7680004b78f8346581e0f|2026-03-10T13:40:49+01:00|Anish De|Add deterministic demo runbook and final submission checklist
+1f2fd5cfe75daa2893c4709f24406a1fee04a4b0|2026-03-10T14:03:33+01:00|Anish De|Add submission readiness and resilient sync/push tooling

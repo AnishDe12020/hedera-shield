@@ -1,0 +1,531 @@
+From 45a5ca94503718818139401c71e09bfcfadbb022 Mon Sep 17 00:00:00 2001
+From: Anish De <63192115+AnishDe12020@users.noreply.github.com>
+Date: Tue, 10 Mar 2026 10:44:42 +0100
+Subject: [PATCH 1/4] Add testnet evidence capture script, dry-run mode, and
+ docs/tests
+
+---
+ SUBMISSION.md                          |   5 +
+ docs/TESTNET_EVIDENCE.md               |  35 ++++
+ docs/TESTNET_SETUP.md                  |  12 +-
+ scripts/capture-testnet-evidence.sh    | 262 +++++++++++++++++++++++++
+ scripts/package-submission.sh          |   2 +
+ tests/test_capture_testnet_evidence.py |  85 ++++++++
+ tests/test_package_submission.py       |   2 +
+ tests/test_required_docs.py            |   7 +
+ 8 files changed, 409 insertions(+), 1 deletion(-)
+ create mode 100644 docs/TESTNET_EVIDENCE.md
+ create mode 100755 scripts/capture-testnet-evidence.sh
+ create mode 100644 tests/test_capture_testnet_evidence.py
+
+diff --git a/SUBMISSION.md b/SUBMISSION.md
+index a1f458ed3b03a939d778bef11f136023b4b90898..a5aa2d9415294923ff819240b770d82b7ff6c262 100644
+--- a/SUBMISSION.md
++++ b/SUBMISSION.md
+@@ -180,6 +180,9 @@ python -m hedera_shield.api
+ 
+ # 4) Verify health endpoint
+ curl -s http://localhost:8000/health
++
++# 5) Capture transaction evidence doc
++./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
+ ```
+ 
+ Harness output is machine-readable and expected in this format:
+@@ -195,6 +198,8 @@ HARNESS|summary|PASS|harness checks passed
+ - Harness artifact bundle under `artifacts/integration/<timestamp>/`:
+   - `report.md` and `report.json`
+   - `harness.log`, `validator.log`, `smoke.log`, `integration.log`
++- Transaction evidence document:
++  - `docs/TESTNET_EVIDENCE.md` (tx IDs/hashes + mirror/hashscan links)
+ - Harness output showing summary pass line in selected mode
+ - API health check response from `GET /health`
+ - One sample transaction query result (`GET /transactions`)
+diff --git a/docs/TESTNET_EVIDENCE.md b/docs/TESTNET_EVIDENCE.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..6a9fa754a677945521ed73d1278cd3bf3b032c72
+--- /dev/null
++++ b/docs/TESTNET_EVIDENCE.md
+@@ -0,0 +1,35 @@
++# HederaShield Testnet Evidence
++
++- Generated (UTC): `2026-03-10T09:43:15Z`
++- Capture mode: `DRY_RUN`
++- Env file: `.env.testnet.example`
++- Network: `testnet`
++- Mirror node: `https://testnet.mirrornode.hedera.com`
++
++## Captured Transactions
++
++| tx_id | tx_hash | mirror_link | hashscan_link |
++|---|---|---|---|
++| `TX_ID_PLACEHOLDER_1` | `N/A` | <https://testnet.mirrornode.hedera.com/api/v1/transactions/TX_ID_PLACEHOLDER_1> | <https://hashscan.io/testnet/transaction/TX_ID_PLACEHOLDER_1> |
++| `TX_ID_PLACEHOLDER_2` | `N/A` | <https://testnet.mirrornode.hedera.com/api/v1/transactions/TX_ID_PLACEHOLDER_2> | <https://hashscan.io/testnet/transaction/TX_ID_PLACEHOLDER_2> |
++
++## Reproduction Commands
++
++```bash
++cp .env.testnet.example .env.testnet
++HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 ./scripts/run-integration-harness.sh --mode real --env-file .env.testnet.example
++./scripts/capture-testnet-evidence.sh --env-file .env.testnet.example --output docs/TESTNET_EVIDENCE.md --limit 3
++```
++
++## Dry-Run Next Steps
++
++Credentials are missing or placeholders; this file was generated in safe dry-run mode.
++
++Run these exact commands after adding real testnet operator credentials:
++
++```bash
++cp .env.testnet.example .env.testnet.example
++# edit .env.testnet.example and set non-placeholder HEDERA_SHIELD_HEDERA_OPERATOR_ID / HEDERA_SHIELD_HEDERA_OPERATOR_KEY
++HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 ./scripts/run-integration-harness.sh --mode real --env-file .env.testnet.example
++./scripts/capture-testnet-evidence.sh --env-file .env.testnet.example --output docs/TESTNET_EVIDENCE.md --limit 3
++```
+diff --git a/docs/TESTNET_SETUP.md b/docs/TESTNET_SETUP.md
+index 09303c9a1730298e962914b3feec4c7decc4cc1a..6d5b4c09473081afdf8fd2949227c4f8270d3999 100644
+--- a/docs/TESTNET_SETUP.md
++++ b/docs/TESTNET_SETUP.md
+@@ -21,6 +21,7 @@ What it does:
+ - Runs env validation (`scripts/validate-testnet-env.py`)
+ - Runs smoke checks with Mirror Node network probe disabled
+ - Generates evidence artifacts (`report.md`, `report.json`, logs)
++- Supports a follow-up evidence capture document via `scripts/capture-testnet-evidence.sh`
+ 
+ Use this mode for judge/demo environments with placeholder or missing private keys.
+ 
+@@ -69,8 +70,17 @@ Generated files:
+ - `integration.log` (empty/skipped in mock mode)
+ - `report.md` (copy-paste friendly snippets)
+ - `report.json` (machine-readable status summary)
++- `docs/TESTNET_EVIDENCE.md` (transaction hashes + mirror/hashscan links) after running capture script
+ 
+-For submission proof requirements and copy-ready output templates, use [DEPLOY_PROOF.md](DEPLOY_PROOF.md).
++Generate or refresh testnet transaction evidence:
++
++```bash
++./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
++```
++
++If credentials are placeholders/missing, the script enters safe dry-run mode, writes `docs/TESTNET_EVIDENCE.md`, and prints exact commands to run once credentials are ready.
++
++For submission proof requirements and copy-ready output templates, use [DEPLOY_PROOF.md](DEPLOY_PROOF.md) and [TESTNET_EVIDENCE.md](TESTNET_EVIDENCE.md).
+ 
+ ## Optional: Run API Demo After Harness
+ 
+diff --git a/scripts/capture-testnet-evidence.sh b/scripts/capture-testnet-evidence.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..32af4d472818a78c2b541bdaa6a0a69d81b29ce8
+--- /dev/null
++++ b/scripts/capture-testnet-evidence.sh
+@@ -0,0 +1,262 @@
++#!/usr/bin/env bash
++set -u -o pipefail
++
++ENV_FILE=".env.testnet"
++OUTPUT_FILE="docs/TESTNET_EVIDENCE.md"
++LIMIT="3"
++FORCE_DRY_RUN=0
++TX_IDS=()
++
++usage() {
++  cat <<'USAGE'
++Usage:
++  ./scripts/capture-testnet-evidence.sh [--env-file FILE] [--output FILE] [--limit N] [--tx-id TX_ID] [--dry-run]
++
++Options:
++  --env-file FILE   Env file path (default: .env.testnet)
++  --output FILE     Evidence markdown path (default: docs/TESTNET_EVIDENCE.md)
++  --limit N         Number of transactions to fetch from mirror node (default: 3)
++  --tx-id TX_ID     Include a specific transaction ID (repeatable)
++  --dry-run         Force dry-run mode (no network calls)
++USAGE
++}
++
++while [[ $# -gt 0 ]]; do
++  case "$1" in
++    --env-file)
++      ENV_FILE="${2:-}"
++      shift 2
++      ;;
++    --output)
++      OUTPUT_FILE="${2:-}"
++      shift 2
++      ;;
++    --limit)
++      LIMIT="${2:-}"
++      shift 2
++      ;;
++    --tx-id)
++      TX_IDS+=("${2:-}")
++      shift 2
++      ;;
++    --dry-run)
++      FORCE_DRY_RUN=1
++      shift
++      ;;
++    -h|--help)
++      usage
++      exit 0
++      ;;
++    *)
++      echo "Unknown argument: $1" >&2
++      usage
++      exit 2
++      ;;
++  esac
++done
++
++emit() {
++  local check="$1"
++  local status="$2"
++  local details="$3"
++  printf 'EVIDENCE|%s|%s|%s\n' "$check" "$status" "$details"
++}
++
++read_env_value() {
++  local key="$1"
++  local file="$2"
++  awk -v wanted="$key" '
++    BEGIN { FS = "=" }
++    /^[[:space:]]*#/ { next }
++    /^[[:space:]]*$/ { next }
++    $0 !~ /=/ { next }
++    {
++      k = $1
++      sub(/^[[:space:]]+/, "", k)
++      sub(/[[:space:]]+$/, "", k)
++      if (k == wanted) {
++        value = substr($0, index($0, "=") + 1)
++        sub(/[[:space:]]+#.*/, "", value)
++        sub(/^[[:space:]]+/, "", value)
++        sub(/[[:space:]]+$/, "", value)
++        print value
++        exit 0
++      }
++    }
++  ' "$file"
++}
++
++is_placeholder_account() {
++  local value="$1"
++  [[ "$value" =~ ^0\.0\.(YOUR_[A-Z0-9_]+|PLACEHOLDER|EXAMPLE)$ ]]
++}
++
++is_placeholder_key() {
++  local value="$1"
++  [[ "$value" =~ ^(YOUR_[A-Z0-9_]+|your_[a-z0-9_]+|<[^>]+>)$ ]]
++}
++
++if [[ ! "$LIMIT" =~ ^[0-9]+$ ]] || [[ "$LIMIT" == "0" ]]; then
++  echo "--limit must be a positive integer" >&2
++  exit 2
++fi
++
++if [[ ! -f "$ENV_FILE" ]]; then
++  emit "env_file" "FAIL" "missing file: $ENV_FILE"
++  exit 1
++fi
++
++MIRROR_URL="$(read_env_value "HEDERA_SHIELD_MIRROR_NODE_URL" "$ENV_FILE")"
++NETWORK="$(read_env_value "HEDERA_SHIELD_HEDERA_NETWORK" "$ENV_FILE")"
++OPERATOR_ID="$(read_env_value "HEDERA_SHIELD_HEDERA_OPERATOR_ID" "$ENV_FILE")"
++OPERATOR_KEY="$(read_env_value "HEDERA_SHIELD_HEDERA_OPERATOR_KEY" "$ENV_FILE")"
++
++if [[ -z "$NETWORK" ]]; then
++  NETWORK="testnet"
++fi
++if [[ -z "$MIRROR_URL" ]]; then
++  MIRROR_URL="https://testnet.mirrornode.hedera.com"
++fi
++
++DRY_RUN=0
++DRY_REASON=""
++if [[ "$FORCE_DRY_RUN" == "1" ]]; then
++  DRY_RUN=1
++  DRY_REASON="forced via --dry-run"
++elif [[ -z "$OPERATOR_ID" || -z "$OPERATOR_KEY" ]]; then
++  DRY_RUN=1
++  DRY_REASON="missing operator credentials"
++elif is_placeholder_account "$OPERATOR_ID" || is_placeholder_key "$OPERATOR_KEY"; then
++  DRY_RUN=1
++  DRY_REASON="placeholder operator credentials"
++fi
++
++TMP_TXS="$(mktemp)"
++cleanup() {
++  rm -f "$TMP_TXS"
++}
++trap cleanup EXIT
++
++for tx in "${TX_IDS[@]}"; do
++  if [[ -n "$tx" ]]; then
++    printf '%s\t%s\n' "$tx" "N/A (manual)" >> "$TMP_TXS"
++  fi
++done
++
++if [[ "$DRY_RUN" == "0" ]]; then
++  QUERY_URL="${MIRROR_URL%/}/api/v1/transactions?account.id=$OPERATOR_ID&limit=$LIMIT&order=desc"
++  RESPONSE="$(curl --silent --show-error --fail --max-time 20 "$QUERY_URL" 2>&1)"
++  CURL_EXIT=$?
++  if [[ $CURL_EXIT -ne 0 ]]; then
++    emit "mirror_query" "FAIL" "curl failed for $QUERY_URL: $RESPONSE"
++    exit 1
++  fi
++
++  if ! python3 - "$RESPONSE" "$TMP_TXS" <<'PY'
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++raw = sys.argv[1]
++out = Path(sys.argv[2])
++
++data = json.loads(raw)
++rows: list[str] = []
++for item in data.get("transactions", []):
++    tx_id = str(item.get("transaction_id", "")).strip()
++    tx_hash = str(item.get("transaction_hash", "")).strip()
++    if tx_id:
++        rows.append(f"{tx_id}\t{tx_hash or 'N/A'}")
++
++existing = out.read_text(encoding="utf-8").splitlines() if out.exists() else []
++combined = existing + rows
++seen: set[str] = set()
++final: list[str] = []
++for line in combined:
++    tx = line.split("\t", 1)[0]
++    if tx and tx not in seen:
++        seen.add(tx)
++        final.append(line)
++out.write_text("\n".join(final) + ("\n" if final else ""), encoding="utf-8")
++PY
++  then
++    emit "mirror_query" "FAIL" "failed to parse mirror node response"
++    exit 1
++  fi
++  emit "mirror_query" "PASS" "captured transactions from $QUERY_URL"
++else
++  emit "mode" "DRY_RUN" "$DRY_REASON"
++fi
++
++if [[ ! -s "$TMP_TXS" ]]; then
++  printf 'TX_ID_PLACEHOLDER_1\tN/A\n' >> "$TMP_TXS"
++  printf 'TX_ID_PLACEHOLDER_2\tN/A\n' >> "$TMP_TXS"
++fi
++
++GENERATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
++OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
++mkdir -p "$OUTPUT_DIR"
++
++{
++  echo "# HederaShield Testnet Evidence"
++  echo
++  echo "- Generated (UTC): \`$GENERATED_AT\`"
++  if [[ "$DRY_RUN" == "1" ]]; then
++    echo "- Capture mode: \`DRY_RUN\`"
++  else
++    echo "- Capture mode: \`LIVE\`"
++  fi
++  echo "- Env file: \`$ENV_FILE\`"
++  echo "- Network: \`$NETWORK\`"
++  echo "- Mirror node: \`$MIRROR_URL\`"
++  echo
++  echo "## Captured Transactions"
++  echo
++  echo "| tx_id | tx_hash | mirror_link | hashscan_link |"
++  echo "|---|---|---|---|"
++
++  while IFS=$'\t' read -r tx_id tx_hash; do
++    [[ -z "$tx_id" ]] && continue
++    mirror_link="${MIRROR_URL%/}/api/v1/transactions/${tx_id}"
++    hashscan_link="https://hashscan.io/${NETWORK}/transaction/${tx_id}"
++    echo "| \`$tx_id\` | \`$tx_hash\` | <$mirror_link> | <$hashscan_link> |"
++  done < "$TMP_TXS"
++
++  echo
++  echo "## Reproduction Commands"
++  echo
++  echo "\`\`\`bash"
++  echo "cp .env.testnet.example .env.testnet"
++  echo "HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 ./scripts/run-integration-harness.sh --mode real --env-file $ENV_FILE"
++  echo "./scripts/capture-testnet-evidence.sh --env-file $ENV_FILE --output $OUTPUT_FILE --limit $LIMIT"
++  echo "\`\`\`"
++
++  if [[ "$DRY_RUN" == "1" ]]; then
++    echo
++    echo "## Dry-Run Next Steps"
++    echo
++    echo "Credentials are missing or placeholders; this file was generated in safe dry-run mode."
++    echo
++    echo "Run these exact commands after adding real testnet operator credentials:"
++    echo
++    echo "\`\`\`bash"
++    echo "cp .env.testnet.example $ENV_FILE"
++    echo "# edit $ENV_FILE and set non-placeholder HEDERA_SHIELD_HEDERA_OPERATOR_ID / HEDERA_SHIELD_HEDERA_OPERATOR_KEY"
++    echo "HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 ./scripts/run-integration-harness.sh --mode real --env-file $ENV_FILE"
++    echo "./scripts/capture-testnet-evidence.sh --env-file $ENV_FILE --output $OUTPUT_FILE --limit $LIMIT"
++    echo "\`\`\`"
++  fi
++} > "$OUTPUT_FILE"
++
++emit "evidence_file" "PASS" "wrote $OUTPUT_FILE"
++
++if [[ "$DRY_RUN" == "1" ]]; then
++  echo "Dry-run commands to execute after credentials are ready:"
++  echo "cp .env.testnet.example $ENV_FILE"
++  echo "HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 ./scripts/run-integration-harness.sh --mode real --env-file $ENV_FILE"
++  echo "./scripts/capture-testnet-evidence.sh --env-file $ENV_FILE --output $OUTPUT_FILE --limit $LIMIT"
++fi
++
++exit 0
+diff --git a/scripts/package-submission.sh b/scripts/package-submission.sh
+index 2993367294663347a11f4be919c18b2e6fc437ed..c1a1248e2ae0b54afddf377a129de54b68af0bb9 100755
+--- a/scripts/package-submission.sh
++++ b/scripts/package-submission.sh
+@@ -17,10 +17,12 @@ required_files=(
+   "SUBMISSION.md"
+   "DEPLOY_STATUS.md"
+   "docs/TESTNET_SETUP.md"
++  "docs/TESTNET_EVIDENCE.md"
+   "docs/DEPLOY_PROOF.md"
+   ".env.testnet.example"
+   "scripts/run-integration-harness.sh"
+   "scripts/run-testnet-smoke.sh"
++  "scripts/capture-testnet-evidence.sh"
+   "scripts/generate-integration-evidence.py"
+   "scripts/package-submission.sh"
+ )
+diff --git a/tests/test_capture_testnet_evidence.py b/tests/test_capture_testnet_evidence.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..41d1f0aaa450714ecdf6b0a80ac9c76e1fe8ba4d
+--- /dev/null
++++ b/tests/test_capture_testnet_evidence.py
+@@ -0,0 +1,85 @@
++from __future__ import annotations
++
++import re
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parent.parent
++SCRIPT = ROOT / "scripts" / "capture-testnet-evidence.sh"
++
++
++def _write_placeholder_env(path: Path) -> None:
++    path.write_text(
++        "\n".join(
++            [
++                "HEDERA_SHIELD_HEDERA_NETWORK=testnet",
++                "HEDERA_SHIELD_HEDERA_OPERATOR_ID=0.0.YOUR_OPERATOR_ACCOUNT_ID",
++                "HEDERA_SHIELD_HEDERA_OPERATOR_KEY=YOUR_ED25519_PRIVATE_KEY",
++                "HEDERA_SHIELD_MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com",
++            ]
++        ),
++        encoding="utf-8",
++    )
++
++
++def _run_capture(args: list[str]) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(
++        ["bash", str(SCRIPT), *args],
++        cwd=ROOT,
++        capture_output=True,
++        text=True,
++        check=False,
++    )
++
++
++def test_capture_script_uses_dry_run_when_credentials_are_placeholders(tmp_path: Path) -> None:
++    env_file = tmp_path / ".env.testnet"
++    output_file = tmp_path / "TESTNET_EVIDENCE.md"
++    _write_placeholder_env(env_file)
++
++    result = _run_capture(["--env-file", str(env_file), "--output", str(output_file)])
++
++    assert result.returncode == 0
++    assert "EVIDENCE|mode|DRY_RUN|placeholder operator credentials" in result.stdout
++    assert "Dry-run commands to execute after credentials are ready:" in result.stdout
++    assert (
++        f"HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 ./scripts/run-integration-harness.sh --mode real --env-file {env_file}"
++        in result.stdout
++    )
++    assert (
++        f"./scripts/capture-testnet-evidence.sh --env-file {env_file} --output {output_file} --limit 3"
++        in result.stdout
++    )
++    assert output_file.exists()
++
++
++def test_capture_script_writes_evidence_markdown_schema(tmp_path: Path) -> None:
++    env_file = tmp_path / ".env.testnet"
++    output_file = tmp_path / "TESTNET_EVIDENCE.md"
++    _write_placeholder_env(env_file)
++    tx_id = "0.0.12345@1700000000.000000000"
++
++    result = _run_capture(
++        [
++            "--env-file",
++            str(env_file),
++            "--output",
++            str(output_file),
++            "--tx-id",
++            tx_id,
++        ]
++    )
++
++    assert result.returncode == 0
++    content = output_file.read_text(encoding="utf-8")
++
++    assert content.startswith("# HederaShield Testnet Evidence\n")
++    assert re.search(r"- Generated \(UTC\): `[^`]+`", content)
++    assert "- Capture mode: `DRY_RUN`" in content
++    assert "## Captured Transactions" in content
++    assert "| tx_id | tx_hash | mirror_link | hashscan_link |" in content
++    assert f"| `{tx_id}` | `N/A (manual)` |" in content
++    assert f"<https://testnet.mirrornode.hedera.com/api/v1/transactions/{tx_id}>" in content
++    assert f"<https://hashscan.io/testnet/transaction/{tx_id}>" in content
++    assert "## Reproduction Commands" in content
+diff --git a/tests/test_package_submission.py b/tests/test_package_submission.py
+index 9a84a8a2a5f941a786305e2201e8a695b9d59175..f97aed03eaa73799b9218e05c16cf3d3cd932813 100644
+--- a/tests/test_package_submission.py
++++ b/tests/test_package_submission.py
+@@ -15,10 +15,12 @@ REQUIRED_ARCHIVE_ENTRIES = {
+     "SUBMISSION.md",
+     "DEPLOY_STATUS.md",
+     "docs/TESTNET_SETUP.md",
++    "docs/TESTNET_EVIDENCE.md",
+     "docs/DEPLOY_PROOF.md",
+     ".env.testnet.example",
+     "scripts/run-integration-harness.sh",
+     "scripts/run-testnet-smoke.sh",
++    "scripts/capture-testnet-evidence.sh",
+     "scripts/generate-integration-evidence.py",
+     "scripts/package-submission.sh",
+ }
+diff --git a/tests/test_required_docs.py b/tests/test_required_docs.py
+index 3ad1f99725330c9b640ae9c41379b8bda72b9513..560feceaf0d5db6aebe7eb4064ad912ae2dc8d4f 100644
+--- a/tests/test_required_docs.py
++++ b/tests/test_required_docs.py
+@@ -9,8 +9,15 @@ ROOT = Path(__file__).resolve().parent.parent
+ def test_required_submission_docs_exist() -> None:
+     assert (ROOT / "docs" / "DEPLOY_PROOF.md").is_file()
+     assert (ROOT / "docs" / "TESTNET_SETUP.md").is_file()
++    assert (ROOT / "docs" / "TESTNET_EVIDENCE.md").is_file()
+ 
+ 
+ def test_testnet_setup_references_deploy_proof_checklist() -> None:
+     content = (ROOT / "docs" / "TESTNET_SETUP.md").read_text(encoding="utf-8")
+     assert "DEPLOY_PROOF.md" in content
++    assert "TESTNET_EVIDENCE.md" in content
++
++
++def test_submission_references_testnet_evidence() -> None:
++    content = (ROOT / "SUBMISSION.md").read_text(encoding="utf-8")
++    assert "TESTNET_EVIDENCE.md" in content
+-- 
+2.43.0
+

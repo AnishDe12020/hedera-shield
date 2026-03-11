@@ -1,0 +1,454 @@
+From 38d2cf76d875fde2859ff80f4a4528d6e1b8ebd7 Mon Sep 17 00:00:00 2001
+From: Anish De <63192115+AnishDe12020@users.noreply.github.com>
+Date: Tue, 10 Mar 2026 13:29:10 +0100
+Subject: [PATCH 2/4] Add one-command release evidence packaging workflow
+
+---
+ README.md                        |  29 ++--
+ SUBMISSION.md                    |  17 +-
+ docs/TESTNET_SETUP.md            |  15 +-
+ scripts/package-submission.sh    |   1 +
+ scripts/release-evidence.sh      | 285 +++++++++++++++++++++++++++++++
+ tests/test_package_submission.py |   1 +
+ 6 files changed, 322 insertions(+), 26 deletions(-)
+ create mode 100755 scripts/release-evidence.sh
+
+diff --git a/README.md b/README.md
+index 8142f71edbfb584eece64b990603a254e554403e..672c593145ba01901c8f858249f694192fd3120d 100644
+--- a/README.md
++++ b/README.md
+@@ -155,33 +155,26 @@ pytest tests/ -v
+ HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
+ ```
+ 
+-### Integration Harness (Mock vs Real Testnet)
++### One-Command Judge Evidence Bundle
+ 
+ ```bash
+-# Safe default (credentials optional, no live network probe)
+-cp .env.testnet.example .env.testnet
+-./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
++# Safe default (credential-free, non-destructive)
++./scripts/release-evidence.sh
+ 
+-# Real testnet validation (explicit opt-in + non-placeholder creds required)
++# Optional: include real testnet artifacts only with explicit opt-in
+ HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+-./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
++./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
+ ```
+ 
+-Harness artifacts are generated in `artifacts/integration/<timestamp>/` and include:
+-- `report.md` and `report.json`
+-- `harness.log`, `validator.log`, `smoke.log`, `integration.log`
++Default command behavior:
++- Runs `ruff check hedera_shield/ tests/`
++- Runs `pytest tests/ -v --tb=short`
++- Runs mock harness (`scripts/run-integration-harness.sh --mode mock`)
++- Builds `dist/submission-bundle.zip`
++- Emits `dist/release-evidence-<timestamp>.tar.gz` with logs + artifacts + submission zip
+ 
+ See [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full runbook.
+ 
+-### One-Command Live Integration Evidence
+-
+-```bash
+-# Uses .env.testnet by default; override with --env-file if needed
+-./scripts/run-live-integration.sh --env-file .env.testnet
+-```
+-
+-This command runs env validation, testnet smoke checks, and live integration pytest, then writes a timestamped evidence markdown file to `docs/evidence/`.
+-
+ ## Configuration
+ 
+ ### Environment Variables
+diff --git a/SUBMISSION.md b/SUBMISSION.md
+index a5aa2d9415294923ff819240b770d82b7ff6c262..e06b57ecc1850a10c9a47a5ea2338759dbcf7506 100644
+--- a/SUBMISSION.md
++++ b/SUBMISSION.md
+@@ -167,12 +167,12 @@ python demo/simulate_alerts.py
+ # 1) Prepare testnet env
+ cp .env.testnet.example .env.testnet
+ 
+-# 2a) Mock/demo harness (safe default, credentials optional)
+-./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
++# 2a) One-command release evidence bundle (safe default)
++./scripts/release-evidence.sh
+ 
+-# 2b) Real testnet harness (explicit opt-in + non-placeholder creds)
++# 2b) Optional real testnet artifacts (explicit opt-in + non-placeholder creds)
+ HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+-./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
++./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
+ 
+ # 3) Start API with testnet config
+ cp .env.testnet .env
+@@ -181,7 +181,7 @@ python -m hedera_shield.api
+ # 4) Verify health endpoint
+ curl -s http://localhost:8000/health
+ 
+-# 5) Capture transaction evidence doc
++# 5) Optional: capture/refresh standalone transaction evidence doc
+ ./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
+ ```
+ 
+@@ -198,6 +198,13 @@ HARNESS|summary|PASS|harness checks passed
+ - Harness artifact bundle under `artifacts/integration/<timestamp>/`:
+   - `report.md` and `report.json`
+   - `harness.log`, `validator.log`, `smoke.log`, `integration.log`
++- Release evidence pack under `artifacts/integration/release-<timestamp>/`:
++  - `logs/lint.log`, `logs/pytest.log`
++  - `release-report.md`, `release-report.json`, `release-summary.log`
++  - Optional `real/` artifacts only when real opt-in is enabled
++- Final submission bundle:
++  - `dist/submission-bundle.zip`
++  - `dist/release-evidence-<timestamp>.tar.gz`
+ - Transaction evidence document:
+   - `docs/TESTNET_EVIDENCE.md` (tx IDs/hashes + mirror/hashscan links)
+ - Harness output showing summary pass line in selected mode
+diff --git a/docs/TESTNET_SETUP.md b/docs/TESTNET_SETUP.md
+index 6d5b4c09473081afdf8fd2949227c4f8270d3999..e57feebd2f8873e0f9c93703cc261aab8dcb0c2c 100644
+--- a/docs/TESTNET_SETUP.md
++++ b/docs/TESTNET_SETUP.md
+@@ -3,11 +3,20 @@
+ ## Quick Start
+ 
+ ```bash
+-cp .env.testnet.example .env.testnet
+-./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet
++# Safe, credential-free default
++./scripts/release-evidence.sh
++```
++
++This runs lint + tests + mock harness, packages submission docs, and creates `dist/release-evidence-<timestamp>.tar.gz`.
++
++To include real testnet artifacts, opt in explicitly:
++
++```bash
++HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
++./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
+ ```
+ 
+-Default mode is `mock` (safe/offline-style checks). Artifacts are generated under `artifacts/integration/<timestamp>/`.
++Default mode remains `mock` (safe/offline-style checks). Harness artifacts are generated under `artifacts/integration/<timestamp>/`.
+ 
+ ## Modes
+ 
+diff --git a/scripts/package-submission.sh b/scripts/package-submission.sh
+index c1a1248e2ae0b54afddf377a129de54b68af0bb9..06b66a4d522a09f059750d60d95b7148fbc76442 100755
+--- a/scripts/package-submission.sh
++++ b/scripts/package-submission.sh
+@@ -25,6 +25,7 @@ required_files=(
+   "scripts/capture-testnet-evidence.sh"
+   "scripts/generate-integration-evidence.py"
+   "scripts/package-submission.sh"
++  "scripts/release-evidence.sh"
+ )
+ 
+ missing=()
+diff --git a/scripts/release-evidence.sh b/scripts/release-evidence.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..07355d81c302d9a45fbb4d5f7763ce5e13eb9188
+--- /dev/null
++++ b/scripts/release-evidence.sh
+@@ -0,0 +1,285 @@
++#!/usr/bin/env bash
++set -u -o pipefail
++
++ENV_FILE=".env.testnet.example"
++ARTIFACTS_ROOT="artifacts/integration"
++DIST_DIR="dist"
++INCLUDE_REAL_TESTNET=0
++
++usage() {
++  cat <<'USAGE'
++Usage:
++  ./scripts/release-evidence.sh [--env-file FILE] [--artifacts-root DIR] [--dist-dir DIR] [--include-real-testnet]
++
++Default behavior (safe):
++  - Runs lint and tests
++  - Runs mock integration harness (no live network probe)
++  - Builds dist/submission-bundle.zip
++  - Creates dist/release-evidence-<timestamp>.tar.gz
++
++Optional real testnet behavior:
++  --include-real-testnet requires HEDERA_SHIELD_ENABLE_REAL_TESTNET=1.
++  When enabled, the script also runs the real-mode integration harness and captures
++  testnet evidence into the release artifact directory.
++USAGE
++}
++
++while [[ $# -gt 0 ]]; do
++  case "$1" in
++    --env-file)
++      ENV_FILE="${2:-}"
++      shift 2
++      ;;
++    --artifacts-root)
++      ARTIFACTS_ROOT="${2:-}"
++      shift 2
++      ;;
++    --dist-dir)
++      DIST_DIR="${2:-}"
++      shift 2
++      ;;
++    --include-real-testnet)
++      INCLUDE_REAL_TESTNET=1
++      shift
++      ;;
++    -h|--help)
++      usage
++      exit 0
++      ;;
++    *)
++      echo "Unknown argument: $1" >&2
++      usage
++      exit 2
++      ;;
++  esac
++done
++
++ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
++cd "$ROOT_DIR"
++
++TIMESTAMP_UTC="$(date -u +%Y%m%dT%H%M%SZ)"
++RELEASE_DIR="$ARTIFACTS_ROOT/release-$TIMESTAMP_UTC"
++MOCK_ARTIFACTS_DIR="$RELEASE_DIR/mock"
++REAL_ARTIFACTS_DIR="$RELEASE_DIR/real"
++LOG_DIR="$RELEASE_DIR/logs"
++mkdir -p "$MOCK_ARTIFACTS_DIR" "$LOG_DIR" "$DIST_DIR"
++
++LINT_LOG="$LOG_DIR/lint.log"
++PYTEST_LOG="$LOG_DIR/pytest.log"
++MOCK_HARNESS_LOG="$LOG_DIR/mock-harness.log"
++REAL_HARNESS_LOG="$LOG_DIR/real-harness.log"
++REAL_EVIDENCE_LOG="$LOG_DIR/real-evidence.log"
++PACKAGE_LOG="$LOG_DIR/package-submission.log"
++SUMMARY_LOG="$RELEASE_DIR/release-summary.log"
++REPORT_MD="$RELEASE_DIR/release-report.md"
++REPORT_JSON="$RELEASE_DIR/release-report.json"
++
++RELEASE_TAR_GZ="$DIST_DIR/release-evidence-$TIMESTAMP_UTC.tar.gz"
++SUBMISSION_ZIP="$DIST_DIR/submission-bundle.zip"
++
++LINT_EXIT=1
++PYTEST_EXIT=1
++MOCK_EXIT=1
++REAL_EXIT="SKIP"
++REAL_EVIDENCE_EXIT="SKIP"
++PACKAGE_EXIT=1
++TAR_EXIT=1
++OVERALL_EXIT=0
++
++emit() {
++  local check="$1"
++  local status="$2"
++  local details="$3"
++  local line
++  line="RELEASE|$check|$status|$details"
++  printf '%s\n' "$line"
++  printf '%s\n' "$line" >> "$SUMMARY_LOG"
++}
++
++status_for_exit() {
++  local code="$1"
++  if [[ "$code" == "0" ]]; then
++    printf 'PASS'
++  elif [[ "$code" == "SKIP" ]]; then
++    printf 'SKIP'
++  else
++    printf 'FAIL'
++  fi
++}
++
++run_with_log() {
++  local check="$1"
++  local log_file="$2"
++  shift 2
++
++  "$@" > "$log_file" 2>&1
++  local exit_code=$?
++  if [[ $exit_code -eq 0 ]]; then
++    emit "$check" "PASS" "command succeeded; see $log_file"
++  else
++    emit "$check" "FAIL" "command failed (exit $exit_code); see $log_file"
++  fi
++  return "$exit_code"
++}
++
++: > "$SUMMARY_LOG"
++emit "release_dir" "PASS" "writing artifacts to $RELEASE_DIR"
++emit "default_mode" "PASS" "using mock harness by default"
++
++LINT_CMD=(ruff check hedera_shield/ tests/)
++if ! command -v ruff >/dev/null 2>&1; then
++  LINT_CMD=(python3 -m ruff check hedera_shield/ tests/)
++fi
++
++if run_with_log "lint" "$LINT_LOG" "${LINT_CMD[@]}"; then
++  LINT_EXIT=0
++else
++  LINT_EXIT=$?
++  OVERALL_EXIT=1
++fi
++
++if run_with_log "pytest" "$PYTEST_LOG" pytest tests/ -v --tb=short; then
++  PYTEST_EXIT=0
++else
++  PYTEST_EXIT=$?
++  OVERALL_EXIT=1
++fi
++
++if run_with_log "mock_harness" "$MOCK_HARNESS_LOG" \
++  ./scripts/run-integration-harness.sh --mode mock --env-file "$ENV_FILE" --artifacts-dir "$MOCK_ARTIFACTS_DIR"; then
++  MOCK_EXIT=0
++else
++  MOCK_EXIT=$?
++  OVERALL_EXIT=1
++fi
++
++if [[ $INCLUDE_REAL_TESTNET -eq 1 ]]; then
++  mkdir -p "$REAL_ARTIFACTS_DIR"
++  if [[ "${HEDERA_SHIELD_ENABLE_REAL_TESTNET:-0}" != "1" ]]; then
++    REAL_EXIT=1
++    REAL_EVIDENCE_EXIT=1
++    OVERALL_EXIT=1
++    emit "real_opt_in" "FAIL" "set HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 when using --include-real-testnet"
++  else
++    emit "real_opt_in" "PASS" "explicit real testnet opt-in enabled"
++
++    if run_with_log "real_harness" "$REAL_HARNESS_LOG" \
++      ./scripts/run-integration-harness.sh --mode real --env-file "$ENV_FILE" --artifacts-dir "$REAL_ARTIFACTS_DIR"; then
++      REAL_EXIT=0
++    else
++      REAL_EXIT=$?
++      OVERALL_EXIT=1
++    fi
++
++    if run_with_log "real_evidence" "$REAL_EVIDENCE_LOG" \
++      ./scripts/capture-testnet-evidence.sh --env-file "$ENV_FILE" --output "$REAL_ARTIFACTS_DIR/TESTNET_EVIDENCE.md" --limit 5; then
++      REAL_EVIDENCE_EXIT=0
++    else
++      REAL_EVIDENCE_EXIT=$?
++      OVERALL_EXIT=1
++    fi
++  fi
++else
++  emit "real_testnet" "SKIP" "pass --include-real-testnet plus HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 to include live artifacts"
++fi
++
++if run_with_log "package_submission" "$PACKAGE_LOG" ./scripts/package-submission.sh; then
++  PACKAGE_EXIT=0
++else
++  PACKAGE_EXIT=$?
++  OVERALL_EXIT=1
++fi
++
++if [[ $PACKAGE_EXIT -eq 0 ]]; then
++  tar -czf "$RELEASE_TAR_GZ" -C "$ROOT_DIR" "${SUBMISSION_ZIP#"$ROOT_DIR/"}" "${RELEASE_DIR#"$ROOT_DIR/"}" > /dev/null 2>&1
++  TAR_EXIT=$?
++  if [[ $TAR_EXIT -eq 0 ]]; then
++    emit "release_bundle" "PASS" "created $RELEASE_TAR_GZ"
++  else
++    OVERALL_EXIT=1
++    emit "release_bundle" "FAIL" "failed to create $RELEASE_TAR_GZ"
++  fi
++else
++  TAR_EXIT="SKIP"
++  emit "release_bundle" "SKIP" "submission bundle was not created"
++fi
++
++cat > "$REPORT_MD" <<REPORT
++# HederaShield Release Evidence
++
++- Timestamp (UTC): $TIMESTAMP_UTC
++- Env file: $ENV_FILE
++- Overall: $(status_for_exit "$OVERALL_EXIT")
++
++## Step Results
++- lint: $(status_for_exit "$LINT_EXIT") (exit $LINT_EXIT)
++- pytest: $(status_for_exit "$PYTEST_EXIT") (exit $PYTEST_EXIT)
++- mock_harness: $(status_for_exit "$MOCK_EXIT") (exit $MOCK_EXIT)
++- real_harness: $(status_for_exit "$REAL_EXIT") (exit $REAL_EXIT)
++- real_evidence: $(status_for_exit "$REAL_EVIDENCE_EXIT") (exit $REAL_EVIDENCE_EXIT)
++- package_submission: $(status_for_exit "$PACKAGE_EXIT") (exit $PACKAGE_EXIT)
++- release_bundle: $(status_for_exit "$TAR_EXIT") (exit $TAR_EXIT)
++
++## Outputs
++- Submission zip: $SUBMISSION_ZIP
++- Release evidence bundle: $RELEASE_TAR_GZ
++- Logs: $LOG_DIR
++REPORT
++
++python3 - "$REPORT_JSON" \
++  "$TIMESTAMP_UTC" \
++  "$ENV_FILE" \
++  "$OVERALL_EXIT" \
++  "$LINT_EXIT" \
++  "$PYTEST_EXIT" \
++  "$MOCK_EXIT" \
++  "$REAL_EXIT" \
++  "$REAL_EVIDENCE_EXIT" \
++  "$PACKAGE_EXIT" \
++  "$TAR_EXIT" \
++  "$SUBMISSION_ZIP" \
++  "$RELEASE_TAR_GZ" \
++  "$RELEASE_DIR" <<'PY'
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++path = Path(sys.argv[1])
++
++def normalize(value: str) -> int | str:
++    if value.isdigit():
++        return int(value)
++    return value
++
++payload = {
++    "timestamp_utc": sys.argv[2],
++    "env_file": sys.argv[3],
++    "overall": "PASS" if sys.argv[4] == "0" else "FAIL",
++    "steps": {
++        "lint": normalize(sys.argv[5]),
++        "pytest": normalize(sys.argv[6]),
++        "mock_harness": normalize(sys.argv[7]),
++        "real_harness": normalize(sys.argv[8]),
++        "real_evidence": normalize(sys.argv[9]),
++        "package_submission": normalize(sys.argv[10]),
++        "release_bundle": normalize(sys.argv[11]),
++    },
++    "outputs": {
++        "submission_zip": sys.argv[12],
++        "release_bundle": sys.argv[13],
++        "release_dir": sys.argv[14],
++    },
++}
++
++path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
++PY
++
++if [[ $OVERALL_EXIT -eq 0 ]]; then
++  emit "summary" "PASS" "release evidence generated successfully"
++else
++  emit "summary" "FAIL" "one or more checks failed"
++fi
++
++exit "$OVERALL_EXIT"
+diff --git a/tests/test_package_submission.py b/tests/test_package_submission.py
+index f97aed03eaa73799b9218e05c16cf3d3cd932813..d5aabe1d85640a10a623b6a5c16fcf9aca38581b 100644
+--- a/tests/test_package_submission.py
++++ b/tests/test_package_submission.py
+@@ -23,6 +23,7 @@ REQUIRED_ARCHIVE_ENTRIES = {
+     "scripts/capture-testnet-evidence.sh",
+     "scripts/generate-integration-evidence.py",
+     "scripts/package-submission.sh",
++    "scripts/release-evidence.sh",
+ }
+ 
+ 
+-- 
+2.43.0
+
