@@ -155,6 +155,18 @@ pytest tests/ -v
 HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 ```
 
+## Demo & Submission
+
+- Demo narration script (3-5 minutes): `DEMO_SCRIPT.md`
+- Apex-ready checklist: `SUBMISSION_CHECKLIST.md`
+- Fast local smoke verification: `./scripts/smoke.sh`
+
+Quick run:
+
+```bash
+./scripts/smoke.sh
+```
+
 ### One-Command Judge Evidence Bundle
 
 ```bash
