@@ -153,9 +153,13 @@ docker compose up --build
 # Open dashboard
 open http://localhost:8000
 
-# Run simulation
-python demo/simulate_alerts.py
+# Run judge-visible offline simulation (sample HTS events -> rules -> HCS dry-run report)
+./scripts/run-e2e-simulation.py
 ```
+
+Generated artifact paths:
+- `artifacts/demo/e2e-simulation/<timestamp>/report.json`
+- `artifacts/demo/e2e-simulation/<timestamp>/report.md`
 
 ---
 

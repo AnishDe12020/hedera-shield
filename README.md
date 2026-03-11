@@ -179,6 +179,9 @@ Quick run:
 ### One-Command Judge Evidence Bundle
 
 ```bash
+# Fast judge-visible compliance simulation (no credentials, offline-safe)
+./scripts/run-e2e-simulation.py
+
 # Safe default (credential-free, non-destructive)
 ./scripts/release-evidence.sh
 
@@ -327,8 +330,11 @@ curl "http://localhost:8000/transactions?token_id=0.0.YOUR_TOKEN&limit=10" | pyt
 
 ### 5. Run Alert Simulation
 ```bash
-python demo/simulate_alerts.py
+./scripts/run-e2e-simulation.py
 ```
+Outputs:
+- `artifacts/demo/e2e-simulation/<timestamp>/report.json`
+- `artifacts/demo/e2e-simulation/<timestamp>/report.md`
 
 ### 6. Test Enforcement (Dry Run)
 ```bash
@@ -393,7 +399,10 @@ hedera-shield/
 ├── demo/
 │   ├── simulate_alerts.py   # Alert simulation script
 │   ├── walkthrough.md       # Demo walkthrough guide
-│   └── sample_alerts.json   # Sample alert data
+│   ├── sample_alerts.json   # Sample alert data
+│   └── sample_hts_events.json # Sample HTS transfer stream for E2E simulation
+├── scripts/
+│   └── run-e2e-simulation.py # Offline end-to-end simulation (events -> rules -> HCS artifact)
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt

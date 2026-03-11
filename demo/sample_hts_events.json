@@ -1,0 +1,76 @@
+{
+  "events": [
+    {
+      "transaction_id": "sim-tx-001",
+      "token_id": "0.0.5555",
+      "sender": "0.0.1111",
+      "receiver": "0.0.2222",
+      "amount": 25000.0,
+      "seconds_from_start": 0,
+      "memo": "Treasury rebalance outflow"
+    },
+    {
+      "transaction_id": "sim-tx-002",
+      "token_id": "0.0.5555",
+      "sender": "0.0.6666",
+      "receiver": "0.0.3333",
+      "amount": 1200.0,
+      "seconds_from_start": 1,
+      "memo": "Counterparty settlement"
+    },
+    {
+      "transaction_id": "sim-tx-003",
+      "token_id": "0.0.5555",
+      "sender": "0.0.9000",
+      "receiver": "0.0.3000",
+      "amount": 9500.0,
+      "seconds_from_start": 2,
+      "memo": "Split payout part 1"
+    },
+    {
+      "transaction_id": "sim-tx-004",
+      "token_id": "0.0.5555",
+      "sender": "0.0.9000",
+      "receiver": "0.0.3001",
+      "amount": 9400.0,
+      "seconds_from_start": 3,
+      "memo": "Split payout part 2"
+    },
+    {
+      "transaction_id": "sim-tx-005",
+      "token_id": "0.0.5555",
+      "sender": "0.0.9000",
+      "receiver": "0.0.3002",
+      "amount": 9300.0,
+      "seconds_from_start": 4,
+      "memo": "Split payout part 3"
+    },
+    {
+      "transaction_id": "sim-tx-006",
+      "token_id": "0.0.7001",
+      "sender": "0.0.1234",
+      "receiver": "0.0.5678",
+      "amount": 2100.0,
+      "seconds_from_start": 5,
+      "memo": "Cross-token leg A"
+    },
+    {
+      "transaction_id": "sim-tx-007",
+      "token_id": "0.0.7002",
+      "sender": "0.0.1234",
+      "receiver": "0.0.5678",
+      "amount": 2200.0,
+      "seconds_from_start": 6,
+      "memo": "Cross-token leg B"
+    },
+    {
+      "transaction_id": "sim-tx-008",
+      "token_id": "0.0.7003",
+      "sender": "0.0.1234",
+      "receiver": "0.0.5678",
+      "amount": 2300.0,
+      "seconds_from_start": 7,
+      "memo": "Cross-token leg C"
+    }
+  ]
+}
