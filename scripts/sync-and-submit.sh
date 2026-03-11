@@ -11,17 +11,19 @@ INITIAL_BACKOFF_SECONDS=2
 MAX_BACKOFF_SECONDS=16
 DIST_DIR="$ROOT_DIR/dist"
 REPORT_FILE=""
+PUSH_STATUS_FILE="$ROOT_DIR/PUSH_STATUS.md"
 
 usage() {
   cat <<'USAGE'
 Usage:
-  ./scripts/sync-and-submit.sh [--remote NAME] [--branch NAME] [--max-retries N] [--initial-backoff-seconds N] [--max-backoff-seconds N] [--report-file PATH]
+  ./scripts/sync-and-submit.sh [--remote NAME] [--branch NAME] [--max-retries N] [--initial-backoff-seconds N] [--max-backoff-seconds N] [--report-file PATH] [--push-status-file PATH]
 
 Behavior:
   - Computes pending local commits versus upstream.
   - Checks remote reachability with git ls-remote.
   - Retries git push with bounded exponential backoff.
   - Writes a clear status report to dist/ by default.
+  - Writes PUSH_STATUS.md with exact error output when push is blocked/failed.
 USAGE
 }
 
@@ -49,6 +51,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --report-file)
       REPORT_FILE="${2:-}"
+      shift 2
+      ;;
+    --push-status-file)
+      PUSH_STATUS_FILE="${2:-}"
       shift 2
       ;;
     -h|--help)
@@ -241,10 +247,44 @@ cp "$REPORT_FILE" "$LATEST_REPORT"
 emit "report" "PASS" "wrote $REPORT_FILE"
 emit "report_latest" "PASS" "updated $LATEST_REPORT"
 
+write_push_status_failure() {
+  local failure_context=""
+  if [[ -n "$PUSH_ERROR" ]]; then
+    failure_context="$PUSH_ERROR"
+  elif [[ -n "$REACHABILITY_ERROR" ]]; then
+    failure_context="$REACHABILITY_ERROR"
+  else
+    failure_context="No git stderr/stdout was captured."
+  fi
+
+  mkdir -p "$(dirname "$PUSH_STATUS_FILE")"
+  {
+    echo "# Push Failure Status"
+    echo ""
+    echo "- Timestamp UTC: $TIMESTAMP_UTC"
+    echo "- Branch: $BRANCH"
+    echo "- Remote: $REMOTE"
+    echo "- Remote URL: $REMOTE_URL"
+    echo "- Push status: $PUSH_STATUS"
+    echo "- Pending local commits: $AHEAD_COUNT"
+    echo ""
+    echo "## Exact Error"
+    echo '```text'
+    printf '%s\n' "$failure_context"
+    echo '```'
+  } > "$PUSH_STATUS_FILE"
+  emit "push_status_file" "PASS" "wrote $PUSH_STATUS_FILE"
+}
+
 if [[ "$PUSH_STATUS" == "PUSHED" || "$PUSH_STATUS" == "NO_PENDING_COMMITS" ]]; then
+  if [[ -f "$PUSH_STATUS_FILE" ]]; then
+    rm -f "$PUSH_STATUS_FILE"
+    emit "push_status_file" "PASS" "removed stale $PUSH_STATUS_FILE"
+  fi
   emit "summary" "PASS" "sync state is clean"
   exit 0
 fi
 
+write_push_status_failure
 emit "summary" "FAIL" "sync incomplete; see $REPORT_FILE"
 exit 1

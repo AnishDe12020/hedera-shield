@@ -41,6 +41,7 @@ def test_sync_script_reports_pending_commits_when_remote_unreachable(tmp_path: P
     _git(repo, "remote", "add", "origin", "https://nonexistent.invalid/hedera-shield.git")
 
     report_path = repo / "dist" / "sync-report.txt"
+    push_status_path = repo / "PUSH_STATUS.md"
     result = _run(
         [
             "bash",
@@ -66,6 +67,12 @@ def test_sync_script_reports_pending_commits_when_remote_unreachable(tmp_path: P
     assert "initial commit" in report
     assert "REMOTE_REACHABILITY_ERROR:" in report
 
+    assert push_status_path.exists()
+    push_status = push_status_path.read_text(encoding="utf-8")
+    assert "# Push Failure Status" in push_status
+    assert "Push status: SKIPPED_UNREACHABLE" in push_status
+    assert "nonexistent.invalid" in push_status
+
 
 def test_sync_script_retries_push_and_captures_final_error(tmp_path: Path) -> None:
     remote = tmp_path / "remote"
@@ -86,6 +93,7 @@ def test_sync_script_retries_push_and_captures_final_error(tmp_path: Path) -> No
     _git(local, "commit", "-m", "local change")
 
     report_path = local / "dist" / "sync-report.txt"
+    push_status_path = local / "PUSH_STATUS.md"
     result = _run(
         [
             "bash",
@@ -112,3 +120,8 @@ def test_sync_script_retries_push_and_captures_final_error(tmp_path: Path) -> No
     assert "Attempt 1/2 exit=" in report
     assert "Attempt 2/2 exit=" in report
     assert "PUSH_FINAL_ERROR:" in report
+
+    assert push_status_path.exists()
+    push_status = push_status_path.read_text(encoding="utf-8")
+    assert "Push status: FAILED_AFTER_RETRIES" in push_status
+    assert "refusing to update checked out branch" in push_status
