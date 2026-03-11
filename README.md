@@ -161,6 +161,15 @@ HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 - Apex-ready checklist: `SUBMISSION_CHECKLIST.md`
 - Fast local smoke verification: `./scripts/smoke.sh`
 
+## Integration Readiness
+
+Use these assets to prepare and execute the first live testnet integration pass without requiring unavailable credentials:
+
+- Preflight checker (env/config/endpoint readiness with red-yellow-green summary): `./scripts/integration_preflight.sh --env-file .env.testnet`
+- Copy-paste first live testnet runbook: `docs/INTEGRATION_READY.md`
+- Current blockers and concrete mitigations: `docs/KNOWN_ISSUES_AND_WORKAROUNDS.md`
+- Existing testnet setup reference: `docs/TESTNET_SETUP.md`
+
 Quick run:
 
 ```bash
