@@ -1,10 +1,5 @@
-## 2026-03-11 Push Failure
+## 2026-03-11 Validation Snapshot
 
-Command: `git push`
-
-Exact failure:
-ssh: Could not resolve hostname github.com: Temporary failure in name resolution
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
+- Full test suite (`pytest`): **100 passed, 6 skipped** (`106` collected, `2.19s`)
+- Targeted network recovery test file (`pytest -q tests/test_network_recovery_push_runner.py`): **3 passed**
+- DNS/remote-unreachable recovery test path is now deterministic via explicit `--dns-host nonexistent.invalid`

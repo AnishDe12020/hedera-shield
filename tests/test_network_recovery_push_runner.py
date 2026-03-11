@@ -51,6 +51,8 @@ def test_recovery_runner_reports_blocked_state_when_remote_unreachable(tmp_path:
             "1",
             "--check-interval-seconds",
             "0",
+            "--dns-host",
+            "nonexistent.invalid",
             "--report-file",
             str(report_path),
             "--json-file",

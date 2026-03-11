@@ -1,21 +1,21 @@
 # Deploy Status
 
-**Timestamp:** 2026-03-10 09:54:08 CET (+0100)  
+**Timestamp:** 2026-03-11 05:57:10 CET (+0100)  
 **Branch:** `master`
 
 ## 1) Full Test Suite
 
 Command:
 ```bash
-source venv/bin/activate && pytest
+pytest
 ```
 
 Result:
-- **Total collected:** 75
-- **Passed:** 69
+- **Total collected:** 106
+- **Passed:** 100
 - **Skipped:** 6
 - **Failed:** 0
-- **Duration:** 0.70s
+- **Duration:** 2.19s
 
 ## 2) One-Command Live Integration Run
 
