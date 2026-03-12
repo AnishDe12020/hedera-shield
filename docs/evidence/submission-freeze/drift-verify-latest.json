@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "report_type": "submission_freeze_drift_verify",
-  "timestamp_utc": "20260312T054037Z",
-  "generated_at_utc": "2026-03-12T05:40:37.453334Z",
+  "timestamp_utc": "20260312T060500Z",
+  "generated_at_utc": "2026-03-12T06:05:00.438067Z",
   "manifest_path": "dist/submission-freeze/submission-freeze-latest.json",
   "summary": {
     "overall": "PASS",
@@ -21,8 +21,8 @@
     {
       "key": "repo_commit_sha",
       "status": "PASS",
-      "expected": "ff902182f8586e0715853132a716243924973563",
-      "actual": "ff902182f8586e0715853132a716243924973563",
+      "expected": "446c1c6f083193bc93460220d14726c91a4839f7",
+      "actual": "446c1c6f083193bc93460220d14726c91a4839f7",
       "details": "commit SHA matches freeze manifest"
     },
     {
@@ -42,15 +42,15 @@
     {
       "key": "dist_submission_readiness_latest_txt",
       "status": "PASS",
-      "expected": "d613b2c63949478ab316c6d08663f69821aa9e8b13d0736d7033a47fde3cdd08",
-      "actual": "d613b2c63949478ab316c6d08663f69821aa9e8b13d0736d7033a47fde3cdd08",
+      "expected": "fd1b2c01979a81d92eaf8c81d0d0fe3b16a49943ee05ed94bfb32d7ed5102908",
+      "actual": "fd1b2c01979a81d92eaf8c81d0d0fe3b16a49943ee05ed94bfb32d7ed5102908",
       "details": "checksum unchanged"
     },
     {
       "key": "dist_pre_submit_verify_latest_txt",
       "status": "PASS",
-      "expected": "c8bf73d2ed0be2fec31a555a747db3766785ab8a13bb3ff1dc29460adf454e2e",
-      "actual": "c8bf73d2ed0be2fec31a555a747db3766785ab8a13bb3ff1dc29460adf454e2e",
+      "expected": "1a86a97165b0e73bb537a44410471a4a4e0677816b8ce30f81e4c7022551d71f",
+      "actual": "1a86a97165b0e73bb537a44410471a4a4e0677816b8ce30f81e4c7022551d71f",
       "details": "checksum unchanged"
     },
     {
@@ -70,22 +70,22 @@
     {
       "key": "dist_sync_submit_status_latest_txt",
       "status": "PASS",
-      "expected": "304576f0f7691abfc3c2a2c511fe774467fbb6badcb2a298675a29036fef04e3",
-      "actual": "304576f0f7691abfc3c2a2c511fe774467fbb6badcb2a298675a29036fef04e3",
+      "expected": "30b1d9f3a04a6a0478e08471c069bf0625e28181668928d23b4e835b37620096",
+      "actual": "30b1d9f3a04a6a0478e08471c069bf0625e28181668928d23b4e835b37620096",
       "details": "checksum unchanged"
     },
     {
       "key": "dist_network_recovery_push_status_latest_txt",
       "status": "PASS",
-      "expected": "9d7b7098ae78685cec39c47aab3ebb97c0cbb7f919c7f76b2cf948102d1b651f",
-      "actual": "9d7b7098ae78685cec39c47aab3ebb97c0cbb7f919c7f76b2cf948102d1b651f",
+      "expected": "a6765a4ced8e8df06bc879ad44738cfef7976c6686bec037947c31bd648e015f",
+      "actual": "a6765a4ced8e8df06bc879ad44738cfef7976c6686bec037947c31bd648e015f",
       "details": "checksum unchanged"
     },
     {
       "key": "dist_network_recovery_push_status_latest_json",
       "status": "PASS",
-      "expected": "0853e40fadea5dede4e7fee913fae9fa36e76e806cffb04e708b1366bbc8ccfb",
-      "actual": "0853e40fadea5dede4e7fee913fae9fa36e76e806cffb04e708b1366bbc8ccfb",
+      "expected": "3d19e728b98874e9951e175b87a12137e5d75ae2a5847a607c6033772b907252",
+      "actual": "3d19e728b98874e9951e175b87a12137e5d75ae2a5847a607c6033772b907252",
       "details": "checksum unchanged"
     },
     {

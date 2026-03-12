@@ -1,7 +1,7 @@
 # HederaShield Portal Packet Snapshot
 
-Timestamp UTC: `20260312T052902Z`
-Validated HEAD: `c0dd5024511c`
+Timestamp UTC: `20260312T060500Z`
+Validated HEAD: `446c1c6`
 
 Portal packet generation and verify status:
 
@@ -18,6 +18,6 @@ Packet snapshot artifacts:
 - `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`
 
 Checksums:
-- packet markdown: `ddc3be0ff759a914a92f673116a70702d26d2b52b5299a220e643f4afeb6f3fa`
-- packet json: `32f3ebcb064f66ae0522382721e69553ff2fc0284fa7745459ed29895c9b0abb`
-- packet verify txt: `fc8ea2d8fbcf094eb29cf010ecb9b9675d9d42fff718680098c873d57bd10aeb`
+- packet markdown: `98e16a1363a60732ec832bff4fda952043367780724fe28f7b485269e1f99468`
+- packet json: `4d73b0c246f588a279753fbdee4faf13785d876f083cb10780e276d5773859a3`
+- packet verify txt: `4ab4dc5cc2997a450a993f2f179d48f09301a5924866e025bc3dbdedd840c40d`

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
   "manifest_type": "submission_freeze",
-  "timestamp_utc": "20260312T054037Z",
-  "generated_at_utc": "2026-03-12T05:40:37.409608Z",
+  "timestamp_utc": "20260312T060500Z",
+  "generated_at_utc": "2026-03-12T06:05:00.395315Z",
   "repo": {
     "branch": "master",
-    "commit_sha": "ff902182f8586e0715853132a716243924973563",
+    "commit_sha": "446c1c6f083193bc93460220d14726c91a4839f7",
     "is_dirty": true,
-    "git_status_porcelain": "?? .claude/"
+    "git_status_porcelain": "M dist/portal-submission/portal-submission-packet-latest.json\n M dist/portal-submission/portal-submission-packet-latest.md\n M dist/portal-submission/portal-submission-verify-latest.json\n M dist/portal-submission/portal-submission-verify-latest.txt\n?? .claude/"
   },
   "artifacts": [
     {
@@ -33,18 +33,18 @@
       "source_pattern": "dist/submission-readiness-latest.txt",
       "path": "dist/submission-readiness-latest.txt",
       "status": "PASS",
-      "sha256": "d613b2c63949478ab316c6d08663f69821aa9e8b13d0736d7033a47fde3cdd08",
+      "sha256": "fd1b2c01979a81d92eaf8c81d0d0fe3b16a49943ee05ed94bfb32d7ed5102908",
       "size_bytes": 1875,
-      "details": "sha256 d613b2c63949..."
+      "details": "sha256 fd1b2c01979a..."
     },
     {
       "key": "dist_pre_submit_verify_latest_txt",
       "source_pattern": "dist/pre-submit-verify-latest.txt",
       "path": "dist/pre-submit-verify-latest.txt",
       "status": "PASS",
-      "sha256": "c8bf73d2ed0be2fec31a555a747db3766785ab8a13bb3ff1dc29460adf454e2e",
+      "sha256": "1a86a97165b0e73bb537a44410471a4a4e0677816b8ce30f81e4c7022551d71f",
       "size_bytes": 1833,
-      "details": "sha256 c8bf73d2ed0b..."
+      "details": "sha256 1a86a97165b0..."
     },
     {
       "key": "dist_sprint_status_sprint_dashboard_latest_md",
@@ -69,27 +69,27 @@
       "source_pattern": "dist/sync-submit-status-latest.txt",
       "path": "dist/sync-submit-status-latest.txt",
       "status": "PASS",
-      "sha256": "304576f0f7691abfc3c2a2c511fe774467fbb6badcb2a298675a29036fef04e3",
-      "size_bytes": 796,
-      "details": "sha256 304576f0f769..."
+      "sha256": "30b1d9f3a04a6a0478e08471c069bf0625e28181668928d23b4e835b37620096",
+      "size_bytes": 787,
+      "details": "sha256 30b1d9f3a04a..."
     },
     {
       "key": "dist_network_recovery_push_status_latest_txt",
       "source_pattern": "dist/network-recovery-push-status-latest.txt",
       "path": "dist/network-recovery-push-status-latest.txt",
       "status": "PASS",
-      "sha256": "9d7b7098ae78685cec39c47aab3ebb97c0cbb7f919c7f76b2cf948102d1b651f",
-      "size_bytes": 1395,
-      "details": "sha256 9d7b7098ae78..."
+      "sha256": "a6765a4ced8e8df06bc879ad44738cfef7976c6686bec037947c31bd648e015f",
+      "size_bytes": 1609,
+      "details": "sha256 a6765a4ced8e..."
     },
     {
       "key": "dist_network_recovery_push_status_latest_json",
       "source_pattern": "dist/network-recovery-push-status-latest.json",
       "path": "dist/network-recovery-push-status-latest.json",
       "status": "PASS",
-      "sha256": "0853e40fadea5dede4e7fee913fae9fa36e76e806cffb04e708b1366bbc8ccfb",
-      "size_bytes": 1374,
-      "details": "sha256 0853e40fadea..."
+      "sha256": "3d19e728b98874e9951e175b87a12137e5d75ae2a5847a607c6033772b907252",
+      "size_bytes": 1596,
+      "details": "sha256 3d19e728b988..."
     },
     {
       "key": "artifacts_handoff_index_latest_handoff_index_md",

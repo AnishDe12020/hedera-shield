@@ -1,7 +1,7 @@
 # HederaShield Release Candidate Lock
 
-Lock pass timestamp (UTC): `20260312T054037Z`  
-Locked commit SHA (validated base): `ff902182f8586e0715853132a716243924973563`  
+Lock pass timestamp (UTC): `20260312T060500Z`  
+Locked commit SHA (validated base): `446c1c6f083193bc93460220d14726c91a4839f7`  
 Branch: `master`  
 Scope: docs/scripts only, no feature changes
 
@@ -9,16 +9,17 @@ Scope: docs/scripts only, no feature changes
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `dist/submission-readiness-latest.txt` | `d613b2c63949478ab316c6d08663f69821aa9e8b13d0736d7033a47fde3cdd08` |
-| `dist/pre-submit-verify-latest.txt` | `c8bf73d2ed0be2fec31a555a747db3766785ab8a13bb3ff1dc29460adf454e2e` |
-| `dist/submission-freeze/submission-freeze-latest.md` | `014ed45a35c268ecdfb0a2ab633446d63aa3dcb218e9f04529686bdfdebd7289` |
-| `dist/submission-freeze/submission-freeze-latest.json` | `a028983b3f0dca627778cb7ca96f0024cd4c2d4dc08448113473f6278e537e45` |
-| `dist/submission-freeze/drift-verify-latest.md` | `a4be0272bfbcfc14f1af2051167826236c78f997822d575e988580f1464d2051` |
-| `dist/submission-freeze/drift-verify-latest.json` | `b574426c75cee96a2a2115c89cda510f0df027c2f0acd453d999fdd2b6c58fa5` |
+| `dist/submission-readiness-latest.txt` | `fd1b2c01979a81d92eaf8c81d0d0fe3b16a49943ee05ed94bfb32d7ed5102908` |
+| `dist/pre-submit-verify-latest.txt` | `1a86a97165b0e73bb537a44410471a4a4e0677816b8ce30f81e4c7022551d71f` |
+| `dist/submission-freeze/submission-freeze-latest.md` | `a6a22c483cfde43ed58fef5d7646b1c725cdb0f7a1ec7345eab1385f6c42dea2` |
+| `dist/submission-freeze/submission-freeze-latest.json` | `768f03fe50eab70b5cac0c4b8aad88956ae31ebc8d0b14ccf42c84699082456d` |
+| `dist/submission-freeze/drift-verify-latest.md` | `6bfa3f52b5fe24a976be90187ca5a1a3f9886ae3223b967c2dfbc19ab538ca26` |
+| `dist/submission-freeze/drift-verify-latest.json` | `af2853994b9dc64e170d48ed4bbaa241caa43e401df32fdaebaabb50fdb9a4fb` |
 
 ## Frozen Evidence/Status Docs
 
 - `RELEASE_READINESS.md`
+- `EVIDENCE_HYGIENE.md`
 - `OPS_HANDOFF_CHECKLIST.md`
 - `SUBMISSION_FREEZE.md`
 - `docs/evidence/submit-now/SUBMISSION_COMMANDS.md`
