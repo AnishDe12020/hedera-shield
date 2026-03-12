@@ -1,11 +1,12 @@
 # HederaShield Submission Closure Checklist
 
-Checklist timestamp (UTC): `2026-03-12T14:27:01Z`  
+Checklist timestamp (UTC): `2026-03-12T14:39:30Z`  
 Scope: Compact final manual submit closure checklist.
 
 ## Pre-Submit
 
 - [ ] Run `./scripts/submission-readiness.sh` and confirm `READINESS|summary|PASS`.
+- [ ] Run `./scripts/pre-submit-verify.py` and confirm `VERIFY|summary|PASS`.
 - [ ] Run `./scripts/pre_submit_guard.sh` and confirm `GUARD|PASS|pre-submit guard complete`.
 - [ ] Run `./scripts/print_submit_now.sh` and confirm all required paths are `CHECK|PASS`.
 - [ ] Open `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` as the canonical portal value source.
