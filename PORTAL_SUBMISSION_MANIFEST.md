@@ -6,6 +6,7 @@ Scope: final portal submission copy/paste map (docs-only)
 ## Source of Truth
 
 - Primary packet (machine-readable): `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`
+- Operator execution one-pager: `OPERATOR_ONE_PAGER.md`
 - Control recap: `PRE_SUBMIT_RECAP.md`
 - Submission-ready snapshot: `SUBMISSION_READY_SNAPSHOT.md`
 - Generated packet reference: `dist/portal-submission/portal-submission-packet-latest.json`
