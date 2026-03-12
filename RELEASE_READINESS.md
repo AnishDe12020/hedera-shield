@@ -1,6 +1,6 @@
 # HederaShield Release Readiness
 
-Last updated (UTC): `2026-03-12T04:09:23Z`
+Last updated (UTC): `2026-03-12T04:16:41Z`
 
 ## 1) Submission Readiness Snapshot
 
@@ -31,11 +31,13 @@ Last updated (UTC): `2026-03-12T04:09:23Z`
 ## 2) Manual Portal Submission Steps
 
 1. Run all commands in section 1 and confirm all gates are green.
-2. Open `HEDERA_PORTAL_SUBMISSION_PACKET.md` and copy final answers into the portal.
-3. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
-4. Confirm portal commit SHA matches `git rev-parse HEAD`.
-5. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
-6. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
+2. Run `./scripts/final_portal_handoff.sh` and confirm `HANDOFF|summary|PASS`.
+3. Follow `SUBMISSION_DRY_RUN.md` rehearsal once end-to-end without submitting.
+4. Open `HEDERA_PORTAL_SUBMISSION_PACKET.md` and copy final answers into the portal.
+5. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
+6. Confirm portal commit SHA matches `git rev-parse HEAD`.
+7. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
+8. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
 
 ## 3) Remaining Blockers
 

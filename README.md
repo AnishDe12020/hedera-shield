@@ -161,6 +161,7 @@ HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 - Final 3-5 minute demo flow (problem -> setup -> findings -> HCS -> impact): `DEMO_RUNBOOK.md`
 - Apex-ready checklist: `SUBMISSION_CHECKLIST.md`
 - Final release gate + operator handoff plan: `RELEASE_READINESS.md`
+- End-to-end portal rehearsal + expected checkpoints: `SUBMISSION_DRY_RUN.md`
 - Hackathon form field mapping packet: `SUBMISSION_PACKET.md`
 - Portal-ready copy/paste packet for submission form fields: `HEDERA_PORTAL_SUBMISSION_PACKET.md`
 - Integration/runtime failure quick reference: `TROUBLESHOOTING_QUICKREF.md`
@@ -215,6 +216,9 @@ Default command behavior:
 
 # 3) Verify final draft-referenced docs/artifacts
 ./scripts/pre-submit-verify.py
+
+# 3b) Print final operator handoff actions and verify portal-required files/checks
+./scripts/final_portal_handoff.sh
 
 # 4) Generate final Hedera Apex portal packet (markdown + json)
 ./scripts/generate-portal-submission-packet.py
