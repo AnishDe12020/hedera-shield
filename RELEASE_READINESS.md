@@ -1,12 +1,12 @@
 # HederaShield Release Readiness
 
-Last updated (UTC): `2026-03-12T04:40:54Z`
+Last updated (UTC): `2026-03-12T04:54:38Z`
 
 ## 1) Submission Readiness Snapshot
 
 - Scope lock: docs/scripts only, no feature changes.
 - Current validation state:
-  - Refreshed quick checks at `2026-03-12T04:40:54Z` via latest local run.
+  - Refreshed quick checks at `2026-03-12T04:53:55Z` via latest local run.
   - `ruff check hedera_shield/ tests/`: `PASS`
   - `venv/bin/pytest tests/ -v --tb=short`: `102 passed, 6 skipped`
   - `./scripts/pre_submit_guard.sh`: `PASS`
@@ -24,6 +24,13 @@ Last updated (UTC): `2026-03-12T04:40:54Z`
   - `./scripts/print_submit_now.sh`
   - `./scripts/submission-freeze.py`
   - `./scripts/verify-submission-freeze.py`
+- Freeze/evidence bundle references:
+  - `SUBMISSION_FREEZE.md`
+  - `docs/evidence/submission-freeze/validation-snapshot-latest.md`
+  - `docs/evidence/submission-freeze/readiness-snapshot-latest.md`
+  - `docs/evidence/submission-freeze/portal-packet-snapshot-latest.md`
+  - `docs/evidence/submission-freeze/submission-freeze-latest.md`
+  - `docs/evidence/submission-freeze/submission-freeze-latest.json`
 - Pass criteria:
   - `dist/submission-readiness-latest.txt` contains `READINESS|summary|PASS`
   - `dist/pre-submit-verify-latest.txt` contains `VERIFY|summary|PASS`
@@ -37,10 +44,11 @@ Last updated (UTC): `2026-03-12T04:40:54Z`
 3. Follow `SUBMISSION_DRY_RUN.md` rehearsal once end-to-end without submitting.
 4. Run `./scripts/print_submit_now.sh` and verify all listed key paths resolve.
 5. Open `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` and copy final answers into the portal (fallback reference: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
-6. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
-7. Confirm portal commit SHA matches `git rev-parse HEAD`.
-8. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
-9. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
+6. Confirm `SUBMISSION_FREEZE.md` and `docs/evidence/submission-freeze/*-latest.*` files reflect the current locked bundle.
+7. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
+8. Confirm portal commit SHA matches `git rev-parse HEAD`.
+9. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
+10. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
 
 ## 3) Remaining Blockers
 

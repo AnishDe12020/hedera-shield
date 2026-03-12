@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "report_type": "submission_freeze_drift_verify",
+  "timestamp_utc": "20260312T045355Z",
+  "generated_at_utc": "2026-03-12T04:53:55.353505Z",
+  "manifest_path": "dist/submission-freeze/submission-freeze-latest.json",
+  "summary": {
+    "overall": "PASS",
+    "pass_count": 13,
+    "drift_count": 0,
+    "info_count": 0
+  },
+  "checks": [
+    {
+      "key": "repo_branch",
+      "status": "PASS",
+      "expected": "master",
+      "actual": "master",
+      "details": "branch matches freeze manifest"
+    },
+    {
+      "key": "repo_commit_sha",
+      "status": "PASS",
+      "expected": "db3254f0b85cb05f1fe120175b1665beaf69a992",
+      "actual": "db3254f0b85cb05f1fe120175b1665beaf69a992",
+      "details": "commit SHA matches freeze manifest"
+    },
+    {
+      "key": "dist_submission_bundle_zip",
+      "status": "PASS",
+      "expected": "8868de1626f1a724d1822b15ef7a49cb197d395189ec9afe6fff2324a01fb57b",
+      "actual": "8868de1626f1a724d1822b15ef7a49cb197d395189ec9afe6fff2324a01fb57b",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_release_evidence_latest_tar_gz",
+      "status": "PASS",
+      "expected": "a7912952afbc1c4b5754f5ea767e34554a0659a7a22574d316c159f682344040",
+      "actual": "a7912952afbc1c4b5754f5ea767e34554a0659a7a22574d316c159f682344040",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_submission_readiness_latest_txt",
+      "status": "PASS",
+      "expected": "fc2d088e54f99e964edeb74faf0143057471df42cfa0a01bb15cf2f0aae80ede",
+      "actual": "fc2d088e54f99e964edeb74faf0143057471df42cfa0a01bb15cf2f0aae80ede",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_pre_submit_verify_latest_txt",
+      "status": "PASS",
+      "expected": "cdfe9a1cf13ee617aabf93d1a3d65b7b151536ad73e07db16084cfdb46e5893f",
+      "actual": "cdfe9a1cf13ee617aabf93d1a3d65b7b151536ad73e07db16084cfdb46e5893f",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_sprint_status_sprint_dashboard_latest_md",
+      "status": "PASS",
+      "expected": "91054f57ae8b22fbbd4ef555252d03a45ac37b7e6c9d921370b3cd93eaeda9df",
+      "actual": "91054f57ae8b22fbbd4ef555252d03a45ac37b7e6c9d921370b3cd93eaeda9df",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_sprint_status_sprint_dashboard_latest_json",
+      "status": "PASS",
+      "expected": "738254a994647033b45e1d9adf5ad68932c152980f6499bad1e71b5a040f706f",
+      "actual": "738254a994647033b45e1d9adf5ad68932c152980f6499bad1e71b5a040f706f",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_sync_submit_status_latest_txt",
+      "status": "PASS",
+      "expected": "d73d59538ea868c7c71ee474df5e5e04ac8ebcb8aa2479c753357e7c8d6e1156",
+      "actual": "d73d59538ea868c7c71ee474df5e5e04ac8ebcb8aa2479c753357e7c8d6e1156",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_network_recovery_push_status_latest_txt",
+      "status": "PASS",
+      "expected": "06141e2dd8b32130ec6d78a960e44dd32f89f4d8a21338b746ddd274f5cdd244",
+      "actual": "06141e2dd8b32130ec6d78a960e44dd32f89f4d8a21338b746ddd274f5cdd244",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "dist_network_recovery_push_status_latest_json",
+      "status": "PASS",
+      "expected": "f5ad04bbe317d1e7c30a5972e1f235dd9c0cc0dc9798b9706f5d79b604f59e39",
+      "actual": "f5ad04bbe317d1e7c30a5972e1f235dd9c0cc0dc9798b9706f5d79b604f59e39",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "artifacts_handoff_index_latest_handoff_index_md",
+      "status": "PASS",
+      "expected": "53f539e5329d8a65d893c71317898225a5976538520a5e439367c84fbf878fd5",
+      "actual": "53f539e5329d8a65d893c71317898225a5976538520a5e439367c84fbf878fd5",
+      "details": "checksum unchanged"
+    },
+    {
+      "key": "artifacts_handoff_index_latest_handoff_index_json",
+      "status": "PASS",
+      "expected": "8f3f5cf99bbba9a1ba3e5fc0de0b270142f74d5d48951baf759015bf801169a8",
+      "actual": "8f3f5cf99bbba9a1ba3e5fc0de0b270142f74d5d48951baf759015bf801169a8",
+      "details": "checksum unchanged"
+    }
+  ]
+}

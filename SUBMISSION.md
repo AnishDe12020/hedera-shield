@@ -175,6 +175,7 @@ Use the dedicated judge-facing docs:
 - Hackathon form field mapping packet with evidence placeholders: `SUBMISSION_PACKET.md`
 - Portal-ready field packet with copy/paste sections: `HEDERA_PORTAL_SUBMISSION_PACKET.md`
 - Submit-now JSON packet with final-link placeholders: `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`
+- Final locked freeze summary (artifacts + SHA map + manual-only submit flow): `SUBMISSION_FREEZE.md`
 - Final portal submission checklist (links + evidence placeholders): `docs/FINAL_SUBMISSION_CHECKLIST.md`
 - Final release readiness + operator handoff actions: `RELEASE_READINESS.md`
 - Final portal dry-run rehearsal with exact checkpoints: `SUBMISSION_DRY_RUN.md`
@@ -296,6 +297,13 @@ Report outputs:
 - `dist/handoff-playbook/human-handoff-playbook-latest.md`
 - `dist/handoff-playbook/human-handoff-playbook-latest.json`
 - `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`
+- `docs/evidence/submission-freeze/validation-snapshot-latest.md`
+- `docs/evidence/submission-freeze/readiness-snapshot-latest.md`
+- `docs/evidence/submission-freeze/portal-packet-snapshot-latest.md`
+- `docs/evidence/submission-freeze/submission-freeze-latest.md`
+- `docs/evidence/submission-freeze/submission-freeze-latest.json`
+- `docs/evidence/submission-freeze/drift-verify-latest.md`
+- `docs/evidence/submission-freeze/drift-verify-latest.json`
 
 Evidence readiness expectations:
 - Offline-safe evidence is complete when `dist/submission-bundle.zip`, `dist/release-evidence-*.tar.gz`, and the latest `dist/*-latest.*` reports exist.

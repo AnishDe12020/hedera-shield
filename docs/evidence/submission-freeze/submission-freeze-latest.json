@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "submission_freeze",
+  "timestamp_utc": "20260312T045355Z",
+  "generated_at_utc": "2026-03-12T04:53:55.308784Z",
+  "repo": {
+    "branch": "master",
+    "commit_sha": "db3254f0b85cb05f1fe120175b1665beaf69a992",
+    "is_dirty": true,
+    "git_status_porcelain": "M dist/portal-submission/portal-submission-packet-latest.json\n M dist/portal-submission/portal-submission-packet-latest.md\n M dist/portal-submission/portal-submission-verify-latest.json\n M dist/portal-submission/portal-submission-verify-latest.txt\n?? .claude/"
+  },
+  "artifacts": [
+    {
+      "key": "dist_submission_bundle_zip",
+      "source_pattern": "dist/submission-bundle.zip",
+      "path": "dist/submission-bundle.zip",
+      "status": "PASS",
+      "sha256": "8868de1626f1a724d1822b15ef7a49cb197d395189ec9afe6fff2324a01fb57b",
+      "size_bytes": 81221,
+      "details": "sha256 8868de1626f1..."
+    },
+    {
+      "key": "dist_release_evidence_latest_tar_gz",
+      "source_pattern": "dist/release-evidence-*.tar.gz",
+      "path": "dist/release-evidence-20260310T122842Z.tar.gz",
+      "status": "PASS",
+      "sha256": "a7912952afbc1c4b5754f5ea767e34554a0659a7a22574d316c159f682344040",
+      "size_bytes": 30739,
+      "details": "sha256 a7912952afbc..."
+    },
+    {
+      "key": "dist_submission_readiness_latest_txt",
+      "source_pattern": "dist/submission-readiness-latest.txt",
+      "path": "dist/submission-readiness-latest.txt",
+      "status": "PASS",
+      "sha256": "fc2d088e54f99e964edeb74faf0143057471df42cfa0a01bb15cf2f0aae80ede",
+      "size_bytes": 1875,
+      "details": "sha256 fc2d088e54f9..."
+    },
+    {
+      "key": "dist_pre_submit_verify_latest_txt",
+      "source_pattern": "dist/pre-submit-verify-latest.txt",
+      "path": "dist/pre-submit-verify-latest.txt",
+      "status": "PASS",
+      "sha256": "cdfe9a1cf13ee617aabf93d1a3d65b7b151536ad73e07db16084cfdb46e5893f",
+      "size_bytes": 1833,
+      "details": "sha256 cdfe9a1cf13e..."
+    },
+    {
+      "key": "dist_sprint_status_sprint_dashboard_latest_md",
+      "source_pattern": "dist/sprint-status/sprint-dashboard-latest.md",
+      "path": "dist/sprint-status/sprint-dashboard-latest.md",
+      "status": "PASS",
+      "sha256": "91054f57ae8b22fbbd4ef555252d03a45ac37b7e6c9d921370b3cd93eaeda9df",
+      "size_bytes": 4120,
+      "details": "sha256 91054f57ae8b..."
+    },
+    {
+      "key": "dist_sprint_status_sprint_dashboard_latest_json",
+      "source_pattern": "dist/sprint-status/sprint-dashboard-latest.json",
+      "path": "dist/sprint-status/sprint-dashboard-latest.json",
+      "status": "PASS",
+      "sha256": "738254a994647033b45e1d9adf5ad68932c152980f6499bad1e71b5a040f706f",
+      "size_bytes": 5162,
+      "details": "sha256 738254a99464..."
+    },
+    {
+      "key": "dist_sync_submit_status_latest_txt",
+      "source_pattern": "dist/sync-submit-status-latest.txt",
+      "path": "dist/sync-submit-status-latest.txt",
+      "status": "PASS",
+      "sha256": "d73d59538ea868c7c71ee474df5e5e04ac8ebcb8aa2479c753357e7c8d6e1156",
+      "size_bytes": 778,
+      "details": "sha256 d73d59538ea8..."
+    },
+    {
+      "key": "dist_network_recovery_push_status_latest_txt",
+      "source_pattern": "dist/network-recovery-push-status-latest.txt",
+      "path": "dist/network-recovery-push-status-latest.txt",
+      "status": "PASS",
+      "sha256": "06141e2dd8b32130ec6d78a960e44dd32f89f4d8a21338b746ddd274f5cdd244",
+      "size_bytes": 1384,
+      "details": "sha256 06141e2dd8b3..."
+    },
+    {
+      "key": "dist_network_recovery_push_status_latest_json",
+      "source_pattern": "dist/network-recovery-push-status-latest.json",
+      "path": "dist/network-recovery-push-status-latest.json",
+      "status": "PASS",
+      "sha256": "f5ad04bbe317d1e7c30a5972e1f235dd9c0cc0dc9798b9706f5d79b604f59e39",
+      "size_bytes": 1363,
+      "details": "sha256 f5ad04bbe317..."
+    },
+    {
+      "key": "artifacts_handoff_index_latest_handoff_index_md",
+      "source_pattern": "artifacts/handoff-index/*/handoff-index.md",
+      "path": "artifacts/handoff-index/20260310T170500Z/handoff-index.md",
+      "status": "PASS",
+      "sha256": "53f539e5329d8a65d893c71317898225a5976538520a5e439367c84fbf878fd5",
+      "size_bytes": 3320,
+      "details": "sha256 53f539e5329d..."
+    },
+    {
+      "key": "artifacts_handoff_index_latest_handoff_index_json",
+      "source_pattern": "artifacts/handoff-index/*/handoff-index.json",
+      "path": "artifacts/handoff-index/20260310T170500Z/handoff-index.json",
+      "status": "PASS",
+      "sha256": "8f3f5cf99bbba9a1ba3e5fc0de0b270142f74d5d48951baf759015bf801169a8",
+      "size_bytes": 5508,
+      "details": "sha256 8f3f5cf99bbb..."
+    }
+  ]
+}
