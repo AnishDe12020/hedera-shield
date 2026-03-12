@@ -15,16 +15,22 @@ Purpose: complete these steps in order immediately before Hedera Apex portal sub
 Run:
 
 ```bash
+./scripts/pre_submit_guard.sh
 ./scripts/submission-readiness.sh
 ./scripts/pre-submit-verify.py
 ./scripts/generate-portal-submission-packet.py
 ./scripts/verify-portal-submission-packet.py
+./scripts/submission-freeze.py
+./scripts/verify-submission-freeze.py
 ```
 
 Gate:
+- [ ] `scripts/pre_submit_guard.sh` exits `0`
 - [ ] `dist/submission-readiness-latest.txt` shows `READINESS|summary|PASS`
 - [ ] `dist/pre-submit-verify-latest.txt` shows `VERIFY|summary|PASS`
 - [ ] `dist/portal-submission/portal-submission-verify-latest.txt` shows `PORTAL_VERIFY|summary|PASS`
+- [ ] `dist/submission-freeze/submission-freeze-latest.md` exists and references current `HEAD`
+- [ ] `./scripts/verify-submission-freeze.py` reports `PASS`
 
 ## 2) Demo Video Proof (Portal Requirement)
 - [ ] Recorded using `docs/DEMO_RECORDING_RUNBOOK.md`

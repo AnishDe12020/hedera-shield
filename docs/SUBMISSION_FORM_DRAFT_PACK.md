@@ -37,6 +37,7 @@ pytest tests/ -v --tb=short
 ./scripts/release-evidence.sh
 
 # 4) Verify submission readiness
+./scripts/pre_submit_guard.sh
 ./scripts/submission-readiness.sh
 
 # 5) Final pre-submit verifier for draft-referenced docs/artifacts
@@ -48,6 +49,7 @@ pytest tests/ -v --tb=short
 - Demo artifacts: `artifacts/demo/3min-offline/harness/{report.md,report.json,harness.log,smoke.log,validator.log}`.
 - Bundle artifacts: `dist/submission-bundle.zip`, `artifacts/demo/3min-offline/submission-bundle.zip.sha256`, `dist/release-evidence-*.tar.gz`.
 - Validation outputs: `dist/submission-readiness-latest.txt`, `dist/pre-submit-verify-latest.txt`.
+- Release final gate: `RELEASE_READINESS.md`.
 
 ## Optional Real-Testnet Proof (Only If Explicitly Enabled)
 ```bash

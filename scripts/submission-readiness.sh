@@ -106,11 +106,13 @@ check_dir() {
 # Required docs
 check_file "doc_submission" "$ROOT_DIR/SUBMISSION.md"
 check_file "doc_readme" "$ROOT_DIR/README.md"
+check_file "doc_release_readiness" "$ROOT_DIR/RELEASE_READINESS.md"
 check_file "doc_testnet_setup" "$ROOT_DIR/docs/TESTNET_SETUP.md"
 check_file "doc_testnet_evidence" "$ROOT_DIR/docs/TESTNET_EVIDENCE.md"
 check_file "doc_deploy_proof" "$ROOT_DIR/docs/DEPLOY_PROOF.md"
 check_file "doc_demo_runbook" "$ROOT_DIR/docs/DEMO_RECORDING_RUNBOOK.md"
 check_file "doc_final_checklist" "$ROOT_DIR/docs/FINAL_SUBMISSION_CHECKLIST.md"
+check_file "script_pre_submit_guard" "$ROOT_DIR/scripts/pre_submit_guard.sh"
 
 # Demo/checklist artifacts
 check_dir "demo_dir" "$DEMO_DIR"

@@ -42,6 +42,7 @@ Repository docs:
 - `docs/DEMO_NARRATION_3MIN.md`
 - `docs/SUBMISSION_FORM_DRAFT_PACK.md`
 - `docs/FINAL_SUBMISSION_CHECKLIST.md`
+- `RELEASE_READINESS.md`
 - `VALIDATION.md`
 
 Deterministic demo/readiness artifacts:
@@ -50,6 +51,8 @@ Deterministic demo/readiness artifacts:
 - `artifacts/demo/3min-offline/harness/harness.log`
 - `dist/submission-readiness-latest.txt`
 - `dist/pre-submit-verify-latest.txt`
+- `dist/submission-freeze/submission-freeze-latest.md`
+- `dist/portal-submission/portal-submission-verify-latest.txt`
 - `dist/submission-bundle.zip`
 - `dist/release-evidence-*.tar.gz`
 

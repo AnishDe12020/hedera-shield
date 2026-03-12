@@ -63,7 +63,9 @@ Evidence/document links:
 - `SUBMISSION.md`
 - `SUBMISSION_PACKET.md`
 - `docs/FINAL_SUBMISSION_CHECKLIST.md`
+- `RELEASE_READINESS.md`
 - `dist/submission-readiness-latest.txt`
 - `dist/pre-submit-verify-latest.txt`
+- `dist/submission-freeze/submission-freeze-latest.md`
 - `dist/portal-submission/portal-submission-packet-latest.md`
 - `dist/portal-submission/portal-submission-verify-latest.txt`

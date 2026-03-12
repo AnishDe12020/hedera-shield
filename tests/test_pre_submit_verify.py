@@ -12,6 +12,7 @@ SCRIPT = ROOT / "scripts" / "pre-submit-verify.py"
 REQUIRED_FILES = [
     "README.md",
     "SUBMISSION.md",
+    "RELEASE_READINESS.md",
     "docs/SUBMISSION_FORM_DRAFT_PACK.md",
     "docs/DEMO_RECORDING_RUNBOOK.md",
     "docs/DEMO_NARRATION_3MIN.md",
@@ -19,6 +20,7 @@ REQUIRED_FILES = [
     "docs/TESTNET_SETUP.md",
     "docs/TESTNET_EVIDENCE.md",
     "docs/DEPLOY_PROOF.md",
+    "scripts/pre_submit_guard.sh",
     "dist/submission-bundle.zip",
     "dist/submission-readiness-latest.txt",
     "artifacts/demo/3min-offline/harness/report.md",

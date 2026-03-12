@@ -80,6 +80,7 @@ def run(root: Path, demo_id: str, report_file: Path) -> int:
     required_files = [
         "README.md",
         "SUBMISSION.md",
+        "RELEASE_READINESS.md",
         "docs/SUBMISSION_FORM_DRAFT_PACK.md",
         "docs/DEMO_RECORDING_RUNBOOK.md",
         "docs/DEMO_NARRATION_3MIN.md",
@@ -87,6 +88,7 @@ def run(root: Path, demo_id: str, report_file: Path) -> int:
         "docs/TESTNET_SETUP.md",
         "docs/TESTNET_EVIDENCE.md",
         "docs/DEPLOY_PROOF.md",
+        "scripts/pre_submit_guard.sh",
         "dist/submission-bundle.zip",
         "dist/submission-readiness-latest.txt",
         f"{demo_prefix}/harness/report.md",

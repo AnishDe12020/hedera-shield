@@ -12,11 +12,13 @@ SCRIPT = ROOT / "scripts" / "submission-readiness.sh"
 REQUIRED_FILES = [
     "README.md",
     "SUBMISSION.md",
+    "RELEASE_READINESS.md",
     "docs/TESTNET_SETUP.md",
     "docs/TESTNET_EVIDENCE.md",
     "docs/DEPLOY_PROOF.md",
     "docs/DEMO_RECORDING_RUNBOOK.md",
     "docs/FINAL_SUBMISSION_CHECKLIST.md",
+    "scripts/pre_submit_guard.sh",
     "artifacts/demo/3min-offline/harness/report.md",
     "artifacts/demo/3min-offline/harness/report.json",
     "artifacts/demo/3min-offline/harness/harness.log",

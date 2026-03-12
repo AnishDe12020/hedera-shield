@@ -15,6 +15,7 @@ emit() {
 required_files=(
   "README.md"
   "SUBMISSION.md"
+  "RELEASE_READINESS.md"
   "DEPLOY_STATUS.md"
   "docs/TESTNET_SETUP.md"
   "docs/TESTNET_EVIDENCE.md"
@@ -38,6 +39,7 @@ required_files=(
   "scripts/generate-human-handoff-playbook.sh"
   "scripts/sprint-multi-repo-dashboard.py"
   "scripts/submission-readiness.sh"
+  "scripts/pre_submit_guard.sh"
   "scripts/pre-submit-verify.py"
   "scripts/generate-portal-submission-packet.py"
   "scripts/verify-portal-submission-packet.py"

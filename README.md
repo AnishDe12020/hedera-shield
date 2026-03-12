@@ -160,6 +160,7 @@ HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 - Demo narration script (3-5 minutes): `DEMO_SCRIPT.md`
 - Final 3-5 minute demo flow (problem -> setup -> findings -> HCS -> impact): `DEMO_RUNBOOK.md`
 - Apex-ready checklist: `SUBMISSION_CHECKLIST.md`
+- Final release gate + operator handoff plan: `RELEASE_READINESS.md`
 - Hackathon form field mapping packet: `SUBMISSION_PACKET.md`
 - Portal-ready copy/paste packet for submission form fields: `HEDERA_PORTAL_SUBMISSION_PACKET.md`
 - Integration/runtime failure quick reference: `TROUBLESHOOTING_QUICKREF.md`
@@ -206,25 +207,28 @@ Default command behavior:
 ### Submission Readiness + Sync (DNS/Offline Safe)
 
 ```bash
-# 1) Verify docs/demo/artifacts readiness
+# 1) Fail fast if any required submission docs/artifacts are missing
+./scripts/pre_submit_guard.sh
+
+# 2) Verify docs/demo/artifacts readiness
 ./scripts/submission-readiness.sh
 
-# 2) Verify final draft-referenced docs/artifacts
+# 3) Verify final draft-referenced docs/artifacts
 ./scripts/pre-submit-verify.py
 
-# 3) Generate final Hedera Apex portal packet (markdown + json)
+# 4) Generate final Hedera Apex portal packet (markdown + json)
 ./scripts/generate-portal-submission-packet.py
 
-# 4) Verify all packet-referenced files/paths exist
+# 5) Verify all packet-referenced files/paths exist
 ./scripts/verify-portal-submission-packet.py
 
-# 5) Capture immutable submission-freeze snapshot manifest (markdown + json)
+# 6) Capture immutable submission-freeze snapshot manifest (markdown + json)
 ./scripts/submission-freeze.py
 
-# 6) Verify current artifacts/commit state against latest freeze manifest
+# 7) Verify current artifacts/commit state against latest freeze manifest
 ./scripts/verify-submission-freeze.py
 
-# 7) Generate consolidated multi-repo sprint push dashboard (read-only by default)
+# 8) Generate consolidated multi-repo sprint push dashboard (read-only by default)
 ./scripts/sprint-multi-repo-dashboard.py
 
 # Optional: use mirrored GitLab/Hedera/DO config
@@ -233,25 +237,25 @@ Default command behavior:
 # Optional: attempt safe push via sync helper when remote is reachable
 ./scripts/sprint-multi-repo-dashboard.py --attempt-push
 
-# 8) Attempt one immediate sync + push with bounded retry/backoff
+# 9) Attempt one immediate sync + push with bounded retry/backoff
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 9) If still blocked, run periodic network-recovery push runner until reachable
+# 10) If still blocked, run periodic network-recovery push runner until reachable
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 
 # Optional: verify behavior without pushing
 ./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
 
-# 10) If push remains blocked, create offline handoff package
+# 11) If push remains blocked, create offline handoff package
 ./scripts/offline-handoff.sh
 
-# 11) Generate a single handoff index for judges (markdown + json)
+# 12) Generate a single handoff index for judges (markdown + json)
 ./scripts/generate-handoff-index.py
 
 # Optional: deterministic timestamp/output path
 ./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
 
-# 12) Export cross-repo final handoff package (read-only across source repos)
+# 13) Export cross-repo final handoff package (read-only across source repos)
 ./scripts/final-handoff-export.sh
 ```
 

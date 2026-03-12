@@ -1,6 +1,6 @@
 # Hedera Apex Portal Submission Packet
 
-Generated UTC: 20260312T034612Z
+Generated UTC: 20260312T040922Z
 
 ## Copy-Paste Fields
 
@@ -41,6 +41,7 @@ pytest tests/ -v --tb=short
 ./scripts/release-evidence.sh
 
 # 4) Verify submission readiness
+./scripts/pre_submit_guard.sh
 ./scripts/submission-readiness.sh
 
 # 5) Final pre-submit verifier for draft-referenced docs/artifacts
@@ -97,7 +98,7 @@ pytest tests/ -v --tb=short
 ## Links
 
 - Repository URL: git@github.com:AnishDe12020/hedera-shield.git
-- Commit SHA: c7e563d28b65d9d8130bdffcb96fc23ad30d16c4
+- Commit SHA: 3ed78a82a732b9d36c78da194da22059b8602645
 - Branch: master
 - Demo video URL: TODO_ADD_DEMO_VIDEO_URL
 - Deployed URL: TODO_ADD_FINAL_DEPLOYED_URL_OR_NA
