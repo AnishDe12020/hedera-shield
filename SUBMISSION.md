@@ -35,7 +35,7 @@ HederaShield deeply integrates with Hedera's native services:
 | **Hedera Integration** | Hedera SDK (enforcement), Mirror Node REST API (monitoring) |
 | **AI** | Anthropic Claude (contextual risk analysis) |
 | **Configuration** | PyYAML, pydantic-settings (12-factor app) |
-| **Testing** | pytest, pytest-asyncio (44 tests, 6 integration tests) |
+| **Testing** | pytest, pytest-asyncio (106 automated tests run locally; 6 live integration tests are explicit opt-in) |
 | **Deployment** | Docker, Docker Compose |
 | **CI** | GitHub Actions |
 
@@ -134,7 +134,7 @@ HederaShield provides the compliance layer that makes institutional adoption of 
 
 4. **Immutable Audit Trail** — Every compliance decision is logged to HCS, not a database. Regulators get a tamper-proof record on the public ledger.
 
-5. **Production-Ready** — Docker deployment, structured logging, comprehensive test suite (44 tests), CI pipeline, configurable rules, dry-run safety mode.
+5. **Production-Ready** — Docker deployment, structured logging, comprehensive test suite (106 automated tests), CI pipeline, configurable rules, dry-run safety mode.
 
 ---
 
@@ -145,7 +145,8 @@ HederaShield provides the compliance layer that makes institutional adoption of 
 git clone https://github.com/your-username/hedera-shield.git
 cd hedera-shield
 cp .env.example .env
-# Edit .env with testnet credentials
+# Optional for offline demo: keep placeholder values in .env
+# Required for live testnet actions: set real testnet operator credentials
 
 # Start
 docker compose up --build
@@ -176,60 +177,75 @@ Use the dedicated judge-facing docs:
 
 ## Submission Execution Commands
 
+Credential markers used below:
+- `[NO TESTNET OPERATOR CREDS REQUIRED]` runs safely with placeholders/offline-safe defaults.
+- `[TESTNET OPERATOR CREDS REQUIRED]` requires real Hedera testnet operator id/key in `.env.testnet`.
+
 ```bash
-# 1) Build lint/test/harness/package evidence bundle
+# 1) Build lint/test/harness/package evidence bundle [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/release-evidence.sh
 
-# 2) Confirm submission readiness state (docs + artifacts + bundle checks)
+# Optional: include real testnet artifacts in release evidence [TESTNET OPERATOR CREDS REQUIRED]
+HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+./scripts/release-evidence.sh --env-file .env.testnet --include-real-testnet
+
+# 2) Confirm submission readiness state (docs + artifacts + bundle checks) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/submission-readiness.sh
 
-# 3) Final draft-linked verifier for required docs/artifacts
+# 3) Final draft-linked verifier for required docs/artifacts [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/pre-submit-verify.py
 
-# 4) Capture immutable submission-freeze snapshot manifest (markdown + json)
+# 4) Capture immutable submission-freeze snapshot manifest (markdown + json) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/submission-freeze.py
 
-# 5) Verify current artifacts/commit state against latest freeze manifest
+# 5) Verify current artifacts/commit state against latest freeze manifest [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/verify-submission-freeze.py
 
-# 6) Generate consolidated multi-repo sprint push dashboard (read-only default)
+# 6) Generate consolidated multi-repo sprint push dashboard (read-only default) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/sprint-multi-repo-dashboard.py
 
-# Optional: explicit mirrored GitLab/Hedera/DO repo config
+# Optional: explicit mirrored GitLab/Hedera/DO repo config [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/sprint-multi-repo-dashboard.py --repo-config config/sprint-repos.json
 
-# Optional: attempt safe push for reachable repos
+# Optional: attempt safe push for reachable repos [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/sprint-multi-repo-dashboard.py --attempt-push
 
-# 7) Sync and push with graceful DNS/offline failure handling + status report
+# 7) Sync and push with graceful DNS/offline failure handling + status report [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
 
-# 8) If still blocked, run periodic network-recovery push runner
+# 8) If still blocked, run periodic network-recovery push runner [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
 
-# Optional: safe dry-run mode (never pushes)
+# Optional: safe dry-run mode (never pushes) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4
 
-# 9) If push remains blocked by DNS/network outage, export offline handoff package
+# 9) If push remains blocked by DNS/network outage, export offline handoff package [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/offline-handoff.sh
 
-# 10) Generate final judge handoff index (markdown + json)
+# 10) Generate final judge handoff index (markdown + json) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/generate-handoff-index.py
 
-# Optional: explicit timestamp for deterministic handoff folder naming
+# Optional: explicit timestamp for deterministic handoff folder naming [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/generate-handoff-index.py --timestamp "$(date -u +%Y%m%dT%H%M%SZ)" --output-base-dir artifacts/handoff-index
 
-# 11) Generate final Hedera Apex portal submission packet (markdown + json)
+# 11) Generate final Hedera Apex portal submission packet (markdown + json) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/generate-portal-submission-packet.py
 
-# 12) Verify all packet-referenced files/paths exist before portal submission
+# 12) Verify all packet-referenced files/paths exist before portal submission [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/verify-portal-submission-packet.py
 
-# 13) Export cross-repo final handoff package (read-only across source repos)
+# 13) Export cross-repo final handoff package (read-only across source repos) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/final-handoff-export.sh
 
-# 14) Generate execution-ready human handoff playbook (manual final steps + blockers)
+# 14) Generate execution-ready human handoff playbook (manual final steps + blockers) [NO TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/generate-human-handoff-playbook.sh
+
+# 15) Capture live testnet transaction evidence doc [TESTNET OPERATOR CREDS REQUIRED]
+./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
+
+# 16) Run live integration harness (Mirror Node probe + integration tests) [TESTNET OPERATOR CREDS REQUIRED]
+HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
 ```
 
 Report outputs:
@@ -261,12 +277,19 @@ Report outputs:
 - `dist/handoff-playbook/human-handoff-playbook-latest.md`
 - `dist/handoff-playbook/human-handoff-playbook-latest.json`
 
+Evidence readiness expectations:
+- Offline-safe evidence is complete when `dist/submission-bundle.zip`, `dist/release-evidence-*.tar.gz`, and the latest `dist/*-latest.*` reports exist.
+- Live Hedera evidence is complete only after `docs/TESTNET_EVIDENCE.md` is refreshed from non-placeholder credentials and includes real testnet transaction ids with mirror/hashscan links.
+
 ---
 
 ## Test Coverage
 
 ```
-44 passed, 6 skipped (integration tests require network)
+Validation snapshot (UTC 2026-03-12T03:10:58Z):
+- ruff check hedera_shield/ tests/: All checks passed!
+- pytest tests/ -v --tb=short: 100 passed, 6 skipped in 2.13s
+- ./scripts/package-submission.sh: PASS, built dist/submission-bundle.zip with 39 files
 
 Tests cover:
 - All 8 compliance rules (positive + negative cases)
