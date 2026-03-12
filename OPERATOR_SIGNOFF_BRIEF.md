@@ -6,6 +6,7 @@ Operator signoff basis: manual submit flow is validated, packet paths are presen
 
 ## Control Links
 
+- [SUBMISSION_HANDOFF_MATRIX.md](SUBMISSION_HANDOFF_MATRIX.md)
 - [SUBMIT_OWNER_QUICK_CARD.md](SUBMIT_OWNER_QUICK_CARD.md)
 - [SUBMISSION_SEAL_NOTE.md](SUBMISSION_SEAL_NOTE.md)
 - [EXEC_HANDOFF_DIGEST.md](EXEC_HANDOFF_DIGEST.md)
