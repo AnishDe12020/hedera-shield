@@ -10,6 +10,7 @@ Scope is docs-only and no feature/code changes are included in this seal pass.
 
 ## Locked Core Docs
 
+- [SUBMIT_OWNER_QUICK_CARD.md](SUBMIT_OWNER_QUICK_CARD.md)
 - [OPERATOR_SIGNOFF_BRIEF.md](OPERATOR_SIGNOFF_BRIEF.md)
 - [EXEC_HANDOFF_DIGEST.md](EXEC_HANDOFF_DIGEST.md)
 - [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md)
@@ -41,6 +42,7 @@ Scope is docs-only and no feature/code changes are included in this seal pass.
 
 ## Cross-Links
 
+- [SUBMIT_OWNER_QUICK_CARD.md](SUBMIT_OWNER_QUICK_CARD.md)
 - [OPERATOR_SIGNOFF_BRIEF.md](OPERATOR_SIGNOFF_BRIEF.md)
 - [EXEC_HANDOFF_DIGEST.md](EXEC_HANDOFF_DIGEST.md)
 - [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md)
