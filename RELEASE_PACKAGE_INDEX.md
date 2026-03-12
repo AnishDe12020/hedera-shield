@@ -8,6 +8,7 @@ Branch: `master`
 | File | Purpose |
 | --- | --- |
 | [PRE_SUBMIT_RECAP.md](PRE_SUBMIT_RECAP.md) | Final quick validation, guard, and operator pre-submit recap. |
+| [PORTAL_READY_HANDOFF.md](PORTAL_READY_HANDOFF.md) | Final portal-ready operator sequence, required files, and pre-submit sanity checks. |
 | [SUBMISSION_READY_SNAPSHOT.md](SUBMISSION_READY_SNAPSHOT.md) | Submission-ready state snapshot and referenced evidence paths. |
 | [PORTAL_SUBMISSION_MANIFEST.md](PORTAL_SUBMISSION_MANIFEST.md) | Portal field mapping and final manual submission guardrails. |
 | [SUBMISSION_PACKET_VERIFIED.md](SUBMISSION_PACKET_VERIFIED.md) | Verification log for packet/readiness/submit-now checks. |
