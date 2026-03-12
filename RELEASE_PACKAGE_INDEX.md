@@ -12,6 +12,7 @@ Branch: `master`
 | [PORTAL_READY_HANDOFF.md](PORTAL_READY_HANDOFF.md) | Final portal-ready operator sequence, required files, and pre-submit sanity checks. |
 | [SUBMISSION_READY_SNAPSHOT.md](SUBMISSION_READY_SNAPSHOT.md) | Submission-ready state snapshot and referenced evidence paths. |
 | [PORTAL_SUBMISSION_MANIFEST.md](PORTAL_SUBMISSION_MANIFEST.md) | Portal field mapping and final manual submission guardrails. |
+| [EVIDENCE_MAP.md](EVIDENCE_MAP.md) | Claim-to-evidence path map for judging and submission assertions. |
 | [SUBMISSION_PACKET_VERIFIED.md](SUBMISSION_PACKET_VERIFIED.md) | Verification log for packet/readiness/submit-now checks. |
 | [ZERO_DRIFT_VERIFICATION.md](ZERO_DRIFT_VERIFICATION.md) | Freeze-manifest drift verification and lock confirmation. |
 | [RELEASE_READINESS.md](RELEASE_READINESS.md) | Release readiness status and operator checklist. |

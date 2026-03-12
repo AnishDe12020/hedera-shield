@@ -43,6 +43,7 @@ Current HEAD (now): `2ddd947ba69ac56409e39c5b0ce830da30aa5eba`
 - [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md)
 - [HANDOFF_STAMP.md](HANDOFF_STAMP.md)
 - [PORTAL_SUBMISSION_MANIFEST.md](PORTAL_SUBMISSION_MANIFEST.md)
+- [EVIDENCE_MAP.md](EVIDENCE_MAP.md)
 - [docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json](docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json)
 - [docs/evidence/submit-now/SUBMIT_NOW_INDEX.md](docs/evidence/submit-now/SUBMIT_NOW_INDEX.md)
 - [docs/evidence/submit-now/SUBMISSION_COMMANDS.md](docs/evidence/submit-now/SUBMISSION_COMMANDS.md)

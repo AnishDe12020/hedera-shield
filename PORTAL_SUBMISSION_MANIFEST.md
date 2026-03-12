@@ -9,6 +9,7 @@ Scope: final portal submission copy/paste map (docs-only)
 - Operator execution one-pager: `OPERATOR_ONE_PAGER.md`
 - Control recap: `PRE_SUBMIT_RECAP.md`
 - Submission-ready snapshot: `SUBMISSION_READY_SNAPSHOT.md`
+- Evidence claim map: `EVIDENCE_MAP.md`
 - Generated packet reference: `dist/portal-submission/portal-submission-packet-latest.json`
 
 ## Final Gate Status (latest pass)
