@@ -184,6 +184,38 @@ Quick run:
 ./scripts/smoke.sh
 ```
 
+Exact integration gate/evidence verification:
+
+```bash
+# A) Requested real mode with missing or placeholder credentials -> deterministic dry-run fallback
+ART=artifacts/integration/manual-fallback
+./scripts/run-integration-harness.sh --mode real --env-file .env.testnet --artifacts-dir "$ART"
+python3 - <<'PY'
+import json, pathlib
+p = pathlib.Path("artifacts/integration/manual-fallback/report.json")
+r = json.loads(p.read_text(encoding="utf-8"))
+print("mode=", r["mode"])
+print("effective_mode=", r["effective_mode"])
+print("dry_run_fallback=", r["dry_run_fallback"])
+print("dry_run_reason=", r["dry_run_reason"])
+print("harness_status=", r["checks"]["harness"]["status"])
+PY
+
+# B) True real-mode run (requires funded, non-placeholder credentials)
+ART=artifacts/integration/manual-real
+HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
+./scripts/run-integration-harness.sh --mode real --env-file .env.testnet --artifacts-dir "$ART"
+python3 - <<'PY'
+import json, pathlib
+p = pathlib.Path("artifacts/integration/manual-real/report.json")
+r = json.loads(p.read_text(encoding="utf-8"))
+print("mode=", r["mode"])
+print("effective_mode=", r["effective_mode"])
+print("dry_run_fallback=", r["dry_run_fallback"])
+print("integration_status=", r["checks"]["integration_pytest"]["status"])
+PY
+```
+
 ### One-Command Judge Evidence Bundle
 
 ```bash

@@ -259,7 +259,18 @@ HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
 # 17) Capture live testnet transaction evidence doc [TESTNET OPERATOR CREDS REQUIRED]
 ./scripts/capture-testnet-evidence.sh --env-file .env.testnet --output docs/TESTNET_EVIDENCE.md
 
-# 18) Run live integration harness (Mirror Node probe + integration tests) [TESTNET OPERATOR CREDS REQUIRED]
+# 18) Requested-real harness run with deterministic dry-run fallback [NO TESTNET OPERATOR CREDS REQUIRED]
+./scripts/run-integration-harness.sh --mode real --env-file .env.testnet --artifacts-dir artifacts/integration/manual-fallback
+
+# 18b) Verify fallback evidence metadata from machine-readable report.json
+python3 - <<'PY'
+import json, pathlib
+p = pathlib.Path("artifacts/integration/manual-fallback/report.json")
+r = json.loads(p.read_text(encoding="utf-8"))
+print(r["mode"], r["effective_mode"], r["dry_run_fallback"], r["checks"]["harness"]["status"])
+PY
+
+# 18c) Run true live integration harness (Mirror Node probe + integration tests) [TESTNET OPERATOR CREDS REQUIRED]
 HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 \
 ./scripts/run-integration-harness.sh --mode real --env-file .env.testnet
 
