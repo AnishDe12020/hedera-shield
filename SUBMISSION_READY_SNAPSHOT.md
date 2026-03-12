@@ -1,27 +1,30 @@
 # HederaShield Submission-Ready Snapshot
 
-- Snapshot UTC: `2026-03-12T06:35:38Z`
-- Latest commit at snapshot time: `d3cafb4f53a1f2288ca98565c0ea3f2e07e4234a`
+- Snapshot UTC: `2026-03-12T06:59:09Z`
+- Latest commit at snapshot time: `b836843dda7b5adde2351122e06c4987f9642c12`
 - Scope: docs-only final submission pass
 
 ## Validation and Guard Checks
 
-Executed on `2026-03-12T06:35:22Z`:
+Executed on `2026-03-12T06:58:50Z`:
 
 1. `./scripts/submission-readiness.sh` -> `READINESS|summary|PASS`
 2. `./scripts/pre_submit_guard.sh` -> `GUARD|PASS|pre-submit guard complete (demo-id=3min-offline)`
 3. `./scripts/pre-submit-verify.py` -> `VERIFY|summary|PASS`
 4. `./scripts/verify-portal-submission-packet.py` -> `PORTAL_VERIFY|summary|PASS`
 5. `./scripts/print_submit_now.sh` -> all key artifact checks `CHECK|PASS`
+6. `./scripts/verify-submission-freeze.py` -> `DRIFT|summary|PASS`
 
 Latest generated check reports:
 
-- `dist/submission-readiness-20260312T063522Z.txt`
-- `dist/pre-submit-verify-20260312T063522Z.txt`
-- `dist/portal-submission/portal-submission-verify-20260312T063522Z.txt`
+- `dist/submission-readiness-20260312T065850Z.txt`
+- `dist/pre-submit-verify-20260312T065850Z.txt`
+- `dist/portal-submission/portal-submission-verify-20260312T065909Z.txt`
+- `dist/submission-freeze/drift-verify-20260312T065909Z.md`
 - `dist/submission-readiness-latest.txt`
 - `dist/pre-submit-verify-latest.txt`
 - `dist/portal-submission/portal-submission-verify-latest.txt`
+- `dist/submission-freeze/drift-verify-latest.md`
 
 ## Required Artifacts Status
 

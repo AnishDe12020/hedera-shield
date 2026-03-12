@@ -1,6 +1,6 @@
 # HederaShield Portal Submission Manifest
 
-Manifest timestamp (UTC): `2026-03-12T06:45:14Z`
+Manifest timestamp (UTC): `2026-03-12T06:59:09Z`
 Scope: final portal submission copy/paste map (docs-only)
 
 ## Source of Truth
@@ -55,7 +55,7 @@ Paste exact value from:
 `https://github.com/AnishDe12020/hedera-shield`
 
 10. Commit SHA
-`2b9a2b63b95dd54647bea1a91e1bb7f8bd1e6607`
+`b836843dda7b5adde2351122e06c4987f9642c12`
 
 11. Branch
 `master`
@@ -77,7 +77,7 @@ Paste exact value from:
 ## Final Manual Guardrail
 
 Before clicking submit, confirm:
-1. `git rev-parse HEAD` equals `2b9a2b63b95dd54647bea1a91e1bb7f8bd1e6607`.
+1. `git rev-parse HEAD` equals `b836843dda7b5adde2351122e06c4987f9642c12`.
 2. `TODO_ADD_DEMO_VIDEO_URL` has been replaced.
 3. `TODO_ADD_FINAL_DEPLOYED_URL_OR_NA` has been replaced.
 4. Portal entries were copied from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`.

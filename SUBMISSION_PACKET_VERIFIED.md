@@ -1,6 +1,6 @@
 # HederaShield Submission Packet Verified
 
-Verification timestamp (UTC): `2026-03-12T06:24:03Z`
+Verification timestamp (UTC): `2026-03-12T06:59:09Z`
 Branch: `master`
 
 ## Executed checks
@@ -10,7 +10,7 @@ Branch: `master`
 - [x] `./scripts/pre-submit-verify.py` -> `VERIFY|summary|PASS`
 - [x] `./scripts/verify-portal-submission-packet.py` -> `PORTAL_VERIFY|summary|PASS`
 - [x] `./scripts/print_submit_now.sh` -> all `CHECK|PASS`
-- [ ] `./scripts/verify-submission-freeze.py` -> `DRIFT|summary|DRIFT` (manual gap)
+- [x] `./scripts/verify-submission-freeze.py` -> `DRIFT|summary|PASS`
 
 ## PRE_SUBMIT_RECAP.md reference validation
 
@@ -40,11 +40,10 @@ Reference audit summary: `36` checked, `0` missing.
 - [x] `dist/submission-freeze/submission-freeze-latest.md`
 - [x] `dist/submission-freeze/submission-freeze-latest.json`
 
-## Manual gaps / operator actions
+## Final operator actions
 
-1. `verify-submission-freeze` currently reports drift because this verification pass updated `dist/*-latest` files and the prior freeze manifest commit SHA.
-2. Immediately before final portal submission, run:
+1. Immediately before final portal submission, run:
    - `./scripts/submission-freeze.py`
    - `./scripts/verify-submission-freeze.py`
-3. Confirm portal commit SHA equals `git rev-parse HEAD` on the submission machine.
-4. Capture submission confirmation screenshot + UTC timestamp after manual portal submit.
+2. Confirm portal commit SHA equals `git rev-parse HEAD` on the submission machine.
+3. Capture submission confirmation screenshot + UTC timestamp after manual portal submit.
