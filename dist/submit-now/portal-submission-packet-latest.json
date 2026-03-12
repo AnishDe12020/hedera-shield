@@ -1,6 +1,6 @@
 {
   "manifest_type": "hedera_apex_portal_submission_packet",
-  "generated_at_utc": "20260312T141029Z",
+  "generated_at_utc": "20260312T143926Z",
   "fields": {
     "title": "HederaShield: Hedera-Native AI Compliance Agent",
     "short_description": "AI-assisted, Hedera-native compliance monitoring and enforcement for HTS tokens with immutable HCS audit evidence.",
@@ -13,7 +13,7 @@
   },
   "links": {
     "repo_url": "https://github.com/AnishDe12020/hedera-shield",
-    "commit_sha": "0fbcdbbd4a0eb9b910c06177e7d708e746074a73",
+    "commit_sha": "5fe8596a06e919a429d32ef25a1ef66602827762",
     "branch": "master",
     "demo_video_url": "TODO_ADD_DEMO_VIDEO_URL",
     "deployed_url": "TODO_ADD_FINAL_DEPLOYED_URL_OR_NA",
