@@ -1,20 +1,18 @@
 # HederaShield Release Readiness
 
-Last updated (UTC): `2026-03-12T05:29:11Z`
+Last updated (UTC): `2026-03-12T05:40:37Z`
 
 ## 1) Submission Readiness Snapshot
 
 - Scope lock: docs/scripts only, no feature changes.
 - Current validation state:
-  - Refreshed quick checks at `2026-03-12T05:29:02Z` via final submission-freeze verification pass.
-  - `ruff check hedera_shield/ tests/`: `PASS`
-  - `venv/bin/pytest tests/ -v --tb=short`: `102 passed, 6 skipped`
-  - `./scripts/pre_submit_guard.sh`: `PASS`
+  - Refreshed quick checks at `2026-03-12T05:40:37Z` via release-candidate lock pass.
   - `./scripts/submission-readiness.sh`: `PASS`
   - `./scripts/pre-submit-verify.py`: `PASS`
-  - `./scripts/verify-portal-submission-packet.py`: `PASS`
+  - `./scripts/pre_submit_guard.sh`: `PASS`
+  - `./scripts/submission-freeze.py`: `PASS`
   - `./scripts/verify-submission-freeze.py`: `PASS`
-  - `./scripts/sprint-multi-repo-dashboard.py`: `WARN` (`PASS=0 WARN=3 FAIL=0`, DNS reachability in this environment)
+  - Last full lint/unit sweep from `2026-03-12T05:29:02Z`: `ruff check hedera_shield/ tests/` (`PASS`), `venv/bin/pytest tests/ -v --tb=short` (`102 passed, 6 skipped`)
 - Readiness gate commands to run immediately before portal submission:
   - `./scripts/pre_submit_guard.sh`
   - `./scripts/submission-readiness.sh`
@@ -25,6 +23,7 @@ Last updated (UTC): `2026-03-12T05:29:11Z`
   - `./scripts/submission-freeze.py`
   - `./scripts/verify-submission-freeze.py`
 - Freeze/evidence bundle references:
+  - `RELEASE_CANDIDATE_LOCK.md`
   - `SUBMISSION_FREEZE.md`
   - `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md`
   - `docs/evidence/submission-freeze/validation-snapshot-latest.md`
@@ -45,7 +44,7 @@ Last updated (UTC): `2026-03-12T05:29:11Z`
 3. Follow `SUBMISSION_DRY_RUN.md` rehearsal once end-to-end without submitting.
 4. Run `./scripts/print_submit_now.sh` and verify all listed key paths resolve.
 5. Open `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md`, then copy final portal answers from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` (fallback reference: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
-6. Confirm `SUBMISSION_FREEZE.md` and `docs/evidence/submission-freeze/*-latest.*` files reflect the current locked bundle.
+6. Confirm `RELEASE_CANDIDATE_LOCK.md`, `SUBMISSION_FREEZE.md`, and `docs/evidence/submission-freeze/*-latest.*` files reflect the current locked bundle.
 7. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
 8. Confirm portal commit SHA matches `git rev-parse HEAD`.
 9. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
