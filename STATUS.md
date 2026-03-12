@@ -1,6 +1,10 @@
-## 2026-03-11 Validation Snapshot
+## 2026-03-12 Validation Snapshot
 
-- Full test suite (`pytest`): **100 passed, 6 skipped** (`106` collected, `2.19s`)
-- Targeted network recovery test file (`pytest -q tests/test_network_recovery_push_runner.py`): **3 passed**
-- DNS/remote-unreachable recovery test path is now deterministic via explicit `--dns-host nonexistent.invalid`
-- Push attempt (`git push origin master`): **failed** with `ssh: Could not resolve hostname github.com: Temporary failure in name resolution`
+- Lint (`ruff check hedera_shield/ tests/`): **PASS** (`All checks passed!`)
+- Full test suite (`venv/bin/pytest tests/ -v --tb=short`): **102 passed, 6 skipped** (`108` collected, `2.14s`)
+- Submission readiness (`./scripts/submission-readiness.sh`): **PASS** (`19 PASS, 0 FAIL, 0 WARN`)
+- Pre-submit verifier (`./scripts/pre-submit-verify.py`): **PASS** (`18 PASS, 0 FAIL`)
+- Portal packet verify (`./scripts/verify-portal-submission-packet.py`): **PASS** (`14 PASS, 0 FAIL`)
+- Sprint dashboard (`./scripts/sprint-multi-repo-dashboard.py`): **WARN** (`PASS=0 WARN=3 FAIL=0`, remote DNS unreachable)
+- Submission bundle (`./scripts/package-submission.sh`): **PASS** (`dist/submission-bundle.zip` built with 39 files)
+- Git remote reachability remains DNS-blocked in this environment (`Could not resolve hostname github.com`)
