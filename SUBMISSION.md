@@ -168,9 +168,11 @@ Generated artifact paths:
 
 Use the dedicated judge-facing docs:
 
+- Final 3-5 minute demo sequence (problem, setup, monitored events, findings, HCS reporting, impact): `DEMO_RUNBOOK.md`
 - Deterministic 3-minute demo runbook (offline-safe by default): `docs/DEMO_RECORDING_RUNBOOK.md`
 - Timestamped 3-minute narration aligned to runbook artifacts: `docs/DEMO_NARRATION_3MIN.md`
 - Copy-paste-ready submission form draft answers: `docs/SUBMISSION_FORM_DRAFT_PACK.md`
+- Hackathon form field mapping packet with evidence placeholders: `SUBMISSION_PACKET.md`
 - Final portal submission checklist (links + evidence placeholders): `docs/FINAL_SUBMISSION_CHECKLIST.md`
 - Credentials-ready operator handoff runbook with funding/token setup + failure modes: `HEDERA_TESTNET_RUNBOOK.md`
 - Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`

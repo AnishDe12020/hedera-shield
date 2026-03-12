@@ -158,7 +158,9 @@ HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 ## Demo & Submission
 
 - Demo narration script (3-5 minutes): `DEMO_SCRIPT.md`
+- Final 3-5 minute demo flow (problem -> setup -> findings -> HCS -> impact): `DEMO_RUNBOOK.md`
 - Apex-ready checklist: `SUBMISSION_CHECKLIST.md`
+- Hackathon form field mapping packet: `SUBMISSION_PACKET.md`
 - Fast local smoke verification: `./scripts/smoke.sh`
 
 ## Integration Readiness
@@ -287,6 +289,8 @@ Judge-focused docs:
 - [docs/DEMO_NARRATION_3MIN.md](docs/DEMO_NARRATION_3MIN.md) for timestamped narration aligned to runbook checkpoints.
 - [docs/SUBMISSION_FORM_DRAFT_PACK.md](docs/SUBMISSION_FORM_DRAFT_PACK.md) for concise copy-paste-ready submission form answers.
 - [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.
+- [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) for final 3-5 minute demo sequence with talking points and evidence checkpoints.
+- [SUBMISSION_PACKET.md](SUBMISSION_PACKET.md) for direct mapping from project content to portal form fields.
 - [HEDERA_TESTNET_RUNBOOK.md](HEDERA_TESTNET_RUNBOOK.md) for credentials-ready operator handoff and strict preflight-first live integration flow.
 - [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full testnet setup/runbook details.
 
