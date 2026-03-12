@@ -19,7 +19,9 @@ Scope: docs/scripts only, no feature changes
 ## Frozen Evidence/Status Docs
 
 - `RELEASE_READINESS.md`
+- `OPS_HANDOFF_CHECKLIST.md`
 - `SUBMISSION_FREEZE.md`
+- `docs/evidence/submit-now/SUBMISSION_COMMANDS.md`
 - `docs/evidence/submission-freeze/validation-snapshot-latest.md`
 - `docs/evidence/submission-freeze/readiness-snapshot-latest.md`
 - `docs/evidence/submission-freeze/submission-freeze-latest.md`
@@ -42,8 +44,9 @@ Scope: docs/scripts only, no feature changes
    - `./scripts/submission-freeze.py`
    - `./scripts/verify-submission-freeze.py`
 3. Open `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md`.
-4. Copy portal answers from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` (fallback: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
-5. Confirm `RELEASE_CANDIDATE_LOCK.md`, `RELEASE_READINESS.md`, and `SUBMISSION_FREEZE.md` match the latest evidence snapshots.
-6. Confirm portal SHA entry exactly matches `git rev-parse HEAD`.
-7. Submit in Hedera portal manually.
-8. Capture confirmation screenshot + UTC timestamp and archive with sprint notes.
+4. Open `OPS_HANDOFF_CHECKLIST.md` and `docs/evidence/submit-now/SUBMISSION_COMMANDS.md`.
+5. Copy portal answers from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` (fallback: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
+6. Confirm `RELEASE_CANDIDATE_LOCK.md`, `RELEASE_READINESS.md`, and `SUBMISSION_FREEZE.md` match the latest evidence snapshots.
+7. Confirm portal SHA entry exactly matches `git rev-parse HEAD`.
+8. Submit in Hedera portal manually.
+9. Capture confirmation screenshot + UTC timestamp and archive with sprint notes.

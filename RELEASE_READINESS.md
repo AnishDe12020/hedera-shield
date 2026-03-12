@@ -24,8 +24,10 @@ Last updated (UTC): `2026-03-12T05:40:37Z`
   - `./scripts/verify-submission-freeze.py`
 - Freeze/evidence bundle references:
   - `RELEASE_CANDIDATE_LOCK.md`
+  - `OPS_HANDOFF_CHECKLIST.md`
   - `SUBMISSION_FREEZE.md`
   - `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md`
+  - `docs/evidence/submit-now/SUBMISSION_COMMANDS.md`
   - `docs/evidence/submission-freeze/validation-snapshot-latest.md`
   - `docs/evidence/submission-freeze/readiness-snapshot-latest.md`
   - `docs/evidence/submission-freeze/portal-packet-snapshot-latest.md`
@@ -43,12 +45,13 @@ Last updated (UTC): `2026-03-12T05:40:37Z`
 2. Run `./scripts/final_portal_handoff.sh` and confirm `HANDOFF|summary|PASS`.
 3. Follow `SUBMISSION_DRY_RUN.md` rehearsal once end-to-end without submitting.
 4. Run `./scripts/print_submit_now.sh` and verify all listed key paths resolve.
-5. Open `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md`, then copy final portal answers from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` (fallback reference: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
-6. Confirm `RELEASE_CANDIDATE_LOCK.md`, `SUBMISSION_FREEZE.md`, and `docs/evidence/submission-freeze/*-latest.*` files reflect the current locked bundle.
-7. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
-8. Confirm portal commit SHA matches `git rev-parse HEAD`.
-9. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
-10. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
+5. Open `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md` and `docs/evidence/submit-now/SUBMISSION_COMMANDS.md`, then copy final portal answers from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` (fallback reference: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
+6. Follow `OPS_HANDOFF_CHECKLIST.md` time gates (T-30m, T-10m, submit, post-submit verification).
+7. Confirm `RELEASE_CANDIDATE_LOCK.md`, `SUBMISSION_FREEZE.md`, and `docs/evidence/submission-freeze/*-latest.*` files reflect the current locked bundle.
+8. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
+9. Confirm portal commit SHA matches `git rev-parse HEAD`.
+10. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
+11. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
 
 ## 3) Remaining Blockers
 
