@@ -1,0 +1,49 @@
+{
+  "packet_version": "submit-now-v1",
+  "generated_utc": "2026-03-12T04:39:19Z",
+  "purpose": "Copy/paste-ready Hedera portal fields with final-link placeholders.",
+  "portal_fields": {
+    "project_name": "HederaShield",
+    "tagline": "AI-powered Hedera-native compliance monitoring, response, and immutable audit trail.",
+    "problem_statement": "Token issuers and compliance teams on Hedera need continuous monitoring, explainable risk detection, and regulator-grade evidence. Manual review and off-chain logs are slow, error-prone, and difficult to audit.",
+    "solution_summary": "HederaShield ingests Hedera activity from Mirror Node, evaluates transfers with configurable rule logic plus optional AI context, supports HTS-native response workflows (freeze/wipe/KYC revoke), and writes immutable compliance evidence to HCS.",
+    "technical_implementation": "FastAPI service + scanner + compliance engine + AI analyzer + enforcement adapter + HCS reporter + operator dashboard. Delivery includes deterministic packaging, submission validation, freeze manifest capture, and portal packet verification scripts.",
+    "hedera_integrations": [
+      "Hedera Mirror Node REST API for transaction and account visibility",
+      "Hedera Token Service operations for enforcement workflows",
+      "Hedera Consensus Service topic publishing for immutable compliance logs"
+    ],
+    "ai_agent_usage": "Optional Anthropic Claude analysis for contextual risk enrichment and rationale generation. Final enforcement can remain human-controlled with dry-run safety mode enabled.",
+    "demo_summary": "Demo shows suspicious activity ingestion, rule trigger + risk context, enforcement readiness path, and immutable HCS evidence output with reproducible scripts/artifacts.",
+    "impact": "Near-real-time compliance response, stronger evidentiary posture, and Hedera-native execution instead of generic multi-chain heuristics."
+  },
+  "final_submission_placeholders": {
+    "repository_url": "<PASTE_FINAL_REPOSITORY_URL>",
+    "demo_video_url": "<PASTE_FINAL_PUBLIC_DEMO_VIDEO_URL>",
+    "deployment_url_or_na": "<PASTE_DEPLOYMENT_URL_OR_NA>",
+    "team_name": "<PASTE_TEAM_NAME>",
+    "team_contact": "<PASTE_PRIMARY_CONTACT_EMAIL_OR_HANDLE>",
+    "commit_sha_submitted": "<PASTE_FINAL_COMMIT_SHA>",
+    "submission_timestamp_utc": "<PASTE_SUBMISSION_UTC_TIMESTAMP>"
+  },
+  "key_artifact_paths": {
+    "release_readiness": "RELEASE_READINESS.md",
+    "submission_guide": "SUBMISSION.md",
+    "portal_packet_markdown": "HEDERA_PORTAL_SUBMISSION_PACKET.md",
+    "submission_packet_markdown": "SUBMISSION_PACKET.md",
+    "submission_readiness_latest": "dist/submission-readiness-latest.txt",
+    "pre_submit_verify_latest": "dist/pre-submit-verify-latest.txt",
+    "portal_submission_packet_latest": "dist/portal-submission/portal-submission-packet-latest.md",
+    "portal_submission_verify_latest": "dist/portal-submission/portal-submission-verify-latest.txt",
+    "submission_freeze_latest_md": "dist/submission-freeze/submission-freeze-latest.md",
+    "submission_freeze_latest_json": "dist/submission-freeze/submission-freeze-latest.json",
+    "submit_now_checklist_script": "scripts/print_submit_now.sh"
+  },
+  "operator_instructions": [
+    "Run scripts/print_submit_now.sh immediately before portal submission.",
+    "Copy portal field text from this JSON (or HEDERA_PORTAL_SUBMISSION_PACKET.md) into the form.",
+    "Replace all placeholders with final public links and submitted commit SHA.",
+    "Confirm the latest readiness/verify/freeze reports are present and PASS.",
+    "Submit and archive a confirmation screenshot plus UTC timestamp."
+  ]
+}

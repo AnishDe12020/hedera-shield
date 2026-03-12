@@ -1,11 +1,12 @@
 # HederaShield Release Readiness
 
-Last updated (UTC): `2026-03-12T04:16:41Z`
+Last updated (UTC): `2026-03-12T04:40:54Z`
 
 ## 1) Submission Readiness Snapshot
 
 - Scope lock: docs/scripts only, no feature changes.
 - Current validation state:
+  - Refreshed quick checks at `2026-03-12T04:40:54Z` via latest local run.
   - `ruff check hedera_shield/ tests/`: `PASS`
   - `venv/bin/pytest tests/ -v --tb=short`: `102 passed, 6 skipped`
   - `./scripts/pre_submit_guard.sh`: `PASS`
@@ -20,6 +21,7 @@ Last updated (UTC): `2026-03-12T04:16:41Z`
   - `./scripts/pre-submit-verify.py`
   - `./scripts/generate-portal-submission-packet.py`
   - `./scripts/verify-portal-submission-packet.py`
+  - `./scripts/print_submit_now.sh`
   - `./scripts/submission-freeze.py`
   - `./scripts/verify-submission-freeze.py`
 - Pass criteria:
@@ -33,11 +35,12 @@ Last updated (UTC): `2026-03-12T04:16:41Z`
 1. Run all commands in section 1 and confirm all gates are green.
 2. Run `./scripts/final_portal_handoff.sh` and confirm `HANDOFF|summary|PASS`.
 3. Follow `SUBMISSION_DRY_RUN.md` rehearsal once end-to-end without submitting.
-4. Open `dist/portal-submission/portal-submission-packet-latest.md` and copy final answers into the portal (fallback reference: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
-5. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
-6. Confirm portal commit SHA matches `git rev-parse HEAD`.
-7. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
-8. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
+4. Run `./scripts/print_submit_now.sh` and verify all listed key paths resolve.
+5. Open `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` and copy final answers into the portal (fallback reference: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
+6. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
+7. Confirm portal commit SHA matches `git rev-parse HEAD`.
+8. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
+9. Store confirmation evidence locally and update `docs/HUMAN_HANDOFF_PLAYBOOK.md` if needed.
 
 ## 3) Remaining Blockers
 
@@ -57,6 +60,7 @@ Last updated (UTC): `2026-03-12T04:16:41Z`
 3. Regenerate portal packet and freeze manifests:
    - `./scripts/generate-portal-submission-packet.py`
    - `./scripts/verify-portal-submission-packet.py`
+   - `./scripts/print_submit_now.sh`
    - `./scripts/submission-freeze.py`
    - `./scripts/verify-submission-freeze.py`
 4. Attempt final push path:
@@ -64,6 +68,6 @@ Last updated (UTC): `2026-03-12T04:16:41Z`
    - If blocked: `./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20`
    - If still blocked: `./scripts/offline-handoff.sh`
 5. Execute portal submit:
-   - Fill from `dist/portal-submission/portal-submission-packet-latest.md` (fallback: `HEDERA_PORTAL_SUBMISSION_PACKET.md`)
+   - Fill from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` (fallback: `HEDERA_PORTAL_SUBMISSION_PACKET.md`)
    - Confirm SHA + links + required evidence fields
    - Submit and archive confirmation proof
