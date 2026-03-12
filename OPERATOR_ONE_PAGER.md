@@ -45,6 +45,7 @@ If aborted:
 1. Re-run `git rev-parse HEAD` and record it in the submit log.
 2. Save portal confirmation screenshot path + UTC time in handoff notes.
 3. Confirm references stay aligned:
+   - [SUBMIT_CONTROL_SHEET.md](SUBMIT_CONTROL_SHEET.md)
    - [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md)
    - [HANDOFF_STAMP.md](HANDOFF_STAMP.md)
    - [PORTAL_SUBMISSION_MANIFEST.md](PORTAL_SUBMISSION_MANIFEST.md)
