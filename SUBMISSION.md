@@ -172,6 +172,7 @@ Use the dedicated judge-facing docs:
 - Timestamped 3-minute narration aligned to runbook artifacts: `docs/DEMO_NARRATION_3MIN.md`
 - Copy-paste-ready submission form draft answers: `docs/SUBMISSION_FORM_DRAFT_PACK.md`
 - Final portal submission checklist (links + evidence placeholders): `docs/FINAL_SUBMISSION_CHECKLIST.md`
+- Credentials-ready operator handoff runbook with funding/token setup + failure modes: `HEDERA_TESTNET_RUNBOOK.md`
 - Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`
 - Testnet transaction evidence document: `docs/TESTNET_EVIDENCE.md`
 

@@ -165,7 +165,9 @@ HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 
 Use these assets to prepare and execute the first live testnet integration pass without requiring unavailable credentials:
 
-- Preflight checker (env/config/endpoint readiness with red-yellow-green summary): `./scripts/integration_preflight.sh --env-file .env.testnet`
+- Strict preflight gate (must return GREEN before live run): `./scripts/testnet-preflight.sh --env-file .env.testnet`
+- Detailed preflight breakdown (red-yellow-green checks): `./scripts/integration_preflight.sh --env-file .env.testnet`
+- Operator handoff runbook (credentials-ready, funding/token setup, expected outputs, failure modes): `HEDERA_TESTNET_RUNBOOK.md`
 - Copy-paste first live testnet runbook: `docs/INTEGRATION_READY.md`
 - Current blockers and concrete mitigations: `docs/KNOWN_ISSUES_AND_WORKAROUNDS.md`
 - Existing testnet setup reference: `docs/TESTNET_SETUP.md`
@@ -285,6 +287,7 @@ Judge-focused docs:
 - [docs/DEMO_NARRATION_3MIN.md](docs/DEMO_NARRATION_3MIN.md) for timestamped narration aligned to runbook checkpoints.
 - [docs/SUBMISSION_FORM_DRAFT_PACK.md](docs/SUBMISSION_FORM_DRAFT_PACK.md) for concise copy-paste-ready submission form answers.
 - [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.
+- [HEDERA_TESTNET_RUNBOOK.md](HEDERA_TESTNET_RUNBOOK.md) for credentials-ready operator handoff and strict preflight-first live integration flow.
 - [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md) for full testnet setup/runbook details.
 
 ## Configuration

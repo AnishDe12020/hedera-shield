@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_required_submission_docs_exist() -> None:
+    assert (ROOT / "HEDERA_TESTNET_RUNBOOK.md").is_file()
     assert (ROOT / "docs" / "DEPLOY_PROOF.md").is_file()
     assert (ROOT / "docs" / "TESTNET_SETUP.md").is_file()
     assert (ROOT / "docs" / "TESTNET_EVIDENCE.md").is_file()
@@ -29,6 +30,7 @@ def test_submission_references_testnet_evidence() -> None:
 
 def test_submission_references_demo_and_checklist_docs() -> None:
     content = (ROOT / "SUBMISSION.md").read_text(encoding="utf-8")
+    assert "HEDERA_TESTNET_RUNBOOK.md" in content
     assert "DEMO_RECORDING_RUNBOOK.md" in content
     assert "DEMO_NARRATION_3MIN.md" in content
     assert "SUBMISSION_FORM_DRAFT_PACK.md" in content
@@ -37,6 +39,7 @@ def test_submission_references_demo_and_checklist_docs() -> None:
 
 def test_readme_references_demo_and_checklist_docs() -> None:
     content = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "HEDERA_TESTNET_RUNBOOK.md" in content
     assert "DEMO_RECORDING_RUNBOOK.md" in content
     assert "DEMO_NARRATION_3MIN.md" in content
     assert "SUBMISSION_FORM_DRAFT_PACK.md" in content
