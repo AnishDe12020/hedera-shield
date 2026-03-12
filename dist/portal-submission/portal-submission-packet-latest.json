@@ -1,6 +1,6 @@
 {
   "manifest_type": "hedera_apex_portal_submission_packet",
-  "generated_at_utc": "20260312T040922Z",
+  "generated_at_utc": "20260312T045355Z",
   "fields": {
     "title": "HederaShield: Hedera-Native AI Compliance Agent",
     "short_description": "AI-assisted, Hedera-native compliance monitoring and enforcement for HTS tokens with immutable HCS audit evidence.",
@@ -12,8 +12,8 @@
     "judging_highlights": "- HTS-native enforcement actions: freeze, wipe, revoke KYC.\n- HCS-backed immutable compliance audit trail.\n- Mirror Node-driven monitoring across HTS, HBAR, and NFTs.\n- Offline-safe deterministic demo workflow with reproducible artifacts.\n- Deeper integration details are documented in `SUBMISSION.md` under Hedera-Specific Integrations."
   },
   "links": {
-    "repo_url": "git@github.com:AnishDe12020/hedera-shield.git",
-    "commit_sha": "3ed78a82a732b9d36c78da194da22059b8602645",
+    "repo_url": "https://github.com/AnishDe12020/hedera-shield",
+    "commit_sha": "db3254f0b85cb05f1fe120175b1665beaf69a992",
     "branch": "master",
     "demo_video_url": "TODO_ADD_DEMO_VIDEO_URL",
     "deployed_url": "TODO_ADD_FINAL_DEPLOYED_URL_OR_NA",
