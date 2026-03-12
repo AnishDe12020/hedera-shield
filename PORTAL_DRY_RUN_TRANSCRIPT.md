@@ -5,6 +5,8 @@ Mode: manual simulation, docs-only, no live portal submit
 
 ## Scope and Linked Controls
 
+- [SUBMISSION_SEAL_NOTE.md](SUBMISSION_SEAL_NOTE.md)
+- [OPERATOR_SIGNOFF_BRIEF.md](OPERATOR_SIGNOFF_BRIEF.md)
 - [EXEC_HANDOFF_DIGEST.md](EXEC_HANDOFF_DIGEST.md)
 - [SUBMIT_CONTROL_SHEET.md](SUBMIT_CONTROL_SHEET.md)
 - [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md)
