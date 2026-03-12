@@ -5,6 +5,10 @@ MODE="mock"
 ENV_FILE=".env.testnet"
 ARTIFACTS_DIR="artifacts/integration/$(date -u +%Y%m%dT%H%M%SZ)"
 SKIP_INTEGRATION_TESTS=0
+REQUESTED_MODE=""
+EFFECTIVE_MODE=""
+DRY_RUN_FALLBACK=0
+DRY_RUN_REASON=""
 
 usage() {
   cat <<'EOF'
@@ -51,6 +55,9 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+REQUESTED_MODE="$MODE"
+EFFECTIVE_MODE="$MODE"
 
 if [[ "$MODE" != "mock" && "$MODE" != "real" ]]; then
   echo "Invalid --mode value: $MODE (expected mock|real)" >&2
@@ -156,28 +163,35 @@ else
     NETWORK="$(read_env_value "HEDERA_SHIELD_HEDERA_NETWORK" "$ENV_FILE")"
     OPERATOR_ID="$(read_env_value "HEDERA_SHIELD_HEDERA_OPERATOR_ID" "$ENV_FILE")"
     OPERATOR_KEY="$(read_env_value "HEDERA_SHIELD_HEDERA_OPERATOR_KEY" "$ENV_FILE")"
+    REAL_GATE_FAILURES=()
 
     if [[ "${HEDERA_SHIELD_ENABLE_REAL_TESTNET:-0}" != "1" ]]; then
-      fail "real_opt_in" "set HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 to run real mode"
+      REAL_GATE_FAILURES+=("missing HEDERA_SHIELD_ENABLE_REAL_TESTNET=1")
     else
       pass "real_opt_in" "explicit real mode opt-in enabled"
     fi
 
     if [[ "$NETWORK" != "testnet" ]]; then
-      fail "real_network" "real mode currently requires HEDERA_SHIELD_HEDERA_NETWORK=testnet"
+      REAL_GATE_FAILURES+=("HEDERA_SHIELD_HEDERA_NETWORK must be testnet")
     else
       pass "real_network" "network is testnet"
     fi
 
     if [[ -z "$OPERATOR_ID" || -z "$OPERATOR_KEY" ]]; then
-      fail "real_creds" "operator id/key must be present for real mode"
+      REAL_GATE_FAILURES+=("operator id/key must be present")
     elif is_placeholder_account "$OPERATOR_ID" || is_placeholder_key "$OPERATOR_KEY"; then
-      fail "real_creds" "replace placeholder operator id/key before real mode"
+      REAL_GATE_FAILURES+=("operator id/key are placeholders")
     else
       pass "real_creds" "operator credentials look non-placeholder"
     fi
 
-    if [[ $HARNESS_EXIT -eq 0 ]]; then
+    if [[ ${#REAL_GATE_FAILURES[@]} -gt 0 ]]; then
+      DRY_RUN_FALLBACK=1
+      EFFECTIVE_MODE="mock"
+      DRY_RUN_REASON="$(printf '%s; ' "${REAL_GATE_FAILURES[@]}")"
+      DRY_RUN_REASON="${DRY_RUN_REASON%; }"
+      pass "real_fallback" "requested real mode but using deterministic dry-run fallback: $DRY_RUN_REASON"
+    elif [[ $HARNESS_EXIT -eq 0 ]]; then
       REAL_ALLOWED=1
     fi
   fi
@@ -199,6 +213,10 @@ else
       INTEGRATION_EXIT="SKIP"
       skip "integration_pytest" "skipped via --skip-integration-tests"
       : > "$INTEGRATION_LOG"
+    elif [[ $DRY_RUN_FALLBACK -eq 1 ]]; then
+      INTEGRATION_EXIT="SKIP"
+      skip "integration_pytest" "skipped: deterministic dry-run fallback mode"
+      : > "$INTEGRATION_LOG"
     elif [[ $HARNESS_EXIT -ne 0 ]]; then
       INTEGRATION_EXIT="SKIP"
       skip "integration_pytest" "skipped due to prior failures"
@@ -219,8 +237,13 @@ else
   fi
 fi
 
+pass "effective_mode" "requested=$REQUESTED_MODE effective=$EFFECTIVE_MODE dry_run_fallback=$DRY_RUN_FALLBACK"
+
 GEN_ARGS=(
   --mode "$MODE"
+  --effective-mode "$EFFECTIVE_MODE"
+  --dry-run-fallback "$DRY_RUN_FALLBACK"
+  --dry-run-reason "$DRY_RUN_REASON"
   --env-file "$ENV_FILE"
   --artifacts-dir "$ARTIFACTS_DIR"
   --validator-exit "$VALIDATOR_EXIT"

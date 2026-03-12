@@ -38,6 +38,9 @@ def _append_log_section(parts: list[str], title: str, path: Path, max_lines: int
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate integration harness evidence report")
     parser.add_argument("--mode", required=True, choices=("mock", "real"))
+    parser.add_argument("--effective-mode", required=True, choices=("mock", "real"))
+    parser.add_argument("--dry-run-fallback", required=True, choices=("0", "1"))
+    parser.add_argument("--dry-run-reason", default="")
     parser.add_argument("--env-file", required=True)
     parser.add_argument("--artifacts-dir", required=True)
     parser.add_argument("--validator-exit", required=True, type=int)
@@ -63,6 +66,9 @@ def main() -> int:
     summary = {
         "timestamp_utc": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "mode": args.mode,
+        "effective_mode": args.effective_mode,
+        "dry_run_fallback": args.dry_run_fallback == "1",
+        "dry_run_reason": args.dry_run_reason,
         "env_file": str(Path(args.env_file).resolve()),
         "artifacts_dir": str(artifacts_dir),
         "checks": {
@@ -83,6 +89,10 @@ def main() -> int:
     parts.append("")
     parts.append(f"- Generated (UTC): `{summary['timestamp_utc']}`")
     parts.append(f"- Mode: `{args.mode}`")
+    parts.append(f"- Effective mode: `{args.effective_mode}`")
+    parts.append(f"- Dry-run fallback: `{'yes' if args.dry_run_fallback == '1' else 'no'}`")
+    if args.dry_run_reason:
+        parts.append(f"- Dry-run reason: `{args.dry_run_reason}`")
     parts.append(f"- Env file: `{summary['env_file']}`")
     parts.append("")
     parts.append("## Check Summary")

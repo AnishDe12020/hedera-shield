@@ -71,13 +71,17 @@ def test_real_mode_requires_explicit_opt_in(tmp_path: Path) -> None:
 
     result = _run_harness(["--mode", "real", "--env-file", str(env_file), "--artifacts-dir", str(artifacts_dir)])
 
-    assert result.returncode == 1
-    assert "HARNESS|real_opt_in|FAIL|set HEDERA_SHIELD_ENABLE_REAL_TESTNET=1 to run real mode" in result.stdout
-    assert "HARNESS|summary|FAIL|one or more harness checks failed" in result.stdout
+    assert result.returncode == 0
+    assert "HARNESS|real_fallback|PASS|requested real mode but using deterministic dry-run fallback:" in result.stdout
+    assert "missing HEDERA_SHIELD_ENABLE_REAL_TESTNET=1" in result.stdout
+    assert "HARNESS|integration_pytest|SKIP|skipped: deterministic dry-run fallback mode" in result.stdout
+    assert "HARNESS|summary|PASS|harness checks passed" in result.stdout
 
     report = json.loads((artifacts_dir / "report.json").read_text(encoding="utf-8"))
     assert report["mode"] == "real"
-    assert report["checks"]["harness"]["status"] == "FAIL"
+    assert report["effective_mode"] == "mock"
+    assert report["dry_run_fallback"] is True
+    assert report["checks"]["harness"]["status"] == "PASS"
 
 
 def test_real_mode_rejects_placeholder_credentials_even_with_opt_in(tmp_path: Path) -> None:
@@ -90,6 +94,12 @@ def test_real_mode_rejects_placeholder_credentials_even_with_opt_in(tmp_path: Pa
         extra_env={"HEDERA_SHIELD_ENABLE_REAL_TESTNET": "1"},
     )
 
-    assert result.returncode == 1
-    assert "HARNESS|real_creds|FAIL|replace placeholder operator id/key before real mode" in result.stdout
-    assert "HARNESS|integration_pytest|SKIP|skipped due to prior failures" in result.stdout
+    assert result.returncode == 0
+    assert "HARNESS|real_fallback|PASS|requested real mode but using deterministic dry-run fallback:" in result.stdout
+    assert "operator id/key are placeholders" in result.stdout
+    assert "HARNESS|integration_pytest|SKIP|skipped: deterministic dry-run fallback mode" in result.stdout
+
+    report = json.loads((artifacts_dir / "report.json").read_text(encoding="utf-8"))
+    assert report["mode"] == "real"
+    assert report["effective_mode"] == "mock"
+    assert report["dry_run_fallback"] is True
