@@ -7,6 +7,7 @@ Branch: `master`
 
 | File | Purpose |
 | --- | --- |
+| [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md) | Final ready-to-submit board with pass/fail status for required checks and artifacts. |
 | [PRE_SUBMIT_RECAP.md](PRE_SUBMIT_RECAP.md) | Final quick validation, guard, and operator pre-submit recap. |
 | [PORTAL_READY_HANDOFF.md](PORTAL_READY_HANDOFF.md) | Final portal-ready operator sequence, required files, and pre-submit sanity checks. |
 | [SUBMISSION_READY_SNAPSHOT.md](SUBMISSION_READY_SNAPSHOT.md) | Submission-ready state snapshot and referenced evidence paths. |

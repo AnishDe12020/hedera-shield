@@ -5,6 +5,7 @@ Scope: final docs-only operator handoff before Hedera portal submission
 
 ## Control Doc Cross-Links
 
+- [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md)
 - [RELEASE_PACKAGE_INDEX.md](RELEASE_PACKAGE_INDEX.md)
 - [PORTAL_SUBMISSION_MANIFEST.md](PORTAL_SUBMISSION_MANIFEST.md)
 - [SUBMISSION_READY_SNAPSHOT.md](SUBMISSION_READY_SNAPSHOT.md)

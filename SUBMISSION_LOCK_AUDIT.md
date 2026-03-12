@@ -76,4 +76,8 @@ Legend:
 - Updated `PORTAL_SUBMISSION_MANIFEST.md` to remove hard-coded commit SHA and require submit-time `git rev-parse HEAD`.
 - Updated wording in `ZERO_DRIFT_VERIFICATION.md` to clarify commit is snapshot-time and submit-time commit must be rechecked.
 
+## 5) Cross-Linked Status Board
+
+- [READY_TO_SUBMIT_STATUS.md](READY_TO_SUBMIT_STATUS.md)
+
 Lock conclusion: **PASS** (all final artifacts present, linked, and mode-labeled).
