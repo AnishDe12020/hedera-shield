@@ -121,6 +121,20 @@ def _git_value(root: Path, command: str) -> str:
     return result.stdout.strip()
 
 
+def _normalize_repo_url(repo_url: str) -> str:
+    url = repo_url.strip()
+    if not url:
+        return ""
+    if url.startswith("git@github.com:"):
+        path = url.removeprefix("git@github.com:")
+        if path.endswith(".git"):
+            path = path[:-4]
+        return f"https://github.com/{path}"
+    if url.startswith("https://github.com/") and url.endswith(".git"):
+        return url[:-4]
+    return url
+
+
 def _write_markdown(path: Path, timestamp_utc: str, packet: PacketContent, links: dict[str, str], referenced_paths: list[str]) -> None:
     lines: list[str] = []
     lines.append("# Hedera Apex Portal Submission Packet")
@@ -177,7 +191,7 @@ def run(root: Path, output_dir: Path, timestamp_utc: str) -> tuple[Path, Path]:
     release_bundles = sorted((root / "dist").glob("release-evidence-*.tar.gz"))
     latest_release_bundle = str(release_bundles[-1].relative_to(root)) if release_bundles else ""
 
-    repo_url = _git_value(root, "git config --get remote.origin.url")
+    repo_url = _normalize_repo_url(_git_value(root, "git config --get remote.origin.url"))
     commit_sha = _git_value(root, "git rev-parse HEAD")
     branch = _git_value(root, "git rev-parse --abbrev-ref HEAD")
 

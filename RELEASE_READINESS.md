@@ -33,7 +33,7 @@ Last updated (UTC): `2026-03-12T04:16:41Z`
 1. Run all commands in section 1 and confirm all gates are green.
 2. Run `./scripts/final_portal_handoff.sh` and confirm `HANDOFF|summary|PASS`.
 3. Follow `SUBMISSION_DRY_RUN.md` rehearsal once end-to-end without submitting.
-4. Open `HEDERA_PORTAL_SUBMISSION_PACKET.md` and copy final answers into the portal.
+4. Open `dist/portal-submission/portal-submission-packet-latest.md` and copy final answers into the portal (fallback reference: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
 5. Paste final links (repo, demo, optional deploy URL) and verify public accessibility.
 6. Confirm portal commit SHA matches `git rev-parse HEAD`.
 7. Submit in portal and capture submission confirmation screenshot + UTC timestamp.
@@ -64,6 +64,6 @@ Last updated (UTC): `2026-03-12T04:16:41Z`
    - If blocked: `./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20`
    - If still blocked: `./scripts/offline-handoff.sh`
 5. Execute portal submit:
-   - Fill from `HEDERA_PORTAL_SUBMISSION_PACKET.md`
+   - Fill from `dist/portal-submission/portal-submission-packet-latest.md` (fallback: `HEDERA_PORTAL_SUBMISSION_PACKET.md`)
    - Confirm SHA + links + required evidence fields
    - Submit and archive confirmation proof

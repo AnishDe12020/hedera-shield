@@ -52,7 +52,7 @@ Expected checkpoints:
 
 ## Step 4: Portal Rehearsal (No Submit Yet)
 
-1. Open `HEDERA_PORTAL_SUBMISSION_PACKET.md`.
+1. Open `dist/portal-submission/portal-submission-packet-latest.md` (fallback: `HEDERA_PORTAL_SUBMISSION_PACKET.md`).
 2. Open the Hedera portal form and paste every section into the matching field.
 3. Validate links are public (repo, demo video, optional deploy URL).
 4. Confirm commit SHA in the form equals:
@@ -76,4 +76,3 @@ Then submit in portal and capture:
 - Confirmation screenshot
 - UTC submit timestamp
 - Final commit SHA used in form
-

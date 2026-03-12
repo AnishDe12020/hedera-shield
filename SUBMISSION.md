@@ -134,7 +134,7 @@ HederaShield provides the compliance layer that makes institutional adoption of 
 
 4. **Immutable Audit Trail** — Every compliance decision is logged to HCS, not a database. Regulators get a tamper-proof record on the public ledger.
 
-5. **Production-Ready** — Docker deployment, structured logging, comprehensive test suite (106 automated tests), CI pipeline, configurable rules, dry-run safety mode.
+5. **Production-Ready** — Docker deployment, structured logging, comprehensive test suite (108 collected: 102 passed, 6 skipped live integration tests), CI pipeline, configurable rules, dry-run safety mode.
 
 ---
 
@@ -142,7 +142,7 @@ HederaShield provides the compliance layer that makes institutional adoption of 
 
 ```bash
 # Clone and setup
-git clone https://github.com/your-username/hedera-shield.git
+git clone https://github.com/AnishDe12020/hedera-shield.git
 cd hedera-shield
 cp .env.example .env
 # Optional for offline demo: keep placeholder values in .env
@@ -303,8 +303,8 @@ Evidence readiness expectations:
 ```
 Validation snapshot (UTC 2026-03-12T03:10:58Z):
 - ruff check hedera_shield/ tests/: All checks passed!
-- pytest tests/ -v --tb=short: 100 passed, 6 skipped in 2.13s
-- ./scripts/package-submission.sh: PASS, built dist/submission-bundle.zip with 39 files
+- pytest tests/ -v --tb=short: 102 passed, 6 skipped in 2.18s
+- ./scripts/package-submission.sh: PASS, built dist/submission-bundle.zip with 41 files
 
 Tests cover:
 - All 8 compliance rules (positive + negative cases)
@@ -327,7 +327,7 @@ Tests cover:
 
 ## Links
 
-- **Repository**: https://github.com/your-username/hedera-shield
+- **Repository**: https://github.com/AnishDe12020/hedera-shield
 - **Demo Video**: *[link]*
 - **Live Dashboard**: *[link if deployed]*
 
