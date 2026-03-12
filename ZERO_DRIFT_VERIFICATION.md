@@ -1,7 +1,7 @@
 # HederaShield Zero-Drift Verification
 
 Verification timestamp (UTC): `2026-03-12T06:59:09Z`  
-Verification commit (`git rev-parse HEAD`): `b836843dda7b5adde2351122e06c4987f9642c12`  
+Verification commit at snapshot time (`git rev-parse HEAD`): `b836843dda7b5adde2351122e06c4987f9642c12`  
 Scope: docs/scripts-only final zero-drift pass
 
 ## Checks executed
@@ -28,5 +28,5 @@ Result: **NO CONTRADICTIONS DETECTED** after wording-only alignment.
 Consistency points validated:
 - Gate outcomes consistently recorded as PASS.
 - Freeze/drift status consistently recorded as `DRIFT|summary|PASS`.
-- Commit reference for submit-time verification is aligned to `b836843dda7b5adde2351122e06c4987f9642c12`.
+- Commit reference is recorded for the snapshot pass; submit-time commit must be rechecked from local `git rev-parse HEAD`.
 - Source of truth for portal field copy remains `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`.

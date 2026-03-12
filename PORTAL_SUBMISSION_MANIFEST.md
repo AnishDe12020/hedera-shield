@@ -55,7 +55,8 @@ Paste exact value from:
 `https://github.com/AnishDe12020/hedera-shield`
 
 10. Commit SHA
-`b836843dda7b5adde2351122e06c4987f9642c12`
+Run and paste at submit time:
+`git rev-parse HEAD`
 
 11. Branch
 `master`
@@ -77,7 +78,7 @@ Paste exact value from:
 ## Final Manual Guardrail
 
 Before clicking submit, confirm:
-1. `git rev-parse HEAD` equals `b836843dda7b5adde2351122e06c4987f9642c12`.
+1. Commit SHA pasted in portal exactly matches local `git rev-parse HEAD`.
 2. `TODO_ADD_DEMO_VIDEO_URL` has been replaced.
 3. `TODO_ADD_FINAL_DEPLOYED_URL_OR_NA` has been replaced.
 4. Portal entries were copied from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`.
