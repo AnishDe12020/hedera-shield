@@ -4,7 +4,7 @@ Use this one-screen card for manual portal submit control.
 
 ## Before Submit
 
-- Run quick validation: `./scripts/pre-submit-verify.py` and stop if `VERIFY|summary|PASS` is missing.
+- Run quick validation: `./scripts/submission-readiness.sh` and `./scripts/pre-submit-verify.py`; stop if `READINESS|summary|PASS` or `VERIFY|summary|PASS` is missing.
 - Run pre-submit guard: `./scripts/pre_submit_guard.sh` and stop if `GUARD|PASS` is missing.
 - Run submit-now checks: `./scripts/print_submit_now.sh` and stop if any `CHECK|FAIL` appears.
 - Capture submit-time SHA: `git rev-parse HEAD`; stop if SHA cannot be copied exactly.

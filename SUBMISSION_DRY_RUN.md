@@ -34,7 +34,7 @@ Run:
 
 Expected checkpoints:
 - `PORTAL_VERIFY|summary|PASS`
-- `FREEZE_VERIFY|summary|PASS`
+- `DRIFT|summary|PASS`
 - `dist/submission-freeze/submission-freeze-latest.md` exists
 - `dist/submission-freeze/submission-freeze-latest.json` exists
 

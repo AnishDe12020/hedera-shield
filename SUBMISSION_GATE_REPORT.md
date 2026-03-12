@@ -6,7 +6,7 @@ Report timestamp (UTC): `2026-03-12T10:57:58Z`
 
 | Gate | Result | Notes |
 | --- | --- | --- |
-| Validation | PASS | `./scripts/pre-submit-verify.py` returned `VERIFY|summary|PASS` and refreshed `dist/pre-submit-verify-latest.txt` plus `dist/pre-submit-verify-20260312T105758Z.txt`. |
+| Validation | PASS | `./scripts/submission-readiness.sh` returned `READINESS|summary|PASS` and `./scripts/pre-submit-verify.py` returned `VERIFY|summary|PASS`; latest reports refreshed at `dist/submission-readiness-latest.txt` and `dist/pre-submit-verify-latest.txt`. |
 | Docs completeness | PASS | Pre-submit verification required-doc checks passed and submit-now docs paths returned `CHECK|PASS` (`docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`, `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md`, `docs/evidence/submit-now/SUBMISSION_COMMANDS.md`). |
 | Artifact integrity | PASS | `./scripts/pre_submit_guard.sh` returned `GUARD|PASS` with required files and artifact patterns present; `./scripts/print_submit_now.sh` reported no `CHECK|FAIL`. |
 | Manual readiness | PASS | Submit-now operator checklist printed successfully with final submit sequence and portal packet source confirmed. |

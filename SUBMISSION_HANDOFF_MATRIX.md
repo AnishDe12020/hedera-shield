@@ -6,7 +6,7 @@ Matrix timestamp (UTC): `2026-03-12T10:50:00Z`
 
 | Submission step | Owner | Required artifact | Success criterion | Fallback action |
 | --- | --- | --- | --- | --- |
-| Run quick validation (`./scripts/pre-submit-verify.py`) | Submit Owner | `dist/pre-submit-verify-latest.txt` | `VERIFY|summary|PASS` appears | Stop submit flow, repair missing/failed evidence, rerun validation |
+| Run quick validation (`./scripts/submission-readiness.sh` + `./scripts/pre-submit-verify.py`) | Submit Owner | `dist/submission-readiness-latest.txt`, `dist/pre-submit-verify-latest.txt` | `READINESS|summary|PASS` and `VERIFY|summary|PASS` appear | Stop submit flow, repair missing/failed evidence, rerun validation |
 | Run pre-submit guard (`./scripts/pre_submit_guard.sh`) | Submit Owner | `dist/pre-submit-verify-latest.txt`, `dist/submission-readiness-latest.txt` | `GUARD|PASS` appears | Stop submit flow, restore required files/artifacts, rerun guard |
 | Run submit-now checks (`./scripts/print_submit_now.sh`) | Submit Owner | `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` and listed packet paths | No `CHECK|FAIL`; all required paths print `CHECK|PASS` | Stop submit flow, regenerate/repair missing submit-now artifacts |
 | Capture submit-time commit SHA (`git rev-parse HEAD`) | Submit Owner | Local git commit SHA | SHA copied exactly for portal `Commit SHA` field | Stop before submit click and recopy SHA from terminal |
