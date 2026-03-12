@@ -1,26 +1,27 @@
 # HederaShield Submission Freeze
 
-Freeze timestamp (UTC): `20260312T045355Z`
+Freeze timestamp (UTC): `20260312T052902Z`
 Freeze manifest source: `dist/submission-freeze/submission-freeze-latest.json`
-Freeze commit SHA (validated base): `db3254f0b85cb05f1fe120175b1665beaf69a992`
+Freeze commit SHA (validated base): `c0dd5024511c8c7e12a9283665c66f3b185276e2`
 Branch: `master`
 
 ## Locked Artifact Versions
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `dist/submission-readiness-latest.txt` | `fc2d088e54f99e964edeb74faf0143057471df42cfa0a01bb15cf2f0aae80ede` |
-| `dist/pre-submit-verify-latest.txt` | `cdfe9a1cf13ee617aabf93d1a3d65b7b151536ad73e07db16084cfdb46e5893f` |
-| `dist/portal-submission/portal-submission-packet-latest.md` | `f76b80da95d7010dad248e83a37c7cc59876efa1e264f4b8cc485c391689e5f8` |
-| `dist/portal-submission/portal-submission-packet-latest.json` | `0b40cf5344f9d1cf9d3bc6319eb710e58ebadb6a80a5c3e2c2bbde13cae7b9e3` |
-| `dist/portal-submission/portal-submission-verify-latest.txt` | `b96ac409efb84128725d1ea802b9ec19afba74a64fc4a5e0335579fa7b636a20` |
-| `dist/submission-freeze/submission-freeze-latest.md` | `bf5028e3465db2b871e536b2754933ba2d5727d0d5bfd50d6caf60aae339dbbb` |
-| `dist/submission-freeze/submission-freeze-latest.json` | `56d659baac933b066368b7689c4c2911e89a8df838a802ef41c4eaf34f277bbe` |
-| `dist/submission-freeze/drift-verify-latest.md` | `0bcb6c98a69ba42ec0393634f6ca82b1fa1538e9c318d9092343413eaf4e9b50` |
-| `dist/submission-freeze/drift-verify-latest.json` | `9332b2b352a6bf9136b14b1cc053e8763e25e452c65eb527d96a6ba2941b2161` |
+| `dist/submission-readiness-latest.txt` | `d5a78a00486e905d17b3f74f1609390759f8242be7e67005779270e1c9fc1d57` |
+| `dist/pre-submit-verify-latest.txt` | `51eee1395ec5e99a3ef559154ce9e707bdbeb94ed8e05cb476445d0b90cf0987` |
+| `dist/portal-submission/portal-submission-packet-latest.md` | `ddc3be0ff759a914a92f673116a70702d26d2b52b5299a220e643f4afeb6f3fa` |
+| `dist/portal-submission/portal-submission-packet-latest.json` | `32f3ebcb064f66ae0522382721e69553ff2fc0284fa7745459ed29895c9b0abb` |
+| `dist/portal-submission/portal-submission-verify-latest.txt` | `fc8ea2d8fbcf094eb29cf010ecb9b9675d9d42fff718680098c873d57bd10aeb` |
+| `dist/submission-freeze/submission-freeze-latest.md` | `9ee3c3266ec7572ace7cdd6ab2e0667ac97f5d34067d8d780c95161ab4b84861` |
+| `dist/submission-freeze/submission-freeze-latest.json` | `aa3241c97d45ec9001598ca098f649a3266566bc8bbedba16f5fcc99450caa9c` |
+| `dist/submission-freeze/drift-verify-latest.md` | `190e3b5f28812b9130b657a61601563eb71ae9accaebe74f98cec6a0e5784ebd` |
+| `dist/submission-freeze/drift-verify-latest.json` | `c0c2334ebdbefda0ab1c912ac1b2047b26c4b8ec93fc6e9ce64e3888cd86bb9d` |
 
 ## Evidence Bundle
 
+- `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md`
 - `docs/evidence/submission-freeze/validation-snapshot-latest.md`
 - `docs/evidence/submission-freeze/readiness-snapshot-latest.md`
 - `docs/evidence/submission-freeze/portal-packet-snapshot-latest.md`
@@ -39,7 +40,7 @@ Branch: `master`
    - `./scripts/verify-portal-submission-packet.py`
    - `./scripts/submission-freeze.py`
    - `./scripts/verify-submission-freeze.py`
-2. Open `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json` and copy/paste final portal answers.
+2. Open `docs/evidence/submit-now/SUBMIT_NOW_INDEX.md` and then copy/paste final portal answers from `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`.
 3. Confirm portal commit SHA is exactly `git rev-parse HEAD` from the submission machine.
 4. Submit in the Hedera portal manually.
 5. Capture confirmation screenshot + UTC timestamp and store with sprint notes.
