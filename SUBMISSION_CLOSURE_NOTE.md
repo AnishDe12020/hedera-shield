@@ -1,6 +1,6 @@
 # HederaShield Submission Closure Note
 
-Closure timestamp (UTC): `2026-03-12T14:02:12Z`  
+Closure timestamp (UTC): `2026-03-12T14:10:29Z`  
 Scope: Docs-only final submission closure pass.
 
 ## Final Package State
@@ -8,11 +8,14 @@ Scope: Docs-only final submission closure pass.
 - Current package state: **FROZEN (READY FOR MANUAL PORTAL SUBMIT)**.
 - No feature/code changes were made in this pass.
 - Latest quick checks rerun in this pass:
-  - `./scripts/submission-readiness.sh` -> `READINESS|summary|PASS` (`2026-03-12T14:01:55Z`)
-  - `./scripts/pre-submit-verify.py` -> `VERIFY|summary|PASS` (`2026-03-12T14:01:55Z`)
-  - `./scripts/pre_submit_guard.sh` -> `GUARD|PASS|pre-submit guard complete (demo-id=3min-offline)` (`2026-03-12T14:01:59Z`)
-  - `./scripts/print_submit_now.sh` -> all required paths `CHECK|PASS` (`2026-03-12T14:01:59Z`)
-- Closure reference commit at note creation: `d2d568c4683747b26b00d162259d587346302b61`.
+  - `./scripts/submission-readiness.sh` -> `READINESS|summary|PASS` (`2026-03-12T14:10:29Z`)
+  - `./scripts/pre-submit-verify.py` -> `VERIFY|summary|PASS` (`2026-03-12T14:10:29Z`)
+  - `./scripts/pre_submit_guard.sh` -> `GUARD|PASS|pre-submit guard complete (demo-id=3min-offline)` (`2026-03-12T14:10:29Z`)
+  - `./scripts/generate-portal-submission-packet.py` -> `PORTAL_PACKET|latest|PASS` and `PORTAL_PACKET|latest_json|PASS` (`2026-03-12T14:10:29Z`)
+  - `./scripts/verify-portal-submission-packet.py` -> `PORTAL_VERIFY|summary|PASS` (`2026-03-12T14:10:29Z`)
+  - `./scripts/print_submit_now.sh` -> all required paths `CHECK|PASS` (`2026-03-12T14:10:29Z`)
+  - `python3 scripts/generate-submit-now-packet.py` -> `SUBMIT_NOW|summary|PASS` (`2026-03-12T14:10:29Z`)
+- Closure reference commit at note creation: `0fbcdbbd4a0eb9b910c06177e7d708e746074a73`.
 
 ## Frozen in Scope
 
