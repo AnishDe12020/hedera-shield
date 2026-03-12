@@ -1,88 +1,68 @@
 # HederaShield Final Submission Checklist
 
-Use this as the final gate before hackathon portal submission.
+Purpose: complete these steps in order immediately before Hedera Apex portal submission.
 
-## Submission Metadata
-- [ ] Team name: `<FILL_TEAM_NAME>`
-- [ ] Primary contact: `<FILL_NAME_AND_EMAIL>`
-- [ ] Repository URL: `<PASTE_REPO_URL>`
-- [ ] Commit SHA submitted: `<PASTE_GIT_SHA>`
-- [ ] Hackathon portal submission URL: `<PASTE_PORTAL_URL>`
-- [ ] Demo video URL (public/unlisted): `<PASTE_VIDEO_URL>`
-- [ ] Optional live deployment URL: `<PASTE_DEPLOYMENT_URL_OR_NA>`
+## 0) Final Metadata (Fill First)
+- [ ] Portal submission URL: `<PASTE_PORTAL_SUBMISSION_URL>`
+- [ ] Team name: `<PASTE_TEAM_NAME>`
+- [ ] Primary contact (name + email): `<PASTE_CONTACT>`
+- [ ] Repository URL: `<PASTE_REPOSITORY_URL>`
+- [ ] Final commit SHA to submit: `<PASTE_COMMIT_SHA>`
+- [ ] Demo video URL (public/unlisted): `<PASTE_DEMO_VIDEO_URL>`
+- [ ] Optional deployed URL: `<PASTE_DEPLOY_URL_OR_NA>`
 
-## Required Evidence Artifacts
-- [ ] Demo runbook used: `docs/DEMO_RECORDING_RUNBOOK.md`
-- [ ] Demo narration script ready: `docs/DEMO_NARRATION_3MIN.md`
-- [ ] Submission form draft pack ready: `docs/SUBMISSION_FORM_DRAFT_PACK.md`
-- [ ] Offline demo artifacts directory exists: `artifacts/demo/3min-offline/`
-- [ ] Harness outputs exist:
-  - [ ] `artifacts/demo/3min-offline/harness/report.md`
-  - [ ] `artifacts/demo/3min-offline/harness/report.json`
-  - [ ] `artifacts/demo/3min-offline/harness/harness.log`
-  - [ ] `artifacts/demo/3min-offline/harness/smoke.log`
-  - [ ] `artifacts/demo/3min-offline/harness/validator.log`
-- [ ] Bundle outputs exist:
-  - [ ] `dist/submission-bundle.zip`
-  - [ ] `artifacts/demo/3min-offline/submission-bundle.zip.sha256`
-- [ ] Testnet docs included:
-  - [ ] `docs/TESTNET_SETUP.md`
-  - [ ] `docs/TESTNET_EVIDENCE.md`
-  - [ ] `docs/DEPLOY_PROOF.md`
+## 1) Last-Minute Validation (No Feature Changes)
+Run:
 
-## Optional Real-Testnet Evidence (Only If Used)
-- [ ] Real opt-in command recorded (`HEDERA_SHIELD_ENABLE_REAL_TESTNET=1`)
-- [ ] Real harness artifact directory: `artifacts/demo/3min-real/`
-- [ ] Real harness summary line shows PASS in logs
-
-## Final Verification Commands
 ```bash
-ruff check hedera_shield/ tests/
-pytest tests/ -v --tb=short
-./scripts/package-submission.sh
 ./scripts/submission-readiness.sh
 ./scripts/pre-submit-verify.py
 ./scripts/generate-portal-submission-packet.py
 ./scripts/verify-portal-submission-packet.py
-./scripts/submission-freeze.py
-./scripts/verify-submission-freeze.py
-./scripts/sprint-multi-repo-dashboard.py
-./scripts/sprint-multi-repo-dashboard.py --repo-config config/sprint-repos.json
-./scripts/sprint-multi-repo-dashboard.py --attempt-push
-./scripts/sync-and-submit.sh --max-retries 3 --initial-backoff-seconds 2 --max-backoff-seconds 16
-./scripts/network-recovery-push-runner.sh --check-interval-seconds 30 --max-checks 20
-./scripts/generate-handoff-index.py
-./scripts/final-handoff-export.sh
 ```
 
-## DNS/Network Outage Fallback (Offline Handoff)
-- [ ] Multi-repo dashboard markdown exists: `dist/sprint-status/sprint-dashboard-latest.md`
-- [ ] Multi-repo dashboard json exists: `dist/sprint-status/sprint-dashboard-latest.json`
-- [ ] Dashboard captures per-repo branch/ahead-behind/latest-commit/remote reachability
-- [ ] Dashboard captures exact push failure text when `--attempt-push` is used and push fails
-- [ ] Optional safe dry-run works: `./scripts/network-recovery-push-runner.sh --dry-run --check-interval-seconds 15 --max-checks 4`
-- [ ] Runner text status exists: `dist/network-recovery-push-status-latest.txt`
-- [ ] Runner JSON status exists: `dist/network-recovery-push-status-latest.json`
-- [ ] Runner status captures exact push/network error text when push fails
-- [ ] Submission-freeze latest markdown exists: `dist/submission-freeze/submission-freeze-latest.md`
-- [ ] Submission-freeze latest json exists: `dist/submission-freeze/submission-freeze-latest.json`
-- [ ] Drift verify latest markdown exists: `dist/submission-freeze/drift-verify-latest.md`
-- [ ] Drift verify latest json exists: `dist/submission-freeze/drift-verify-latest.json`
-- [ ] If sync/push fails, run: `./scripts/offline-handoff.sh`
-- [ ] Handoff output directory exists: `artifacts/offline-handoff/<timestamp>/`
-- [ ] Handoff summary exists: `artifacts/offline-handoff/<timestamp>/handoff-summary.txt`
-- [ ] Bundle exists: `artifacts/offline-handoff/<timestamp>/offline.bundle`
-- [ ] Patch series exists: `artifacts/offline-handoff/<timestamp>/patches/*.patch`
-- [ ] Restore/apply instructions exist: `artifacts/offline-handoff/<timestamp>/RESTORE_APPLY.md`
-- [ ] Summary contains exact push failure text when present in `dist/sync-submit-status-latest.txt`
-- [ ] Judge handoff index exists: `artifacts/handoff-index/<timestamp>/handoff-index.md`
-- [ ] Judge handoff json exists: `artifacts/handoff-index/<timestamp>/handoff-index.json`
-- [ ] Cross-repo final handoff package exists: `dist/final-handoff/final-handoff-<timestamp>/`
-- [ ] Cross-repo master index markdown exists: `dist/final-handoff/final-handoff-<timestamp>/master-index.md`
-- [ ] Cross-repo master index json exists: `dist/final-handoff/final-handoff-<timestamp>/master-index.json`
-- [ ] Cross-repo latest markdown alias exists: `dist/final-handoff/final-handoff-latest.md`
-- [ ] Cross-repo latest json alias exists: `dist/final-handoff/final-handoff-latest.json`
+Gate:
+- [ ] `dist/submission-readiness-latest.txt` shows `READINESS|summary|PASS`
+- [ ] `dist/pre-submit-verify-latest.txt` shows `VERIFY|summary|PASS`
+- [ ] `dist/portal-submission/portal-submission-verify-latest.txt` shows `PORTAL_VERIFY|summary|PASS`
 
-## Submission Notes
-- [ ] Notes to judges added in `SUBMISSION.md`
-- [ ] Any known limitations disclosed
+## 2) Demo Video Proof (Portal Requirement)
+- [ ] Recorded using `docs/DEMO_RECORDING_RUNBOOK.md`
+- [ ] Narration aligned with `docs/DEMO_NARRATION_3MIN.md`
+- [ ] Video includes project overview, detection flow, evidence artifacts, and final outcomes
+- [ ] Video link pasted in metadata section above
+
+## 3) Repo Pointers To Paste In Portal
+- [ ] `README.md`
+- [ ] `SUBMISSION.md`
+- [ ] `HEDERA_PORTAL_SUBMISSION_PACKET.md`
+- [ ] `docs/JUDGING_ALIGNMENT.md`
+
+## 4) Setup Proof (Environment + Hedera/Testnet)
+- [ ] Setup runbook: `docs/TESTNET_SETUP.md`
+- [ ] Testnet evidence: `docs/TESTNET_EVIDENCE.md`
+- [ ] Deploy proof: `docs/DEPLOY_PROOF.md`
+- [ ] Submission bundle: `dist/submission-bundle.zip`
+
+## 5) Integration Evidence Placeholders (Fill Exact Paths)
+- [ ] Integration summary markdown: `<PASTE_PATH_TO_INTEGRATION_REPORT_MD>`
+- [ ] Integration summary JSON: `<PASTE_PATH_TO_INTEGRATION_REPORT_JSON>`
+- [ ] Demo harness markdown: `artifacts/demo/3min-offline/harness/report.md`
+- [ ] Demo harness JSON: `artifacts/demo/3min-offline/harness/report.json`
+- [ ] Release evidence bundle: `<PASTE_PATH_TO_RELEASE_EVIDENCE_TAR_GZ>`
+
+## 6) Known Limitations Disclosure (Required Transparency)
+- [ ] Linked/quoted from `docs/KNOWN_ISSUES_AND_WORKAROUNDS.md`
+- [ ] Portal "limitations" field filled with current constraints and mitigations
+- [ ] Any optional/non-default features clearly labeled as optional in submission text
+
+## 7) Final Portal Form Pass
+- [ ] Copy final answer blocks from `HEDERA_PORTAL_SUBMISSION_PACKET.md`
+- [ ] Confirm all links open without auth issues
+- [ ] Confirm submitted SHA matches metadata SHA
+- [ ] Submit in portal
+
+## 8) Post-Submit Snapshot
+- [ ] Save submitted portal confirmation screenshot to `<PASTE_LOCAL_PATH>`
+- [ ] Save final submitted text export to `<PASTE_LOCAL_PATH>`
+- [ ] Record timestamp (UTC): `<PASTE_UTC_TIMESTAMP>`

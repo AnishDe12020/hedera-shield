@@ -175,6 +175,7 @@ Use the dedicated judge-facing docs:
 - Hackathon form field mapping packet with evidence placeholders: `SUBMISSION_PACKET.md`
 - Portal-ready field packet with copy/paste sections: `HEDERA_PORTAL_SUBMISSION_PACKET.md`
 - Final portal submission checklist (links + evidence placeholders): `docs/FINAL_SUBMISSION_CHECKLIST.md`
+- Judging criteria to evidence mapping (direct file pointers): `docs/JUDGING_ALIGNMENT.md`
 - Fast failure-signature + remediation command reference: `TROUBLESHOOTING_QUICKREF.md`
 - Credentials-ready operator handoff runbook with funding/token setup + failure modes: `HEDERA_TESTNET_RUNBOOK.md`
 - Full testnet setup and evidence capture reference: `docs/TESTNET_SETUP.md`

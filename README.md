@@ -291,6 +291,7 @@ Judge-focused docs:
 - [docs/DEMO_NARRATION_3MIN.md](docs/DEMO_NARRATION_3MIN.md) for timestamped narration aligned to runbook checkpoints.
 - [docs/SUBMISSION_FORM_DRAFT_PACK.md](docs/SUBMISSION_FORM_DRAFT_PACK.md) for concise copy-paste-ready submission form answers.
 - [docs/FINAL_SUBMISSION_CHECKLIST.md](docs/FINAL_SUBMISSION_CHECKLIST.md) for final portal submission checklist and evidence gating.
+- [docs/JUDGING_ALIGNMENT.md](docs/JUDGING_ALIGNMENT.md) for direct mapping from judging criteria to project evidence artifacts.
 - [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) for final 3-5 minute demo sequence with talking points and evidence checkpoints.
 - [SUBMISSION_PACKET.md](SUBMISSION_PACKET.md) for direct mapping from project content to portal form fields.
 - [HEDERA_PORTAL_SUBMISSION_PACKET.md](HEDERA_PORTAL_SUBMISSION_PACKET.md) for portal-form-ready copy/paste sections.
