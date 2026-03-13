@@ -26,7 +26,8 @@ Built for the **Hedera Apex Hackathon 2026**.
 
 CI parity snapshot (2026-03-13 UTC):
 - `ruff check hedera_shield/ tests/` -> PASS
-- `pytest tests/ -v --tb=short` -> 102 passed, 6 skipped
+- `pytest tests/ -v --tb=short` -> 132 passed, 6 skipped
+- `python3 -m hedera_shield.preflight --offline` -> PASS (preflight diagnostics)
 - `./scripts/run-integration-harness.sh --mode mock ...` -> PASS
 - Docker image build + `/health` container check -> PASS
 
@@ -192,6 +193,34 @@ HEDERA_SHIELD_RUN_INTEGRATION=1 pytest tests/ -v
 - Fast local smoke verification: `./scripts/smoke.sh`
 
 ## Integration Readiness
+
+### Preflight Diagnostics (Single-Command Dependency Check)
+
+Run one command to probe every external dependency and get a structured pass/fail report:
+
+```bash
+# Offline mode — validate credentials format, SDK availability (no network)
+python3 -m hedera_shield.preflight --offline
+python3 -m hedera_shield.preflight --env-file .env.testnet --offline
+
+# Full mode — also probe Mirror Node, operator account, Anthropic API
+python3 -m hedera_shield.preflight --env-file .env.testnet
+
+# JSON output for automation
+python3 -m hedera_shield.preflight --env-file .env.testnet --json
+```
+
+Checks performed:
+| Check | What it probes | Requires network |
+|-------|---------------|-----------------|
+| `operator_id` | Account ID format (0.0.x) vs placeholder | No |
+| `operator_key` | Key material format vs placeholder | No |
+| `anthropic_api_key` | API key format | No |
+| `network` | Valid network name (testnet/mainnet/previewnet) | No |
+| `hedera_sdk` | Hedera Python SDK importable | No |
+| `mirror_node` | GET /api/v1/transactions?limit=1 | Yes |
+| `account_lookup` | GET /api/v1/accounts/{operator_id} | Yes |
+| `anthropic_api` | POST /v1/messages (minimal ping) | Yes |
 
 Use these assets to prepare and execute the first live testnet integration pass without requiring unavailable credentials:
 
@@ -435,6 +464,7 @@ curl -X POST http://localhost:8000/alerts/{ALERT_ID}/resolve
 |----------|--------|-------------|
 | `/` | GET | Dashboard UI |
 | `/health` | GET | Health check |
+| `/preflight` | GET | Preflight diagnostics (probe all dependencies) |
 | `/status` | GET | System status and stats |
 | `/alerts` | GET | List alerts (optional `?unresolved_only=true`) |
 | `/alerts/{id}/resolve` | POST | Resolve an alert |
@@ -458,6 +488,7 @@ hedera-shield/
 │   ├── hcs_reporter.py      # HCS audit trail publisher
 │   ├── ai_analyzer.py       # Claude AI risk analysis
 │   ├── config.py            # Environment-based settings
+│   ├── preflight.py         # Unified preflight diagnostics (python -m hedera_shield.preflight)
 │   ├── models.py            # Pydantic data models
 │   ├── rules_config.py      # YAML rule loader
 │   ├── logging_config.py    # Structured JSON logging

@@ -207,6 +207,15 @@ async def enforce_action(req: EnforceRequest) -> dict:
     }
 
 
+@app.get("/preflight")
+async def preflight_check() -> dict:
+    """Run preflight diagnostics against all external dependencies."""
+    from hedera_shield.preflight import run_preflight
+
+    report = await run_preflight(settings)
+    return report.to_dict()
+
+
 @app.get("/health")
 async def health_check() -> dict:
     """Simple health check endpoint."""
