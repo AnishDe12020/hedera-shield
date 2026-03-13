@@ -4,6 +4,30 @@
 
 ---
 
+## Judge TL;DR (Fast Evaluation Path)
+
+1. What this project is and why it is Hedera-native:
+   - `README.md`
+2. How this maps to judging criteria:
+   - `docs/JUDGING_ALIGNMENT.md`
+3. Submission-ready portal content:
+   - `HEDERA_PORTAL_SUBMISSION_PACKET.md`
+   - `docs/evidence/submit-now/HEDERA_PORTAL_SUBMISSION_PACKET.json`
+4. Deterministic demo + evidence commands:
+   ```bash
+   docker compose up --build
+   ./scripts/run-e2e-simulation.py
+   ./scripts/release-evidence.sh
+   ```
+
+Current verification snapshot (2026-03-13 UTC):
+- `ruff check hedera_shield/ tests/` -> PASS
+- `pytest tests/ -v --tb=short` -> 102 passed, 6 skipped
+- `./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet --artifacts-dir artifacts/ci/mock-local` -> PASS
+- Docker build + `curl http://localhost:8000/health` -> PASS
+
+---
+
 ## Project Description
 
 **HederaShield** is an AI-powered, on-chain compliance agent purpose-built for the Hedera Token Service (HTS). It provides real-time monitoring, rule-based and AI-driven analysis, automated enforcement, and immutable audit logging — everything a regulated entity needs to stay compliant while operating on Hedera.
@@ -35,7 +59,7 @@ HederaShield deeply integrates with Hedera's native services:
 | **Hedera Integration** | Hedera SDK (enforcement), Mirror Node REST API (monitoring) |
 | **AI** | Anthropic Claude (contextual risk analysis) |
 | **Configuration** | PyYAML, pydantic-settings (12-factor app) |
-| **Testing** | pytest, pytest-asyncio (106 automated tests run locally; 6 live integration tests are explicit opt-in) |
+| **Testing** | pytest, pytest-asyncio (108 collected: 102 passed, 6 skipped live integration tests; live checks are explicit opt-in) |
 | **Deployment** | Docker, Docker Compose |
 | **CI** | GitHub Actions |
 
@@ -325,9 +349,11 @@ Evidence readiness expectations:
 ## Test Coverage
 
 ```
-Validation snapshot (UTC 2026-03-12T03:10:58Z):
+Validation snapshot (UTC 2026-03-13T08:00:00Z):
 - ruff check hedera_shield/ tests/: All checks passed!
-- pytest tests/ -v --tb=short: 102 passed, 6 skipped in 2.18s
+- pytest tests/ -v --tb=short: 102 passed, 6 skipped in ~2.15s
+- ./scripts/run-integration-harness.sh --mode mock --env-file .env.testnet --artifacts-dir artifacts/ci/mock-local: PASS
+- docker build -t hedera-shield:test . and container /health check: PASS
 - ./scripts/package-submission.sh: PASS, built dist/submission-bundle.zip with 41 files
 
 Tests cover:

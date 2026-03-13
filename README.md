@@ -8,6 +8,30 @@ Built for the **Hedera Apex Hackathon 2026**.
 
 ---
 
+## Judge Quick Path (5 Minutes)
+
+1. Start the app:
+   ```bash
+   docker compose up --build
+   ```
+2. Open the dashboard: `http://localhost:8000`
+3. Generate deterministic judge-visible artifacts:
+   ```bash
+   ./scripts/run-e2e-simulation.py
+   ```
+4. Review judging map and submission packet:
+   - `docs/JUDGING_ALIGNMENT.md`
+   - `SUBMISSION.md`
+   - `HEDERA_PORTAL_SUBMISSION_PACKET.md`
+
+CI parity snapshot (2026-03-13 UTC):
+- `ruff check hedera_shield/ tests/` -> PASS
+- `pytest tests/ -v --tb=short` -> 102 passed, 6 skipped
+- `./scripts/run-integration-harness.sh --mode mock ...` -> PASS
+- Docker image build + `/health` container check -> PASS
+
+---
+
 ## Architecture
 
 ```
